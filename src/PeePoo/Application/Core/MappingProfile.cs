@@ -11,6 +11,7 @@ namespace Application.Core
         public MappingProfile()
         {
             CreateMap<Place, Place>();
+            CreateMap<PlaceDto, Place>();
             CreateMap<Place, PlaceDto>()
             .ForMember(d => d.OwnerUsername, o => o.MapFrom(s => s.Favorites.FirstOrDefault(x => x.IsOwner).User.UserName));
             CreateMap<FavoritePlace, FavoriteDto>()

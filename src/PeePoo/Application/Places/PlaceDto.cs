@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 
 namespace Application.Places
@@ -22,6 +23,8 @@ namespace Application.Places
         public bool IsAproved { get; set; }
         public string OwnerUsername { get; set; }   
         public ICollection<FavoriteDto> Favorites { get; set; }
-      
+        public IFormFile File { get; set; }
+
+
     }
 }

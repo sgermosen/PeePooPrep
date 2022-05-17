@@ -1,5 +1,4 @@
 ﻿using Application.Places;
-using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,14 +23,14 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePlace(Place place)
+        public async Task<IActionResult> CreatePlace([FromForm] PlaceDto place)
         {
             return HandleResult(await Mediator.Send(new Create.Command { Place = place }));
         }
 
         [Authorize(Policy = "IsPlaceOwner")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePlace(Guid id, Place place)
+        public async Task<IActionResult> UpdatePlace(Guid id, PlaceDto place)
         {
             place.Id = id;
             return HandleResult(await Mediator.Send(new Edit.Command { Place = place }));

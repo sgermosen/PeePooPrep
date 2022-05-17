@@ -13,7 +13,7 @@ namespace Application.Places
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Place Place { get; set; }
+            public PlaceDto Place { get; set; }
         }
         public class CommandValidator : AbstractValidator<Command>
         {

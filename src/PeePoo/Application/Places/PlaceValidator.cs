@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Application.Places
 {
-    public class PlaceValidator : AbstractValidator<Place>
+    public class PlaceValidator : AbstractValidator<PlaceDto>
     {
         public PlaceValidator()
         {
