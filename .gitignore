@@ -396,3 +396,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+src/PeePoo/API/appsettings.json
+src/PeePoo/API/Properties/ServiceDependencies/peepoo - FTP/profile.arm.json
+src/PeePoo/API/Properties/ServiceDependencies/peepoo - Web Deploy/profile.arm.json
+src/PeePoo/API/Properties/ServiceDependencies/peepoo - Web Deploy1/profile.arm.json
+src/PeePoo/API/Properties/ServiceDependencies/peepoo - Zip Deploy/profile.arm.json
