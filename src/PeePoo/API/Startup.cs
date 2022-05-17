@@ -27,10 +27,12 @@ namespace API
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 opt.Filters.Add(new AuthorizeFilter(policy));
             })
-            .AddFluentValidation(config =>
-            {
-                config.RegisterValidatorsFromAssemblyContaining<Create>();
-            });
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore) 
+                .AddFluentValidation(config =>
+                    {
+                        config.RegisterValidatorsFromAssemblyContaining<Create>();
+                    });
 
             services.AddApplicationServices(_config);
             services.AddIdentityServices(_config);

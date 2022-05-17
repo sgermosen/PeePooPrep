@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace Application.Photos
     {
         public class Command : IRequest<Result<Photo>>
         {
+            public Guid PlaceId { get; set; }
+
             public IFormFile File { get; set; }
         }
 
@@ -41,6 +44,7 @@ namespace Application.Photos
                 var photoUploadResult = await _photoAccessor.AddPhoto(request.File);
                 var photo = new Photo
                 {
+                    PlaceId = request.PlaceId,
                     Id = photoUploadResult.PublicId,
                     Url = photoUploadResult.Url
                 };
