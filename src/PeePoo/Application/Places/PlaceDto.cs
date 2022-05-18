@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 
@@ -23,8 +24,8 @@ namespace Application.Places
         public bool IsAproved { get; set; }
         public string OwnerUsername { get; set; }   
         public ICollection<FavoriteDto> Favorites { get; set; }
+        public ICollection<Photo> Photos { get; set; }
         public IFormFile File { get; set; }
-
-
+        public string Image { get; internal set; }
     }
 }
