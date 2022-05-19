@@ -61,7 +61,8 @@ namespace Application.Places
                     var photo = new Photo
                     {
                         Id = photoUploadResult.PublicId,
-                        Url = photoUploadResult.Url
+                        Url = photoUploadResult.Url,
+                        IsMain = true,
                     };
 
                     place.Photos.Add(photo);
