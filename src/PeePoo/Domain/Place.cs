@@ -12,7 +12,7 @@ namespace Domain
         public string Description { get; set; }
         public string Observations { get; set; }
         public bool IsAvailable { get; set; }
-        public bool HaveBabyChanger { get; set; } 
+        public bool HaveBabyChanger { get; set; }
         public bool IsRoomy { get; set; }
         public int Urinals { get; set; }
         public int Toilets { get; set; }
@@ -20,7 +20,7 @@ namespace Domain
         public double Long { get; set; }
         public double Lat { get; set; }
         public bool IsAproved { get; set; }
-        public ICollection<PlaceVisit> Visits { get; set; } = new List<PlaceVisit>();
+        public ICollection<Visit> Visits { get; set; } = new List<Visit>();
         public ICollection<FavoritePlace> Favorites { get; set; } = new List<FavoritePlace>();
         public ICollection<Photo> Photos { get; set; } = new List<Photo>();
 

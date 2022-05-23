@@ -1,76 +1,80 @@
-﻿
-using Application.Core;
+﻿using Application.Core;
 using Application.Interfaces;
+using Application.Visits;
 using AutoMapper;
 using Domain;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Application.Visits
+namespace Application.PlaceVisits
 {
     public class Create
     {
-        public class Command : IRequest<Result<VisitDto>>
+        public class Command : IRequest<Result<Unit>>
         {
-            public Guid PlaceId { get; set; }
-            public string Title { get; set; }
-            public string Description { get; set; }
-            public int Rating { get; set; }
-        }
+            public VisitDto PlaceVisit { get; set; }
 
+        }
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Title).NotEmpty();
-                RuleFor(x => x.Description).NotEmpty();
-                RuleFor(x => x.Rating).NotEmpty();
+                RuleFor(x => x.PlaceVisit).SetValidator(new VisitValidator());
             }
         }
 
-        public class Handler : IRequestHandler<Command, Result<VisitDto>>
+        public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly IUserAccessor _userAccessor;
             private readonly DataContext _context;
+            private readonly IUserAccessor _userAccessor;
+            private readonly IPhotoAccessor _photoAccessor;
             private readonly IMapper _mapper;
-            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
+
+            public Handler(DataContext context, IUserAccessor userAccessor, IPhotoAccessor photoAccessor, IMapper mapper)
             {
-                _mapper = mapper;
-                _context = context;
                 _userAccessor = userAccessor;
+                _context = context;
+                _photoAccessor = photoAccessor;
+                _mapper = mapper;
             }
 
-            public async Task<Result<VisitDto>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var place = await _context.Places.FindAsync(request.PlaceId, cancellationToken);
+                var user = await _context.Users
+                .FirstOrDefaultAsync(p => p.UserName == _userAccessor.GetUsername(), cancellationToken);
+
+                if (user == null) return null;
+
+                var place = await _context.Places
+               .FirstOrDefaultAsync(p => p.Id == request.PlaceVisit.PlaceId, cancellationToken);
 
                 if (place == null) return null;
 
-                var user = await _context.Users
-                    .Include(p => p.Photos)
-                    .SingleOrDefaultAsync(x => x.UserName == _userAccessor.GetUsername(), cancellationToken);
+                var placeVisit = new Visit();
+                placeVisit = _mapper.Map<Visit>(request.PlaceVisit);
 
-                var visit = new PlaceVisit
+                if (request.PlaceVisit.File != null && request.PlaceVisit.File.Length > 0)
                 {
-                    Author = user,
-                    Place = place,
-                    Title = request.Title,
-                    Rating = request.Rating,
-                    Description = request.Description
-                };
+                    var photoUploadResult = await _photoAccessor.AddPhoto(request.PlaceVisit.File);
+                    var photo = new VisitPhoto
+                    {
+                        Id = photoUploadResult.PublicId,
+                        Url = photoUploadResult.Url
+                    };
 
-                place.Visits.Add(visit);
+                    placeVisit.Photos.Add(photo);
+                }
 
-                var success = await _context.SaveChangesAsync(cancellationToken) > 0;
+                _context.Visits.Add(placeVisit);
 
-                if (success) return Result<VisitDto>.Success(_mapper.Map<VisitDto>(visit));
+                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                if (!result) return Result<Unit>.Failure("Fail to create visit");
 
-                return Result<VisitDto>.Failure("Failed to add visit");
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }

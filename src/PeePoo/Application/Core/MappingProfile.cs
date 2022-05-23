@@ -25,10 +25,16 @@ namespace Application.Core
             CreateMap<ApplicationUser, Profiles.Profile>()
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault(x => x.IsMain).Url));
 
-            CreateMap<PlaceVisit, VisitDto>()
+            CreateMap<Visit, VisitDto>()
                      .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.Author.DisplayName))
                      .ForMember(d => d.Username, o => o.MapFrom(s => s.Author.UserName))
                      .ForMember(d => d.Image, o => o.MapFrom(s => s.Author.Photos.FirstOrDefault(x => x.IsMain).Url));
+
+            CreateMap<Visit, Visit>();
+            CreateMap<VisitDto, Visit>();
+            CreateMap<Visit, VisitDto>()
+            .ForMember(d => d.Username, o => o.MapFrom(s => s.Author.UserName))
+            .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault().Url));
         }
 
     }

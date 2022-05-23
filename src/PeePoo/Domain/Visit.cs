@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Domain
 {
-    public class PlaceVisit
+    public class Visit
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
@@ -13,6 +14,8 @@ namespace Domain
         public Place Place { get; set; }
         public string AuthorId { get; set; }
         public ApplicationUser Author { get; set; }
+        public ICollection<VisitPhoto> Photos { get; set; } = new List<VisitPhoto>();
+
 
     }
 }

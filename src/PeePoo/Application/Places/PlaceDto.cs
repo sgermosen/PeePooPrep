@@ -25,6 +25,7 @@ namespace Application.Places
         public string OwnerUsername { get; set; }   
         public ICollection<FavoriteDto> Favorites { get; set; }
         public ICollection<Photo> Photos { get; set; }
+        public ICollection<Visit> Visits { get; set; }
         public IFormFile File { get; set; }
         public string Image { get; internal set; }
     }

@@ -11,8 +11,9 @@ namespace Persistence
         }
 
         public DbSet<Place> Places { get; set; }
+        public DbSet<VisitPhoto> VisitPhotos { get; set; }
         public DbSet<Photo> Photos { get; set; }
-        public DbSet<PlaceVisit> Visits { get; set; }
+        public DbSet<Visit> Visits { get; set; }
         public DbSet<FavoritePlace> FavoritePlaces { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -32,7 +33,7 @@ namespace Persistence
                 .WithMany(a => a.FavoritePlaces)
                 .HasForeignKey(aa => aa.UserId);
 
-            builder.Entity<PlaceVisit>()
+            builder.Entity<Visit>()
                .HasOne(a => a.Place)
                .WithMany(c => c.Visits)
                .OnDelete(DeleteBehavior.Cascade);

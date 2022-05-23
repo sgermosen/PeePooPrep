@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Security
 {
-    public class IsOwnerRequirement : IAuthorizationRequirement
+    public class IsCommentOwnerRequirement : IAuthorizationRequirement
     {
     }
-    public class IsOwnerRequirementHandler : AuthorizationHandler<IsOwnerRequirement>
+    public class IsCommentOwnerRequirementHandler : AuthorizationHandler<IsOwnerRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DataContext _dbContext;
-        public IsOwnerRequirementHandler(IHttpContextAccessor httpContextAccessor, DataContext dbContext)
+        public IsCommentOwnerRequirementHandler(IHttpContextAccessor httpContextAccessor, DataContext dbContext)
         {
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
@@ -25,13 +25,13 @@ namespace Infrastructure.Security
         {
             var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Task.CompletedTask;
-            var placeId = Guid.Parse(_httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString());
-            var fav = _dbContext.FavoritePlaces
+            var visitId = Guid.Parse(_httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString());
+            var visit = _dbContext.Visits
             .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.PlaceId == placeId && x.UserId == userId).Result;
-            if (fav == null) return Task.CompletedTask;
+            .SingleOrDefaultAsync(x => x.Id == visitId && x.AuthorId == userId).Result;
+            if (visit == null) return Task.CompletedTask;
 
-            if (fav.IsOwner) context.Succeed(requirement);  
+            context.Succeed(requirement);
             return Task.CompletedTask;
         }
     }

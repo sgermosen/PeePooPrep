@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Domain;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
 
 namespace Application.Visits
 {
@@ -12,5 +15,8 @@ namespace Application.Visits
         public string Username { get; set; }
         public string DisplayName { get; set; }
         public string Image { get; set; }
+        public Guid PlaceId { get; set; }
+        public ICollection<VisitPhoto> Photos { get; set; }
+        public IFormFile File { get; set; }
     }
 }

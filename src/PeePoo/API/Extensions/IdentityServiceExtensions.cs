@@ -53,9 +53,13 @@ namespace API.Extensions
              });
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy("IsActivityHost", policy =>
+                opt.AddPolicy("IsPlaceOwner", policy =>
                 {
                     policy.Requirements.Add(new IsOwnerRequirement());
+                });
+                opt.AddPolicy("IsCommentOwner", policy =>
+                {
+                    policy.Requirements.Add(new IsCommentOwnerRequirement());
                 });
             });
             services.AddTransient<IAuthorizationHandler, IsOwnerRequirementHandler>();
