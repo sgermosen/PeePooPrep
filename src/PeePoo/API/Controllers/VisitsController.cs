@@ -10,10 +10,10 @@ namespace API.Controllers
     public class VisitsController : BaseApiController
     {
 
-        [HttpGet]
-        public async Task<IActionResult> GetVisits()
+        [HttpGet("visitsFromPlace/{id}")]
+        public async Task<IActionResult> GetVisits(Guid id)
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandleResult(await Mediator.Send(new List.Query {  PlaceId = id }));
         }
 
         [HttpGet("{id}")]
