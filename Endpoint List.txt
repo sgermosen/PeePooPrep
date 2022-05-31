@@ -1,0 +1,69 @@
+URL Base: https://peepoo.azurewebsites.net
+
+
+Endpoints
+
+*Register
+{{url}}/api/account/register
+
+{
+	"email": "jim2@test.com",
+	"username": "jim2",
+	"displayName": "James",
+	"password": "Pa$$w0rd"
+}
+
+*Login
+{{url}}/api/account/login
+
+{
+	"email": "starling@test.com",
+	"password": "Pa$$w0rd"
+}
+
+*Get All Places
+{{url}}/api/places
+
+*Submit Place (You could use the "Add Place With Photo From Form")
+{{url}}/api/places
+
+id:{{$guid}}
+Name:Test place with alfredo as owner
+description:Description of the place
+type:Familiar
+createdAt:{{activityDate}}
+rating:4
+long:18.667685390037644
+lat:-70.30475501628834
+observations:Observations and reserves
+HaveBabyChanger:true
+IsRoomy:true
+Urinals:4
+Toilets:4
+ 
+
+*Get Place (Place Detail)
+{{url}}/api/places/4628aac4-69c0-4c74-92b8-6db82bfd73ad
+
+*Submit Review
+{{url}}/api/visits
+
+id:{{$guid}}
+placeId:934fa33b-ef3b-47b8-375d-08da377876c1
+title:Comment title
+description:Comment description
+createdAt:{{activityDate}}
+rating:4
+
+
+
+*Delete Review
+{{url}}/api/visits/4628aac4-69c0-4c74-92b8-6db82bfd73ad
+
+
+
+*Get All Reviews From a Place
+{{url}}/api/Visits/visitsFromPlace/934fa33b-ef3b-47b8-375d-08da377876c1
+
+
+
