@@ -13,7 +13,7 @@ Endpoints
 	"password": "Pa$$w0rd"
 }
 
-*Login
+*1. Login
 {{url}}/api/account/login
 
 {
@@ -21,10 +21,10 @@ Endpoints
 	"password": "Pa$$w0rd"
 }
 
-*Get All Places
+*2. Get All Places
 {{url}}/api/places
 
-*Submit Place (You could use the "Add Place With Photo From Form")
+*3. Submit Place (You could use the "Add Place With Photo From Form")
 {{url}}/api/places
 
 id:{{$guid}}
@@ -42,10 +42,11 @@ Urinals:4
 Toilets:4
  
 
-*Get Place (Place Detail)
+*4. Get Place (Place Detail)
 {{url}}/api/places/4628aac4-69c0-4c74-92b8-6db82bfd73ad
 
-*Submit Review
+
+*5. Submit Review
 {{url}}/api/visits
 
 id:{{$guid}}
@@ -57,12 +58,12 @@ rating:4
 
 
 
-*Delete Review
+*6. Delete Review
 {{url}}/api/visits/4628aac4-69c0-4c74-92b8-6db82bfd73ad
 
 
 
-*Get All Reviews From a Place
+*7. Get All Reviews From a Place
 {{url}}/api/Visits/visitsFromPlace/934fa33b-ef3b-47b8-375d-08da377876c1
 
 
