@@ -1,0 +1,167 @@
+using Azure.Storage.Blobs;
+using Backend.Models;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System;
+using System.Configuration;
+using System.IO;
+using System.Threading.Tasks;
+using System.Web;
+namespace Infrastructure
+{
+    public class FilesHelper
+    {
+        private readonly string _connectionString;
+        private readonly CloudBlobClient _blobClient;
+        private readonly CloudFilesModel _blobsList;
+        public FilesHelper()
+        {
+            _connectionString = ConfigurationManager.ConnectionStrings["StorageConnectionString"].ConnectionString;
+            string keys = ConfigurationManager.ConnectionStrings["StorageConnectionString"].ConnectionString;
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(keys);
+
+            _blobClient = storageAccount.CreateCloudBlobClient();
+
+            //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+            //   CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            CloudBlobClient storageClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer storageContainer = storageClient.GetContainerReference(
+                ConfigurationManager.AppSettings.Get("CloudStorageContainerReference"));
+            _blobsList = new CloudFilesModel(storageContainer.ListBlobs(useFlatBlobListing: true));
+
+        }
+
+        public async Task<FileStorageResponse> UploadBlobAsync(byte[] file, string containerName, string extension = "jpg", string file_type = "image/jpeg")
+        {
+            // MemoryStream stream = new MemoryStream(file);
+            Guid name = Guid.NewGuid();
+            if (string.IsNullOrEmpty(extension))
+                extension = Path.GetExtension(file.ToString());
+            var fileName = $"{name}.{extension}";
+            try
+            {
+                var containerObject = _blobClient.GetContainerReference(containerName);
+
+                if (containerObject.CreateIfNotExistsAsync().Result)
+                    await containerObject.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+
+                var fileobject = containerObject.GetBlockBlobReference(fileName);
+
+                if (string.IsNullOrEmpty(file_type))
+                    file_type = "application/octet-stream";
+
+                fileobject.Properties.ContentType = file_type;
+
+                // await fileobject.UploadFromStreamAsync(stream, stream.Length);
+                await fileobject.UploadFromByteArrayAsync(file, 0, file.Length);
+
+                return new FileStorageResponse
+                {
+                    Extension = extension,
+                    FileName = fileName,
+                    Name = name,
+                    FullUrl = fileobject.Uri.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+
+                return new FileStorageResponse
+                {
+                    Extension = extension,
+                    FileName = ex.Message,
+                    Name = name,
+                    FullUrl = ex.Message
+                };
+            }
+        }
+
+        public async Task<FileStorageResponse> UploadBlobAsync(Stream file, string containerName, string extension = "jpg", string file_type = "image/jpeg")
+        { 
+            Guid name = Guid.NewGuid();
+            if (string.IsNullOrEmpty(extension))
+                extension = Path.GetExtension(file.ToString());
+            var fileName = $"{name}.{extension}";
+            try
+            {
+                var containerObject = _blobClient.GetContainerReference(containerName);
+
+                if (containerObject.CreateIfNotExistsAsync().Result)
+                    await containerObject.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+
+                var fileobject = containerObject.GetBlockBlobReference(fileName);
+
+                if (string.IsNullOrEmpty(file_type))
+                    file_type = "application/octet-stream";
+
+                fileobject.Properties.ContentType = file_type;
+                 
+                await fileobject.UploadFromStreamAsync(file, file.Length);
+
+                return new FileStorageResponse
+                {
+                    Extension = extension,
+                    FileName = fileName,
+                    Name = name,
+                    FullUrl = fileobject.Uri.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+
+                return new FileStorageResponse
+                {
+                    Extension = extension,
+                    FileName = ex.Message,
+                    Name = name,
+                    FullUrl = ex.Message
+                };
+            }
+        }
+
+        public async Task DeleteFile(string route, string container)
+        {
+            if (string.IsNullOrEmpty(route))
+                return;
+            var client = new BlobContainerClient(_connectionString, container);
+            await client.CreateIfNotExistsAsync();
+            var file = Path.GetFileName(route);
+            var blob = client.GetBlobClient(file);
+            await blob.DeleteIfExistsAsync();
+
+        }
+
+        public static string UploadPhoto(HttpPostedFileBase file, string folder)
+        {
+            string path = string.Empty;
+            string pic = string.Empty;
+
+            if (file != null)
+            {
+                pic = Path.GetFileName(file.FileName);
+                path = Path.Combine(HttpContext.Current.Server.MapPath(folder), pic);
+                file.SaveAs(path);
+            }
+
+            return pic;
+        }
+
+        public static bool UploadPhoto(MemoryStream stream, string folder, string name)
+        {
+            try
+            {
+                stream.Position = 0;
+                var path = Path.Combine(HttpContext.Current.Server.MapPath(folder), name);
+                File.WriteAllBytes(path, stream.ToArray());
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+    }
+}
