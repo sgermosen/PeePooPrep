@@ -59,6 +59,16 @@ namespace API
             {
                 endpoints.MapControllers();
             });
+            // Set Swagger as default start page
+            /*
+            routes.MapHttpRoute(
+                name: "swagger_root",
+                routeTemplate: "",
+                defaults: null,
+                constraints: null,
+                handler: new RedirectHandler((message => message.RequestUri.ToString()), "swagger"));
+            */
+
         }
     }
 }
