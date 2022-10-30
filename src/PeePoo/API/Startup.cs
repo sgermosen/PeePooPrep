@@ -1,5 +1,7 @@
 ﻿using API.Extensions;
 using API.Middleware;
+using Application.Files;
+using Application.Interfaces;
 using Application.Places;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
@@ -33,9 +35,10 @@ namespace API
                     {
                         config.RegisterValidatorsFromAssemblyContaining<Create>();
                     });
-
+            
             services.AddApplicationServices(_config);
             services.AddIdentityServices(_config);
+            services.AddScoped<IStorageManager, AzureStorageManager>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -54,7 +57,7 @@ namespace API
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
