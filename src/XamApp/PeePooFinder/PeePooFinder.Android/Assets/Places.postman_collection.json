@@ -1,0 +1,1002 @@
+{
+	"info": {
+		"_postman_id": "44b5064e-9137-4f4f-88c2-cbe668dc9a25",
+		"name": "Places",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Place No User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// response to be 200",
+							"pm.test(\"response is ok\", function() {",
+							"    pm.response.to.have.status(200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require(\"moment\");\r",
+							"\r",
+							"pm.environment.set('activityDate', moment().add(14, 'days').toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"{{$guid}}\",\n\t\"Name\": \"Test place with alfredo as owner\",\n\t\"description\": \"Description of the place\",\n\t\"type\":\"Familiar\",\n\t\"createdAt\": \"{{activityDate}}\",\n\t\"rating\": 4,\n\t\"long\": 18.667685390037644,\n\t\"lat\": -70.30475501628834,\n\t\"observations\": \"Observations and reserves\",\n\t\"HaveBabyChanger\": true,\n\t\"IsRoomy\": true,\n\t\"Urinals\": 4,\n\t\"Toilets\": 4\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/places",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Places no auth",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/places",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Place no auth",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/places/1323c6c0-bfba-4b06-8193-7e5d26376b99",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"1323c6c0-bfba-4b06-8193-7e5d26376b99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register user successfull",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"jim2@test.com\",\n\t\"username\": \"jim2\",\n\t\"displayName\": \"James\",\n\t\"password\": \"Pa$$w0rd\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/account/register",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"account",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login user successful",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"starling@test.com\",\n\t\"password\": \"Pa$$w0rd\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/account/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login as starling and save token to env",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const user = pm.response.json();",
+							"",
+							"pm.test(\"Has properties\", function () {",
+							"    pm.expect(user).to.have.property('displayName');",
+							"    pm.expect(user).to.have.property('username');",
+							"    pm.expect(user).to.have.property('image');",
+							"    pm.expect(user).to.have.property('token');",
+							"});",
+							"",
+							"if (pm.test(\"Has properties\")) {",
+							"    pm.globals.set('token', user.token);",
+							"}",
+							"",
+							"pm.test(\"Global token has been set\", function() {",
+							"    var token = pm.globals.get('token');",
+							"    pm.expect(token).to.eql(user.token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"starling@test.com\",\n\t\"password\": \"Pa$$w0rd\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/account/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login as alfredo and save token to env",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const user = pm.response.json();",
+							"",
+							"pm.test(\"Has properties\", function () {",
+							"    pm.expect(user).to.have.property('displayName');",
+							"    pm.expect(user).to.have.property('username');",
+							"    pm.expect(user).to.have.property('image');",
+							"    pm.expect(user).to.have.property('token');",
+							"});",
+							"",
+							"if (pm.test(\"Has properties\")) {",
+							"    pm.globals.set('tom_token', user.token);",
+							"}",
+							"",
+							"pm.test(\"Global token has been set\", function() {",
+							"    var token = pm.globals.get('tom_token');",
+							"    pm.expect(token).to.eql(user.token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"alfredo@test.com\",\n\t\"password\": \"Pa$$w0rd\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/account/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Place current user owner",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// response to be 200",
+							"pm.test(\"response is ok\", function() {",
+							"    pm.response.to.have.status(200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require(\"moment\");\r",
+							"\r",
+							"pm.environment.set('activityDate', moment().add(14, 'days').toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"{{$guid}}\",\n\t\"Name\": \"Test place with alfredo as owner\",\n\t\"description\": \"Description of the place\",\n\t\"type\":\"Familiar\",\n\t\"createdAt\": \"{{activityDate}}\",\n\t\"rating\": 4,\n\t\"long\": 18.667685390037644,\n\t\"lat\": -70.30475501628834,\n\t\"observations\": \"Observations and reserves\",\n\t\"HaveBabyChanger\": true,\n\t\"IsRoomy\": true,\n\t\"Urinals\": 4,\n\t\"Toilets\": 4\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/places",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Places with Auth",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/places",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Place with auth",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/places/4628aac4-69c0-4c74-92b8-6db82bfd73ad",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"4628aac4-69c0-4c74-92b8-6db82bfd73ad"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add favorite as alfredo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();",
+							"",
+							"// response to be 200",
+							"pm.test(\"response is 200\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/places/01297c18-3be9-4bf6-95ce-318140608a05/favorite",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"01297c18-3be9-4bf6-95ce-318140608a05",
+						"favorite"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove favorite for user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();",
+							"",
+							"// response to be 200",
+							"pm.test(\"response is 200\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/places/a172ad68-5022-40f5-a2d2-801020f7839a/favorite",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"a172ad68-5022-40f5-a2d2-801020f7839a",
+						"favorite"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "make unavailable place by owner",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();",
+							"",
+							"// response to be 200",
+							"pm.test(\"response is 400\", function() {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/places/b8759f1c-5441-4130-a472-c8cfc3d46d76/favorite",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"b8759f1c-5441-4130-a472-c8cfc3d46d76",
+						"favorite"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit an Place as Starling who is owner",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require(\"moment\");\r",
+							"\r",
+							"pm.environment.set('activityDate', moment().add(14, 'days').toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"title\": \"Editing activity as bob the host\",\n\t\"description\": \"Description of the test event\",\n\t\"category\": \"Culture\",\n\t\"date\": \"{{activityDate}}\",\n\t\"city\": \"London\",\n\t\"venue\": \"Tower of London\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/places/563116a8-6369-4cdb-ba35-b29754308d86",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"563116a8-6369-4cdb-ba35-b29754308d86"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get current user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/account",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Photo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "File",
+							"type": "file",
+							"src": "/C:/Users/sgermosen/Desktop/dinosaur.png"
+						},
+						{
+							"key": "PlaceId",
+							"value": "934fa33b-ef3b-47b8-375d-08da377876c1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/api/photos",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"photos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Place With Photo From Form",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require(\"moment\");\r",
+							"\r",
+							"pm.environment.set('activityDate', moment().add(14, 'days').toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// response to be 200\r",
+							"pm.test(\"response is ok\", function() {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "File",
+							"type": "file",
+							"src": "/C:/Users/sgermosen/Desktop/dinosaur.png"
+						},
+						{
+							"key": "PlaceId",
+							"value": "934fa33b-ef3b-47b8-375d-08da377876c1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "id",
+							"value": "{{$guid}}",
+							"type": "text"
+						},
+						{
+							"key": "Name",
+							"value": "Test place with alfredo as owner",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "Description of the place",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "Familiar",
+							"type": "text"
+						},
+						{
+							"key": "createdAt",
+							"value": "{{activityDate}}",
+							"type": "text"
+						},
+						{
+							"key": "rating",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "long",
+							"value": "18.667685390037644",
+							"type": "text"
+						},
+						{
+							"key": "lat",
+							"value": "-70.30475501628834",
+							"type": "text"
+						},
+						{
+							"key": "observations",
+							"value": "Observations and reserves",
+							"type": "text"
+						},
+						{
+							"key": "HaveBabyChanger",
+							"value": "true",
+							"type": "text"
+						},
+						{
+							"key": "IsRoomy",
+							"value": "true",
+							"type": "text"
+						},
+						{
+							"key": "Urinals",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "Toilets",
+							"value": "4",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/api/places",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"places"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set Main Photo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{url}}/api/photos/kcdyuovk08n68z4crpyn/setmain",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"photos",
+						"kcdyuovk08n68z4crpyn",
+						"setmain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Photo",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/photos/houh9nt3vhxesvc0bsn7",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"photos",
+						"houh9nt3vhxesvc0bsn7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Profile",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/profiles/starling",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"profiles",
+						"starling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Comment With Photo From Form",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require(\"moment\");\r",
+							"\r",
+							"pm.environment.set('activityDate', moment().add(14, 'days').toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// response to be 200\r",
+							"pm.test(\"response is ok\", function() {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "File",
+							"type": "file",
+							"src": "/C:/Users/sgermosen/Desktop/hunting challenges.jpg"
+						},
+						{
+							"key": "PlaceId",
+							"value": "934fa33b-ef3b-47b8-375d-08da377876c1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "id",
+							"value": "{{$guid}}",
+							"type": "text"
+						},
+						{
+							"key": "placeId",
+							"value": "934fa33b-ef3b-47b8-375d-08da377876c1",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "Comment title",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "Comment description",
+							"type": "text"
+						},
+						{
+							"key": "createdAt",
+							"value": "{{activityDate}}",
+							"type": "text"
+						},
+						{
+							"key": "rating",
+							"value": "4",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/api/visits",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"visits"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://localhost:7093"
+		}
+	]
+}

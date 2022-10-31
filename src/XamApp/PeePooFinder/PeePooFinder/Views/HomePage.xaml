@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:maps="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
+             x:Class="PeePooFinder.Views.HomePage"
+             Title="Pee Poo Finder"
+             xmlns:local="clr-namespace:PeePooFinder.ViewModels"  
+             xmlns:model="clr-namespace:PeePooFinder.Models"  
+             x:Name="BrowseItemsPage">
+    <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <maps:Map x:Name="map" MapClicked="map_MapClicked" PinClicked="map_PinClicked" InfoWindowClicked="map_InfoWindowClicked" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"/>
+        <StackLayout VerticalOptions="End" HeightRequest="40" BackgroundColor="#FFF" x:Name="stkNewPlace" Padding="10" IsVisible="False">
+            <Button x:Name="btnSubmitPlace" Text="Submit a place here" WidthRequest="220" HeightRequest="40" HorizontalOptions="CenterAndExpand" Clicked="btnSubmitPlace_Clicked"></Button>
+        </StackLayout>
+        <StackLayout VerticalOptions="End" HeightRequest="40" BackgroundColor="#FFF" x:Name="stkViewPlace" Padding="10" IsVisible="False">
+            <Button x:Name="btnViewPlace" Text="View Place" WidthRequest="220" HeightRequest="40" HorizontalOptions="CenterAndExpand" Clicked="btnViewPlace_Clicked"></Button>
+        </StackLayout>
+    </StackLayout>
+    
+
+</ContentPage>
