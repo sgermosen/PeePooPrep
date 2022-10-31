@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+                 xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
+             ios:Page.UseSafeArea="true"
+             x:Class="PeePooFinder.Views.LoginPage"
+             Shell.NavBarIsVisible="False">
+    <ContentPage.Content>
+        <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="0,0,0,0" BackgroundColor="White" >
+            <StackLayout Margin="0,40,0,0" >
+                <Image Source="LogoTransparent.png" WidthRequest="210"   Margin="0,0,0,0"  HeightRequest="210"  HorizontalOptions="CenterAndExpand"/>
+            </StackLayout>
+            <StackLayout VerticalOptions="CenterAndExpand"  Margin="0,0,0,100">
+                <Label Text="Email" Style="{StaticResource LableStyle}" />
+                <Entry x:Name="txtEmail" Style="{StaticResource EntryStyle}" Margin="15,0,15,0"  Keyboard="Email" Text="{Binding UserEmailID, Mode=TwoWay}"/>
+                <Label Text="Password" Style="{StaticResource LableStyle}" />
+                <Entry x:Name="txtPassword" Margin="15,0,15,0"  Style="{StaticResource EntryStyle}" Text="{Binding UserPassword, Mode=TwoWay}" IsPassword="True"/>
+                <!--<Button VerticalOptions="Center" Text="Login" Clicked="Button_Clicked"  BackgroundColor="#BF6952"   Style="{ StaticResource ButtonStyle}"></Button>-->
+                <Button VerticalOptions="Center" Text="Login" Command="{Binding LoginCommand}"  Style="{StaticResource ButtonStyle}"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

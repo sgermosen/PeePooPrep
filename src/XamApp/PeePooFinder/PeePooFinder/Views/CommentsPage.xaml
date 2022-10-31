@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:fftransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations" 
+             xmlns:fRating="clr-namespace:Rating;assembly=Rating" xmlns:maps="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
+             x:Class="PeePooFinder.Views.CommentsPage"
+             Title="Submit your comment">
+    <ContentPage.Content>
+        <StackLayout BackgroundColor="White">
+            <!--<StackLayout Margin="5" HeightRequest="120" WidthRequest="240" BackgroundColor="#e5e5e5">
+                <Image x:Name="ImgPlace" WidthRequest="240" HeightRequest="120" BackgroundColor="Transparent"></Image>
+            </StackLayout>-->
+            <Image x:Name="ImgPlace" WidthRequest="150" HeightRequest="150" Source="logo" Aspect="AspectFill" Margin="5" VerticalOptions="Start" HorizontalOptions="CenterAndExpand" IsVisible="False">
+            </Image>
+            <StackLayout Margin="0" Padding="5" >
+                <Grid HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Image Source="images"  x:Name="imgCameraPhoto" HeightRequest="36" WidthRequest="40" Grid.Row="0" VerticalOptions="Start" HorizontalOptions="CenterAndExpand" Style="{StaticResource CameraStyle}" Grid.Column="0" >
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="PhotoTapGestureRecognizer_Tapped"></TapGestureRecognizer>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Button x:Name="BtnSelectPhoto" VerticalOptions="FillAndExpand"  HorizontalOptions="FillAndExpand" Clicked="BtnTakePhoto_Clicked" Text="Take Photo from Gallery" Grid.Row="0" Grid.Column="2" 
+                            BackgroundColor="#BF6952"    Style="{StaticResource TakePhotoButtonStyle}"  />
+                </Grid>
+                <BoxView  Margin="0,10,0,0"
+            HeightRequest="1" 
+            BackgroundColor="#dadada" 
+            HorizontalOptions="FillAndExpand" />
+
+            </StackLayout>
+
+            <ScrollView>
+                <StackLayout Padding="10">
+                    <Label Text="Title" TextColor="#BF6952"  Style="{StaticResource LableStyle}"  />
+                    <Entry x:Name="txtTitle" Text="{Binding CommentTitle, Mode=TwoWay}" Style="{StaticResource EntryStyle}" Margin="15,0,15,0"  Keyboard="Default"/>
+
+                    <Label Text="Description"    Style="{StaticResource LableStyle}"  />
+                    <Entry x:Name="txtDescription" Text="{Binding CommentDescription, Mode=TwoWay}" Style="{StaticResource EntryStyle}" Margin="15,0,15,0"  Keyboard="Default"/>
+                    <StackLayout Margin="10">
+                        <Label Text="Rating"  Margin="10,0,0,0" Style="{StaticResource LableStyle}"  />
+                        <StackLayout Margin="10" Orientation="Horizontal">
+                            <fRating:RatingBar x:Name="rating" HorizontalOptions="StartAndExpand" ImageWidth="30" ImageHeight="30" FlowDirection="LeftToRight" EmptyStarImage="emptystar" FillStarImage="StarYellow" SelectedStarValue="{Binding Rating}" ></fRating:RatingBar>
+                        </StackLayout>
+                    </StackLayout>
+                    <StackLayout Orientation="Horizontal" Margin="5" HorizontalOptions="CenterAndExpand">
+                        <Button VerticalOptions="Center" Text="Submit" Clicked="btnSubmitReview_Clicked"  Style="{StaticResource ButtonStyle}" Margin="5" x:Name="btnSubmitReview"/>
+                        <Button VerticalOptions="Center" Text="Cencel" Clicked="CancelButton_Clicked"  Style="{StaticResource ButtonStyle}" Margin="5"/>
+                    </StackLayout>
+                </StackLayout>
+            </ScrollView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

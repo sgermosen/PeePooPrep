@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PeePooFinder.Views.UserPage"
+             Title="User Details">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label x:Name="lblUserName" FontSize="Large" TextColor="Black" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"></Label>
+            <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Margin="50">
+                <Label Text="Logout" Style="{StaticResource LableStyle}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Logout_Clicked"></TapGestureRecognizer>
+                    </Label.GestureRecognizers>
+                </Label>
+            </StackLayout>
+        </StackLayout>
+        
+    </ContentPage.Content>
+</ContentPage>

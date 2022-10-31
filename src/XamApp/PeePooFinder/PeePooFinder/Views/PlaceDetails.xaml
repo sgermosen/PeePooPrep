@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:fftransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"
+             xmlns:maps="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
+             xmlns:fRating="clr-namespace:Rating;assembly=Rating"
+             x:Class="PeePooFinder.Views.PlaceDetails"
+             Title="{Binding Name}">
+    <ContentPage.Content>
+        <StackLayout BackgroundColor="White">
+            <StackLayout Margin="0,20,0,0">
+                <Image x:Name="imgProfile" Source="{Binding Image}" WidthRequest="360" HeightRequest="120">
+                </Image>
+                <Label Text="{Binding Lat}" x:Name="lblLat" BackgroundColor="Green" IsVisible="False"></Label>
+                <Label Text="{Binding Longitude}" x:Name="lblLong" BackgroundColor="Green" IsVisible="False"></Label>
+            </StackLayout>
+            <StackLayout Margin="0,30,0,0" Padding="10" IsVisible="false">
+                <Grid HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="30"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Image Source="images"  x:Name="imgCameraPhoto" HeightRequest="36" WidthRequest="40" Grid.Row="0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Style="{StaticResource CameraStyle}" Grid.Column="1" >
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="PhotoTapGestureRecognizer_Tapped"></TapGestureRecognizer>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Button x:Name="BtnSelectPhoto" VerticalOptions="FillAndExpand"  HorizontalOptions="FillAndExpand"   Clicked="BtnTakePhoto_Clicked" Text="Take Photo from Gallery" Grid.Row="0" Grid.Column="2" 
+                            BackgroundColor="#BF6952"    Style="{StaticResource TakePhotoButtonStyle}"  />
+                </Grid>
+                <BoxView  Margin="0,10,0,0"
+            HeightRequest="1" 
+            BackgroundColor="#dadada" 
+            HorizontalOptions="FillAndExpand" />
+            
+            </StackLayout>
+            <ScrollView>
+                <StackLayout Padding="10">
+                    <Label Text="Name" TextColor="#BF6952"  Style="{StaticResource LableStyle}"  />
+                    <Label Text="{Binding Name}" Style="{StaticResource LableStyleDisplay}"></Label>
+                    <Label Text="Description"    Style="{StaticResource LableStyle}"  />
+                    <Label Text="{Binding Description}" Style="{StaticResource LableStyleDisplay}"></Label>
+                   
+                    <Label Text="Type"   Style="{StaticResource LableStyle}"  />
+                    <Label Text="{Binding Type}"   Style="{StaticResource LableStyleDisplay}"  />
+                    
+                    <Label Text="Observation"  Style="{StaticResource LableStyle}"  />
+                    <Label Text="{Binding Observations}"  Style="{StaticResource LableStyleDisplay}"  />
+                    
+                    <Label Text="Urinals"    Style="{StaticResource LableStyle}"  />
+                    <Label Text="{Binding Urinals}"    Style="{StaticResource LableStyleDisplay}"  />
+
+                    <Label Text="Toilets"   Style="{StaticResource LableStyle}"  />
+                    <Label Text="{Binding Toilets}"   Style="{StaticResource LableStyleDisplay}"  />
+                    
+                    <StackLayout Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding HaveBabyChanger}" IsEnabled="False"></CheckBox>
+                        <Label Text="Have Baby Changer" Margin="-2,2,0,0" Style="{StaticResource LableStyle}"  />
+                        <CheckBox IsChecked="{Binding IsRoomy}"  IsEnabled="False"></CheckBox>
+                        <Label Text="Is Roomy" Margin="-2,0,0,0"   Style="{StaticResource LableStyle}"  />
+                    </StackLayout>
+                    
+                    <StackLayout Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding IsAvailable}" IsEnabled="False"></CheckBox>
+                        <Label Text="Is Available" Margin="-2,2,0,0" Style="{StaticResource LableStyle}"  />
+                    </StackLayout>
+                    
+                    <Label Text="Submitted By:"   Style="{StaticResource LableStyle}"  x:Name="lblSubmitedBy"></Label>
+                    <Label Text="{Binding OwnerUserName}" Style="{StaticResource LableStyleLink}" >
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="LblSubmitedBy_Tapped"></TapGestureRecognizer>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <StackLayout HeightRequest="250">
+                        <maps:Map x:Name="map" MapType="Street" HasZoomEnabled="False" Margin="10,0,10,10" PinClicked="map_PinClicked"/>
+                    </StackLayout>
+                    
+                    <BoxView  Margin="0,10,0,0"
+            HeightRequest="1" 
+            BackgroundColor="#dadada" 
+            HorizontalOptions="FillAndExpand" />
+                    <StackLayout HeightRequest="40" BackgroundColor="{StaticResource Primary}">
+                        <Label Text="Reviews" VerticalOptions="CenterAndExpand" HorizontalOptions="StartAndExpand" Margin="5,0,0,0" FontSize="Medium" TextColor="#FFF"></Label>
+                    </StackLayout>
+                    <!--BackgroundColor="Green"-->
+                    <StackLayout Margin="10,0,0,0" x:Name="stkReviews">
+                        <!--<Label Text="Alverto"  Margin="10,0,0,0" Style="{StaticResource LableStyle}"  />
+                        <StackLayout Margin="10,0,0,0" Orientation="Horizontal">
+                            <fRating:RatingBar SelectedStarValue="{Binding Rating}" HeightRequest="30" WidthRequest="30" EmptyStarImage="emptystar" FillStarImage="StarYellow" FlowDirection="LeftToRight">
+
+                            </fRating:RatingBar>
+                            
+                        </StackLayout>
+                        <StackLayout x:Name="stkReview">
+                            <Label Text="This is a good place sdfsdf sdfsdf sdfsdf sdfsdf sdfsdf sdfsd f sdfsdf sdfs fdsdfs dfsdf" Padding="5"></Label>
+                        </StackLayout>
+                            <StackLayout x:Name="stkImagesLabel">
+                                <Label Text="Images" VerticalOptions="EndAndExpand" Padding="5"></Label>
+                        </StackLayout>
+                        <ScrollView Orientation="Horizontal" x:Name="scrImages">
+                            <StackLayout Orientation="Horizontal">
+                            <Image Source="Logo" HeightRequest="60" Margin="5,0,5,0" ></Image>
+                                <Image Source="Logo" HeightRequest="60" Margin="0,0,5,0" ></Image>
+                                <Image Source="Logo" HeightRequest="60" Margin="0,0,5,0" ></Image>
+                                <Image Source="Logo" HeightRequest="60" Margin="0,0,5,0" ></Image>
+                                <Image Source="Logo" HeightRequest="60" Margin="0,0,5,0" ></Image>
+                                <Image Source="Logo" HeightRequest="60" Margin="0,0,5,0" ></Image>
+                                <Image Source="Logo" HeightRequest="60" Margin="0,0,5,0" ></Image>
+                            </StackLayout>
+                        </ScrollView>
+                        <BoxView  Margin="0,10,0,0"
+            HeightRequest="1" 
+            BackgroundColor="#dadada" 
+            HorizontalOptions="FillAndExpand" />-->
+
+                    </StackLayout>
+                    <StackLayout Orientation="Horizontal" Margin="5" HorizontalOptions="CenterAndExpand">
+                        <Button VerticalOptions="Center" Text="Review" Style="{StaticResource ButtonStyle}" Margin="5" x:Name="btnReview" Clicked="btnReview_Clicked"/>
+                        <Button VerticalOptions="Center" Text="Back" Style="{StaticResource ButtonStyle}" Margin="5" x:Name="btnBack" Clicked="btnBack_Clicked"/>
+                    </StackLayout>
+                </StackLayout>
+
+            </ScrollView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
