@@ -6,6 +6,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,7 +49,7 @@ namespace Application.Places
 
                 if (user == null) return null;
 
-                var place = new Place();
+                var place = new Place { CreatedAt = DateTime.UtcNow };
                 place = _mapper.Map<Place>(request.Place);
                 var favoritee = new FavoritePlace { User = user, Place = place, IsOwner = true };
 
@@ -57,7 +58,8 @@ namespace Application.Places
 
                 if (request.Place.File != null && request.Place.File.Length > 0)
                 {
-                    var photoUploadResult = await _photoAccessor.AddPhoto(request.Place.File);
+                    // var photoUploadResult = await _photoAccessor.AddPhoto(request.Place.File);
+                    var photoUploadResult = await _photoAccessor.AddPhotoLargeFile(request.Place.File);
                     var photo = new Photo
                     {
                         Id = photoUploadResult.PublicId,

@@ -11,7 +11,6 @@ namespace Application.PlaceVisits
             RuleFor(x => x.PlaceId).NotEmpty().NotNull();
             RuleFor(x => x.Title).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.CreatedAt).NotEmpty();
         }
     }
 

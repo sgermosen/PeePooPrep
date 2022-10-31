@@ -11,7 +11,6 @@ namespace Application.Places
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.Type).NotEmpty();
-            RuleFor(x => x.CreatedAt).NotEmpty();
         }
     }
 

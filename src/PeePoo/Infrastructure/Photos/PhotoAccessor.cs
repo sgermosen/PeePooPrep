@@ -5,6 +5,7 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Photos
@@ -49,7 +50,58 @@ namespace Infrastructure.Photos
             }
             return null;
         }
+        public async Task<PhotoUploadResult> AddPhotoLargeFile(IFormFile file)
+        {
+            if (file.Length > 0)
+            {
 
+                await using var stream = file.OpenReadStream();
+
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Transformation = new Transformation().Height(500).Width(500).Crop("fill")
+                };
+
+                var uploadResult = await _cloudinary.UploadLargeAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                    throw new Exception(uploadResult.Error.Message);
+
+                return new PhotoUploadResult
+                {
+                    PublicId = uploadResult.PublicId,
+                    Url = uploadResult.SecureUrl.ToString()
+                };
+            }
+            return null;
+        }
+        public async Task<PhotoUploadResult> AddPhotoLarge(Stream streamdata, string FileName)
+        {
+            if (streamdata.Length > 0)
+            {
+
+                await using var stream = streamdata;
+
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(FileName, stream),
+                    Transformation = new Transformation().Height(500).Width(500).Crop("fill")
+                };
+
+                var uploadResult = await _cloudinary.UploadLargeAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                    throw new Exception(uploadResult.Error.Message);
+
+                return new PhotoUploadResult
+                {
+                    PublicId = uploadResult.PublicId,
+                    Url = uploadResult.SecureUrl.ToString()
+                };
+            }
+            return null;
+        }
         public async Task<string> DeletePhoto(string publicId)
         {
             var deleteParams = new DeletionParams(publicId);
