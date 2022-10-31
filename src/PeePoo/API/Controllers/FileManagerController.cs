@@ -1,7 +1,4 @@
 ﻿using API.DTOs;
-using Application.PlaceVisits;
-using Application.Visits;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -76,8 +73,9 @@ namespace API.Controllers
             if (!Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath); //Create the temp upload directory if it doesn't exist yet.
 
-            fileName = fileName.Substring(0, fileName.LastIndexOf(".", StringComparison.InvariantCultureIgnoreCase)); //Remove the extension.
-            var tempFileName = $"{fileName} {Guid.NewGuid()}{Path.GetExtension(fileName)}"; //Build the temp filename.
+            // fileName = fileName.Substring(0, fileName.LastIndexOf(".", StringComparison.InvariantCultureIgnoreCase)); //Remove the extension.
+            //var tempFileName = $"{fileName} {Guid.NewGuid()}{Path.GetExtension(fileName)}"+""; //Build the temp filename.
+            var tempFileName = $"{fileName}";
 
             try
             {
@@ -90,23 +88,24 @@ namespace API.Controllers
                 _logger.LogError(e, "Error");
                 return new StatusCodeResult(500);
             }
-            return Ok(fileName);
-            // return Ok(tempFileName);
+
+            return Ok(tempFileName);
         }
+
 
         /// <summary>
         /// Upload a part of a media file.
         /// This method takes a part of the media file and appends it to the incomplete file. This method is to be called repeatedly until the upload is complete.
         /// </summary>
-        /// <param name="MediaChunkDto">The chunk of the media file to upload.</param>
+        /// <param name="mediaChunk">The chunk of the media file to upload.</param>
         /// <returns>Returns the Ok code if the chunk was uploaded and appended successfully. Or an error when it failed.</returns>
         [HttpPost]
         [Route("UploadChunk")]
-        public IActionResult UploadChunk(MediaChunkDto MediaChunkDto)
+        public IActionResult UploadChunk(MediaChunkDto mediaChunk)
         {
-            var path = Path.Combine(_environment.ContentRootPath, "temp", MediaChunkDto.FileHandle);
+            var path = Path.Combine(_environment.ContentRootPath, "temp", mediaChunk.FileHandle);
             var fileInfo = new FileInfo(path);
-            var start = Convert.ToInt64(MediaChunkDto.StartAt);
+            var start = Convert.ToInt64(mediaChunk.StartAt);
 
             if (!fileInfo.Exists)
                 return NotFound(); //Temp file not found, maybe BeginFileUpload was not called?
@@ -118,7 +117,7 @@ namespace API.Controllers
             {
                 using var fs = new FileStream(path, FileMode.Append);
 
-                var bytes = Convert.FromBase64String(MediaChunkDto.Data);
+                var bytes = Convert.FromBase64String(mediaChunk.Data);
                 fs.Write(bytes, 0, bytes.Length);
             }
             catch (Exception e)
@@ -135,12 +134,19 @@ namespace API.Controllers
         /// <param name="fileHandle">The file handle of the file that the upload is complete for.</param>
         /// <param name="quitUpload">If this is true the file upload will be aborted. The temporary file will be deleted.</param>
         /// <param name="fileSize">The size of the original file that was uploaded. This is used to check if the upload was successful.</param>
+        /// <param name="OrgFileName">Original File Name which was uploaded</param>
         /// <returns>Code Ok if the upload was successfully ended. Code 404 if the file handle was not found. Or code 500 if the file could not be moved or deleted.</returns>
         [HttpGet]
         [Route("EndFileUpload")]
-        public IActionResult EndFileUpload(string fileHandle, bool quitUpload, long fileSize)
+        public IActionResult EndFileUpload(string fileHandle, bool quitUpload, long fileSize, string OrgFileName)
         {
+            var uploadsfilePath = Path.Combine(_environment.ContentRootPath, "uploads");
+
+            if (!Directory.Exists(uploadsfilePath))
+                Directory.CreateDirectory(uploadsfilePath);
+
             var fileInfo = new FileInfo(Path.Combine(_environment.ContentRootPath, "temp", fileHandle));
+
             if (!fileInfo.Exists)
                 return NotFound(); //Temp file not found, maybe BeginFileUpload was not called?
 
@@ -152,12 +158,19 @@ namespace API.Controllers
                 {
                     if (fileInfo.Length != fileSize)
                         return Conflict(); //The local file does not have the same size as the file that was uploaded. This could indicate the upload was not completed properly.
+                    string myServerfile = Path.Combine(_environment.ContentRootPath, "temp", fileHandle);
+                    string myFile = Path.Combine(_environment.ContentRootPath, "uploads", OrgFileName);
+                    //var newFile = new FileInfo(Path.Combine(_environment.ContentRootPath, "uploads", OrgFileName));
+                    //if (newFile.Exists)
+                    //    newFile.Delete(); //Delete a file with the same name if it already exists, effectively overwriting it.
+                    if (System.IO.File.Exists(myFile))
+                    {
+                        System.IO.File.Delete(myFile);
+                    }
+                    System.IO.File.Move(myServerfile, myFile);
+                    //fileInfo.MoveTo("SHARIQ.MP4"); //Move the completed file to the main upload directory.
 
-                    var newFile = new FileInfo(Path.Combine(_environment.ContentRootPath, "uploads", fileHandle));
-                    if (newFile.Exists)
-                        newFile.Delete(); //Delete a file with the same name if it already exists, effectively overwriting it.
-
-                    fileInfo.MoveTo(newFile.FullName); //Move the completed file to the main upload directory.
+                    //System.IO.File.Move(myServerfile, myFile);
                 }
             }
             catch (Exception e)

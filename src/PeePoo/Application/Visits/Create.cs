@@ -7,6 +7,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -54,12 +55,13 @@ namespace Application.PlaceVisits
 
                 if (place == null) return null;
 
-                var placeVisit = new Visit();
+                var placeVisit = new Visit { CreatedAt = DateTime.UtcNow};
                 placeVisit = _mapper.Map<Visit>(request.PlaceVisit);
 
                 if (request.PlaceVisit.File != null && request.PlaceVisit.File.Length > 0)
                 {
-                    var photoUploadResult = await _photoAccessor.AddPhoto(request.PlaceVisit.File);
+                    // var photoUploadResult = await _photoAccessor.AddPhoto(request.PlaceVisit.File);
+                    var photoUploadResult = await _photoAccessor.AddPhotoLargeFile(request.PlaceVisit.File);
                     var photo = new VisitPhoto
                     {
                         Id = photoUploadResult.PublicId,
