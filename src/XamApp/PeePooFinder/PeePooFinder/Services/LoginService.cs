@@ -2,19 +2,17 @@
 using PeePooFinder.DataSettings;
 using PeePooFinder.Models;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Toast = PeePooFinder.Services.Toast;
 namespace PeePooFinder.Services
 {
     public class LoginService : ILoginService<LoginModel>
     {
 
         public LoginService()
-        { 
+        {
         }
 
         public async Task<LoginResponseModel> PerformLogin(LoginModel userModel)

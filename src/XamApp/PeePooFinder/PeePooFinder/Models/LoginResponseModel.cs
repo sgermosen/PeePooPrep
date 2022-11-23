@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PeePooFinder.Models
+﻿namespace PeePooFinder.Models
 {
     public class LoginResponseModel
     {
