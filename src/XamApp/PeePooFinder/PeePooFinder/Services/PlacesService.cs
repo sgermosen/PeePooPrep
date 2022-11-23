@@ -1,16 +1,10 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Office2021.DocumentTasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PeePooFinder.DataSettings;
 using PeePooFinder.Helper;
 using PeePooFinder.Models;
-using PeePooFinder.Views;
-using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Task = System.Threading.Tasks.Task;
@@ -202,7 +196,7 @@ namespace PeePooFinder.Services
 
                     //ByteArrayContent byteContent = new ByteArrayContent(resizedImage);
                     ByteArrayContent byteContent = new ByteArrayContent(fileBytes);
-                    
+
                     content.Add(byteContent, "File", _objsubmit.ImageName);
                 }
 
@@ -245,7 +239,7 @@ namespace PeePooFinder.Services
 
                 //StringContent IsAproved = new StringContent(_objsubmit.IsAproved.ToString());
                 //content.Add(IsAproved, "IsAproved");
-                
+
 
                 StringContent Urinals = new StringContent(_objsubmit.urinals.ToString());
                 content.Add(Urinals, "Urinals");
@@ -320,7 +314,7 @@ namespace PeePooFinder.Services
                 throw ex;
             }
         }
-        
+
         private void CalculateProgress(long completed, long total)
         {
             var comp = Convert.ToDouble(completed);
@@ -341,7 +335,7 @@ namespace PeePooFinder.Services
                 MultipartFormDataContent content = new MultipartFormDataContent();
                 if (fileBytes != null)
                 {
-                   // byte[] resizedImage = await ImageResizeHelper.ResizeImage(fileBytes, 400, 400);
+                    // byte[] resizedImage = await ImageResizeHelper.ResizeImage(fileBytes, 400, 400);
 
                     byte[] resizedImage;
                     if (fileBytes.Length > 5000000)

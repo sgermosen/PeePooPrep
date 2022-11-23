@@ -1,14 +1,12 @@
-﻿using PeePooFinder.Models;
+﻿using Acr.UserDialogs;
+using Newtonsoft.Json;
+using PeePooFinder.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Xamarin.Forms;
-using Newtonsoft.Json;
-using PeePooFinder.Views;
-using Toast = PeePooFinder.Services.Toast;
-using Acr.UserDialogs;
-using System.Threading;
 using System.IO;
+using System.Threading;
+using Xamarin.Forms;
+using Toast = PeePooFinder.Services.Toast;
 
 namespace PeePooFinder.ViewModels
 {
@@ -24,13 +22,13 @@ namespace PeePooFinder.ViewModels
             BindPlaceType();
         }
         public Command SubmitPlaceCommand { get; }
-            public Command CancelCommand { get; }
+        public Command CancelCommand { get; }
 
         List<PlaceTypes> placeTypesList;
         public List<PlaceTypes> PlaceTypeList
         {
             get { return placeTypesList; }
-                set => SetProperty(ref placeTypesList, value);
+            set => SetProperty(ref placeTypesList, value);
         }
 
         string placeDetail = "";
@@ -218,7 +216,7 @@ namespace PeePooFinder.ViewModels
         public void BindPlaceType()
         {
             List<PlaceTypes> lst = new List<PlaceTypes>();
-            lst.Add(new PlaceTypes { PlaceType="Familiar", PlaceTypeName = "Familiar" });
+            lst.Add(new PlaceTypes { PlaceType = "Familiar", PlaceTypeName = "Familiar" });
             lst.Add(new PlaceTypes { PlaceType = "Individual", PlaceTypeName = "Individual" });
             PlaceTypeList = lst;
         }
@@ -261,7 +259,7 @@ namespace PeePooFinder.ViewModels
                             observations = Observations,
                             ImageName = ImageName,
                             ImageBytes = Image,
-                            ImgStream=imgStream,
+                            ImgStream = imgStream,
                             lat = Lat,
                             @long = @Long,
                             OwnerUserName = OwnerUserName
