@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PeePooFinder.Services
+﻿namespace PeePooFinder.Services
 {
     public interface Toast
     {
