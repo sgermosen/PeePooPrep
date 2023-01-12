@@ -1,12 +1,8 @@
-﻿using PeePooFinder.Views;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xamarin.Forms;
+﻿using Acr.UserDialogs;
 using PeePooFinder.Models;
 using PeePooFinder.Services;
-using Acr.UserDialogs;
-using Plugin.Geolocator;
+using System;
+using Xamarin.Forms;
 
 namespace PeePooFinder.ViewModels
 {
