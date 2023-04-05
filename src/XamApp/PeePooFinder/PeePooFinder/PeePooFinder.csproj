@@ -23,12 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Mono.Android">
-      <HintPath>C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v11.0\Mono.Android.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Views\HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>

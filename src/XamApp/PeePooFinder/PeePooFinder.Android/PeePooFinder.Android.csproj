@@ -99,6 +99,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AndroidImageResizer.cs" />
     <Compile Include="Dependecy\Toast_Android.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="MainApplication.cs" />
