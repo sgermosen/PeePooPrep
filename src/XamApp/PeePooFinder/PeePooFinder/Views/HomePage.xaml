@@ -10,7 +10,7 @@
              xmlns:model="clr-namespace:PeePooFinder.Models"  
              x:Name="BrowseItemsPage">
     <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-        <maps:Map x:Name="map" MapClicked="map_MapClicked" PinClicked="map_PinClicked" InfoWindowClicked="map_InfoWindowClicked" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"/>
+        <maps:Map MyLocationEnabled="True" x:Name="map" MapClicked="map_MapClicked" PinClicked="map_PinClicked" InfoWindowClicked="map_InfoWindowClicked" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"/>
         <StackLayout VerticalOptions="End" HeightRequest="40" BackgroundColor="#FFF" x:Name="stkNewPlace" Padding="10" IsVisible="False">
             <Button x:Name="btnSubmitPlace" Text="Submit a place here" WidthRequest="220" HeightRequest="40" HorizontalOptions="CenterAndExpand" Clicked="btnSubmitPlace_Clicked"></Button>
         </StackLayout>
