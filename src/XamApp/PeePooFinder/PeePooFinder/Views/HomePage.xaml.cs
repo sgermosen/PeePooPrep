@@ -56,7 +56,7 @@ namespace PeePooFinder.Views
                     _viewModel = new HomePageViewModel();
                 }
                 //_viewModel.OnAppearing();
-                Thread.Sleep(1500);
+                //Thread.Sleep(1500);
                 if (!isLoading)
                 {
                     LoadMap();
@@ -81,10 +81,9 @@ namespace PeePooFinder.Views
                             List<Places> curplaces = places.Where(x => x.lat > 0 || x.@long > 0).ToList();
                             if (curplaces != null && curplaces.Count > 0)
                             {
-                                if (map.Pins.Count > 0)
-                                {
-                                    map = new Xamarin.Forms.GoogleMaps.Map();
-                                }
+                                map.MyLocationEnabled = true;
+                                map.UiSettings.MyLocationButtonEnabled = true;
+                               
                                 foreach (Places place in curplaces)
                                 {
                                     Pin curPin = new Pin
@@ -94,11 +93,13 @@ namespace PeePooFinder.Views
                                         Address = place.description,
                                         Position = new Position(place.lat, place.@long),
                                         Tag = "id_saved_" + place.id,
-                                    };
+                                        Icon = BitmapDescriptorFactory.FromBundle("poo_icon.png")
+};
                                     pins.Add(curPin);
                                     map.Pins.Add(curPin);
                                 }
-                                var location = await Geolocation.GetLastKnownLocationAsync();
+                                var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+                                var location = await Geolocation.GetLocationAsync(request);
                                 if (location != null)
                                 {
                                     if (!Application.Current.Properties.ContainsKey("FirstLoad"))
