@@ -83,8 +83,12 @@ public interface IPeePooApi
     Task CreateReviewAsync(SubmitReviewData data);
     Task ToggleFavoriteAsync(string placeId);
     Task VerifyPlaceAsync(string placeId);
+    Task ReportPlaceAsync(string placeId, string reason);
+    Task ReportReviewAsync(string reviewId, string reason);
+    Task BlockUserAsync(string username);
     Task<Profile?> GetProfileAsync(string username);
     Task UpdateProfileAsync(string displayName, string bio);
+    Task DeleteAccountAsync();
 }
 
 public class PeePooApiClient : IPeePooApi
@@ -180,6 +184,30 @@ public class PeePooApiClient : IPeePooApi
     public async Task VerifyPlaceAsync(string placeId)
     {
         var response = await _http.PostAsync($"api/places/{placeId}/verify", null);
+        await EnsureSuccess(response);
+    }
+
+    public async Task ReportPlaceAsync(string placeId, string reason)
+    {
+        var response = await _http.PostAsJsonAsync($"api/places/{placeId}/report", new { reason }, JsonOptions);
+        await EnsureSuccess(response);
+    }
+
+    public async Task ReportReviewAsync(string reviewId, string reason)
+    {
+        var response = await _http.PostAsJsonAsync($"api/visits/{reviewId}/report", new { reason }, JsonOptions);
+        await EnsureSuccess(response);
+    }
+
+    public async Task BlockUserAsync(string username)
+    {
+        var response = await _http.PostAsync($"api/profiles/{Uri.EscapeDataString(username)}/block", null);
+        await EnsureSuccess(response);
+    }
+
+    public async Task DeleteAccountAsync()
+    {
+        var response = await _http.DeleteAsync("api/account");
         await EnsureSuccess(response);
     }
 

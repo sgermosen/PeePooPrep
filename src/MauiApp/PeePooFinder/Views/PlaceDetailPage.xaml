@@ -28,6 +28,10 @@
                         <Label Text="{Binding Place.FreshnessLabel}" Style="{StaticResource Caption}" TextColor="{StaticResource Tertiary}" VerticalOptions="Center" />
                         <Button Text="Still good?" Style="{StaticResource GhostButton}" HeightRequest="34" FontSize="12" Padding="10,0" Command="{Binding VerifyCommand}" />
                     </HorizontalStackLayout>
+                    <Button Text="Report this spot"
+                            BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
+                            FontSize="12" Padding="0" HeightRequest="26" HorizontalOptions="Start"
+                            Command="{Binding ReportPlaceCommand}" />
                 </VerticalStackLayout>
             </Border>
 
@@ -64,7 +68,19 @@
                                     <Label Grid.Column="1" Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" />
                                 </Grid>
                                 <Label Text="{Binding Description}" Style="{StaticResource Body}" />
-                                <Label Text="{Binding DisplayName, StringFormat='by {0}'}" Style="{StaticResource Caption}" />
+                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <Label Grid.Column="0" Text="{Binding DisplayName, StringFormat='by {0}'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                    <Button Grid.Column="1" Text="Report"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
+                                            FontSize="11" Padding="6,0" HeightRequest="26"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceDetailViewModel}}, Path=ReportReviewCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="2" Text="Block"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Gray500}"
+                                            FontSize="11" Padding="6,0" HeightRequest="26"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceDetailViewModel}}, Path=BlockAuthorCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>

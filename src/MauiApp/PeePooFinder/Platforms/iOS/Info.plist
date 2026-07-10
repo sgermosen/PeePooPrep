@@ -28,5 +28,11 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to show restrooms near you and to place a spot you add.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo of a restroom to add it to a place or review.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Attach a photo from your library to a place or review.</string>
 </dict>
 </plist>

@@ -90,4 +90,40 @@ public partial class ProfileViewModel : BaseViewModel
         await _session.ClearAsync();
         await Shell.Current.GoToAsync("//login");
     }
+
+    [RelayCommand]
+    private async Task DeleteAccountAsync()
+    {
+        var confirm = await Shell.Current.DisplayAlert(
+            "Delete account",
+            "This permanently deletes your account and your reviews and photos. This cannot be undone.",
+            "Delete", "Cancel");
+        if (!confirm) return;
+
+        var reallySure = await Shell.Current.DisplayAlert(
+            "Are you absolutely sure?",
+            "Your account will be deleted for good.",
+            "Delete my account", "Keep my account");
+        if (!reallySure) return;
+
+        try
+        {
+            IsBusy = true;
+            await _api.DeleteAccountAsync();
+            await _session.ClearAsync();
+            await Shell.Current.GoToAsync("//login");
+        }
+        catch (ApiException ex)
+        {
+            await ShowError(ex.Message);
+        }
+        catch
+        {
+            await ShowError("Could not delete your account. Please try again.");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
 }

@@ -115,4 +115,65 @@ public partial class PlaceDetailViewModel : BaseViewModel
             await ShowError("Could not open the maps app.");
         }
     }
+
+    [RelayCommand]
+    private async Task ReportPlaceAsync()
+    {
+        if (Place is null) return;
+        var reason = await AskReason();
+        if (reason is null) return;
+        try
+        {
+            await _api.ReportPlaceAsync(Place.Id, reason);
+            await ShowInfo("Reported", "Thanks — our team will take a look.");
+        }
+        catch (ApiException ex)
+        {
+            await ShowError(ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ReportReviewAsync(Review? review)
+    {
+        if (review is null) return;
+        var reason = await AskReason();
+        if (reason is null) return;
+        try
+        {
+            await _api.ReportReviewAsync(review.Id, reason);
+            await ShowInfo("Reported", "Thanks — our team will take a look.");
+        }
+        catch (ApiException ex)
+        {
+            await ShowError(ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task BlockAuthorAsync(Review? review)
+    {
+        if (review is null || string.IsNullOrEmpty(review.Username)) return;
+        var confirm = await Shell.Current.DisplayAlert(
+            "Block user",
+            $"Hide all reviews from @{review.Username}?", "Block", "Cancel");
+        if (!confirm) return;
+        try
+        {
+            await _api.BlockUserAsync(review.Username!);
+            await LoadAsync();
+        }
+        catch (ApiException ex)
+        {
+            await ShowError(ex.Message);
+        }
+    }
+
+    private static async Task<string?> AskReason()
+    {
+        var reason = await Shell.Current.CurrentPage.DisplayPromptAsync(
+            "Report", "What's wrong with this?", "Send", "Cancel",
+            placeholder: "Reason", maxLength: 500);
+        return string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+    }
 }

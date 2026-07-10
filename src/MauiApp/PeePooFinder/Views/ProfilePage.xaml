@@ -36,6 +36,16 @@
 
             <Button Text="Sign out" Style="{StaticResource GhostButton}" Command="{Binding LogoutCommand}" />
 
+            <Button Text="Delete account"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Danger}"
+                    FontFamily="OpenSansSemibold"
+                    BorderColor="{StaticResource Danger}"
+                    BorderWidth="1"
+                    HeightRequest="48"
+                    CornerRadius="14"
+                    Command="{Binding DeleteAccountCommand}" />
+
             <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
         </VerticalStackLayout>
     </ScrollView>
