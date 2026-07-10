@@ -1,4 +1,6 @@
-﻿using Application.PlaceVisits;
+﻿using API.DTOs;
+using Application.Moderation;
+using Application.PlaceVisits;
 using Application.Visits;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +46,15 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Delete.Command { Id = id }));
         }
 
-
+        [HttpPost("{id}/report")]
+        public async Task<IActionResult> Report(Guid id, ReportDto dto)
+        {
+            return HandleResult(await Mediator.Send(new CreateReport.Command
+            {
+                TargetType = "Visit",
+                TargetId = id,
+                Reason = dto?.Reason
+            }));
+        }
     }
 }

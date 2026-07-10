@@ -1,6 +1,9 @@
 ﻿using API.DTOs;
 using API.Services;
+using Application.Core;
+using Application.Profiles;
 using Domain;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,13 +24,15 @@ namespace API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly TokenService _tokenService;
+        private readonly IMediator _mediator;
 
         public AccountController(UserManager<ApplicationUser> userManager,
-         SignInManager<ApplicationUser> signInManager, TokenService tokenService)
+         SignInManager<ApplicationUser> signInManager, TokenService tokenService, IMediator mediator)
         {
             _tokenService = tokenService;
             _signInManager = signInManager;
             _userManager = userManager;
+            _mediator = mediator;
         }
 
         [HttpPost("login")]
@@ -86,6 +91,15 @@ namespace API.Controllers
              .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
             return CreateUserObject(user);
+        }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var result = await _mediator.Send(new DeleteAccount.Command());
+            if (result == null) return NotFound();
+            return result.IsSuccess ? Ok() : BadRequest(result.Error);
         }
         private UserDto CreateUserObject(ApplicationUser user)
         {

@@ -1,3 +1,5 @@
+using API.DTOs;
+using Application.Moderation;
 using Application.Places;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +66,17 @@ namespace API.Controllers
         public async Task<IActionResult> Verify(Guid id)
         {
             return HandleResult(await Mediator.Send(new Verify.Command { Id = id }));
+        }
+
+        [HttpPost("{id}/report")]
+        public async Task<IActionResult> Report(Guid id, ReportDto dto)
+        {
+            return HandleResult(await Mediator.Send(new CreateReport.Command
+            {
+                TargetType = "Place",
+                TargetId = id,
+                Reason = dto?.Reason
+            }));
         }
     }
 }

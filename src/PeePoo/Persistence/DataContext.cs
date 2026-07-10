@@ -15,6 +15,8 @@ namespace Persistence
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public DbSet<FavoritePlace> FavoritePlaces { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<UserBlock> UserBlocks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -37,6 +39,9 @@ namespace Persistence
                .HasOne(a => a.Place)
                .WithMany(c => c.Visits)
                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<UserBlock>()
+                .HasKey(x => new { x.BlockerId, x.BlockedId });
         }
     }
 }
