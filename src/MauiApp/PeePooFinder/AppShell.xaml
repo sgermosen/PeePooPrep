@@ -26,6 +26,10 @@
             Route="places"
             ContentTemplate="{DataTemplate views:PlacesPage}" />
         <ShellContent
+            Title="Map"
+            Route="map"
+            ContentTemplate="{DataTemplate views:MapPage}" />
+        <ShellContent
             Title="Profile"
             Route="profile"
             ContentTemplate="{DataTemplate views:ProfilePage}" />

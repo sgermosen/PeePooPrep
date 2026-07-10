@@ -27,8 +27,17 @@ profile.
 ```
 
 Point `Api:BaseUrl` at your API (e.g. `http://10.0.2.2:5099` for the Android
-emulator talking to a local API). The Google Maps key is intentionally empty —
-supply your own, restricted key; never commit a real one.
+emulator talking to a local API).
+
+The **Map** tab uses the native map (Google Maps on Android). Supply your own
+restricted key at build time — it is injected into the Android manifest via a
+placeholder, never committed:
+
+```bash
+dotnet build -f net10.0-android -p:MapsApiKey=YOUR_ANDROID_MAPS_KEY
+```
+
+The rest of the app (nearby search, distance, directions) works without a key.
 
 ## Building
 
