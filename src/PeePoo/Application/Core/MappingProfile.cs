@@ -15,7 +15,8 @@ namespace Application.Core
             .ForMember(d => d.CreatedAt, o => o.Ignore());
             CreateMap<Place, PlaceDto>()
             .ForMember(d => d.OwnerUsername, o => o.MapFrom(s => s.Favorites.Where(x => x.IsOwner).Select(x => x.User.UserName).FirstOrDefault()))
-            .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.Select(x => x.Url).FirstOrDefault()));
+            .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.Select(x => x.Url).FirstOrDefault()))
+            .ForMember(d => d.DistanceKm, o => o.Ignore());
 
             CreateMap<FavoritePlace, FavoriteDto>()
             .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.User.DisplayName))

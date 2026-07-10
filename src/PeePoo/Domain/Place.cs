@@ -20,6 +20,7 @@ namespace Domain
         public double Long { get; set; }
         public double Lat { get; set; }
         public bool IsAproved { get; set; }
+        public DateTime? LastVerifiedAt { get; set; }
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
         public ICollection<FavoritePlace> Favorites { get; set; } = new List<FavoritePlace>();
         public ICollection<Photo> Photos { get; set; } = new List<Photo>();

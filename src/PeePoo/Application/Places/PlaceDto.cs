@@ -23,7 +23,9 @@ namespace Application.Places
         public double Long { get; set; }
         public double Lat { get; set; }
         public bool IsAproved { get; set; }
-        public string OwnerUsername { get; set; }   
+        public DateTime? LastVerifiedAt { get; set; }
+        public double? DistanceKm { get; set; }
+        public string OwnerUsername { get; set; }
         public ICollection<FavoriteDto> Favorites { get; set; }
         public ICollection<VisitDto> Visits { get; set; }
         public IFormFile File { get; set; }

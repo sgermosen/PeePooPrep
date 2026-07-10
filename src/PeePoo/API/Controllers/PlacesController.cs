@@ -1,4 +1,4 @@
-﻿using Application.Places;
+using Application.Places;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,9 +10,20 @@ namespace API.Controllers
     {
 
         [HttpGet]
-        public async Task<IActionResult> GetPlaces()
+        public async Task<IActionResult> GetPlaces([FromQuery] double? lat, [FromQuery] double? @long,
+            [FromQuery] double? radiusKm, [FromQuery] string type, [FromQuery] bool? babyChanger,
+            [FromQuery] bool? roomy, [FromQuery] bool? availableOnly)
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandleResult(await Mediator.Send(new List.Query
+            {
+                Lat = lat,
+                Long = @long,
+                RadiusKm = radiusKm,
+                Type = type,
+                BabyChanger = babyChanger,
+                Roomy = roomy,
+                AvailableOnly = availableOnly
+            }));
         }
 
         [HttpGet("{id}")]
@@ -47,6 +58,12 @@ namespace API.Controllers
         public async Task<IActionResult> Favorite(Guid id)
         {
             return HandleResult(await Mediator.Send(new UpdateFavorite.Command { Id = id }));
+        }
+
+        [HttpPost("{id}/verify")]
+        public async Task<IActionResult> Verify(Guid id)
+        {
+            return HandleResult(await Mediator.Send(new Verify.Command { Id = id }));
         }
     }
 }

@@ -70,5 +70,73 @@ namespace Tests
             var place = Assert.Single(result.Value);
             Assert.Equal("alice", place.OwnerUsername);
         }
+
+        private async Task CreatePlaceAt(string name, double lat, double lng, bool babyChanger = false)
+        {
+            var dto = new PlaceDto
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                Description = "d",
+                Type = "Unisex",
+                Lat = lat,
+                Long = lng,
+                HaveBabyChanger = babyChanger
+            };
+            await new Create.Handler(Context, new FakeUserAccessor { Username = "alice" }, new FakePhotoAccessor(), Mapper)
+                .Handle(new Create.Command { Place = dto }, CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task List_NearLocation_ReturnsWithinRadius_SortedByDistance()
+        {
+            AddUser("u1", "alice");
+            await CreatePlaceAt("Near", 18.4861, -69.9312);
+            await CreatePlaceAt("AlsoNear", 18.4900, -69.9300);
+            await CreatePlaceAt("Far", 25.7617, -80.1918);
+
+            var result = await new List.Handler(Context, Mapper).Handle(
+                new List.Query { Lat = 18.486, Long = -69.931, RadiusKm = 5 }, CancellationToken.None);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(2, result.Value.Count);
+            Assert.Equal("Near", result.Value[0].Name);
+            Assert.DoesNotContain(result.Value, p => p.Name == "Far");
+            Assert.True(result.Value[0].DistanceKm <= result.Value[1].DistanceKm);
+            Assert.NotNull(result.Value[0].DistanceKm);
+        }
+
+        [Fact]
+        public async Task List_FilterByBabyChanger_ReturnsOnlyMatching()
+        {
+            AddUser("u1", "alice");
+            await CreatePlaceAt("WithChanger", 18.4861, -69.9312, babyChanger: true);
+            await CreatePlaceAt("WithoutChanger", 18.4862, -69.9313, babyChanger: false);
+
+            var result = await new List.Handler(Context, Mapper).Handle(
+                new List.Query { BabyChanger = true }, CancellationToken.None);
+
+            var place = Assert.Single(result.Value);
+            Assert.Equal("WithChanger", place.Name);
+        }
+
+        [Fact]
+        public async Task Verify_StampsLastVerifiedAt()
+        {
+            AddUser("u1", "alice");
+            var dto = NewPlaceDto();
+            await new Create.Handler(Context, new FakeUserAccessor { Username = "alice" }, new FakePhotoAccessor(), Mapper)
+                .Handle(new Create.Command { Place = dto }, CancellationToken.None);
+
+            var before = Context.Places.Single();
+            Assert.Null(before.LastVerifiedAt);
+
+            var result = await new Verify.Handler(Context).Handle(new Verify.Command { Id = dto.Id }, CancellationToken.None);
+
+            Assert.True(result.IsSuccess);
+            var after = Context.Places.Single();
+            Assert.NotNull(after.LastVerifiedAt);
+            Assert.True((DateTime.UtcNow - after.LastVerifiedAt!.Value).TotalMinutes < 1);
+        }
     }
 }
