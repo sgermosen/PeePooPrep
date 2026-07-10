@@ -8,7 +8,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="AutoMapper" Version="15.1.1" />
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
 		<PackageReference Include="CloudinaryDotNet" Version="1.27.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
