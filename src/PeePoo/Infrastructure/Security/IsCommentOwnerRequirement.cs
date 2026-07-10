@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -12,7 +12,7 @@ namespace Infrastructure.Security
     public class IsCommentOwnerRequirement : IAuthorizationRequirement
     {
     }
-    public class IsCommentOwnerRequirementHandler : AuthorizationHandler<IsOwnerRequirement>
+    public class IsCommentOwnerRequirementHandler : AuthorizationHandler<IsCommentOwnerRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DataContext _dbContext;
@@ -21,18 +21,20 @@ namespace Infrastructure.Security
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
         }
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsOwnerRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, IsCommentOwnerRequirement requirement)
         {
             var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) return Task.CompletedTask;
-            var visitId = Guid.Parse(_httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString());
-            var visit = _dbContext.Visits
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == visitId && x.AuthorId == userId).Result;
-            if (visit == null) return Task.CompletedTask;
+            if (userId == null) return;
+
+            var routeId = _httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString();
+            if (!Guid.TryParse(routeId, out var visitId)) return;
+
+            var visit = await _dbContext.Visits
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Id == visitId && x.AuthorId == userId);
+            if (visit == null) return;
 
             context.Succeed(requirement);
-            return Task.CompletedTask;
         }
     }
 }

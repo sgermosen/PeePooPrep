@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -21,18 +21,20 @@ namespace Infrastructure.Security
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
         }
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsOwnerRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, IsOwnerRequirement requirement)
         {
             var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) return Task.CompletedTask;
-            var placeId = Guid.Parse(_httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString());
-            var fav = _dbContext.FavoritePlaces
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.PlaceId == placeId && x.UserId == userId).Result;
-            if (fav == null) return Task.CompletedTask;
+            if (userId == null) return;
 
-            if (fav.IsOwner) context.Succeed(requirement);  
-            return Task.CompletedTask;
+            var routeId = _httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString();
+            if (!Guid.TryParse(routeId, out var placeId)) return;
+
+            var fav = await _dbContext.FavoritePlaces
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.PlaceId == placeId && x.UserId == userId);
+            if (fav == null) return;
+
+            if (fav.IsOwner) context.Succeed(requirement);
         }
     }
 }

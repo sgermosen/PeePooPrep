@@ -55,8 +55,9 @@ namespace Application.PlaceVisits
 
                 if (place == null) return null;
 
-                var placeVisit = new Visit { CreatedAt = DateTime.UtcNow};
-                placeVisit = _mapper.Map<Visit>(request.PlaceVisit);
+                var placeVisit = _mapper.Map<Visit>(request.PlaceVisit);
+                placeVisit.Author = user;
+                placeVisit.CreatedAt = DateTime.UtcNow;
 
                 if (request.PlaceVisit.File != null && request.PlaceVisit.File.Length > 0)
                 {

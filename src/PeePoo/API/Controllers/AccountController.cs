@@ -36,7 +36,9 @@ namespace API.Controllers
             if (user == null)
                 return Unauthorized(new { message = "Username or password is incorrect" });
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, true);
+            if (result.IsLockedOut)
+                return Unauthorized(new { message = "Account locked due to multiple failed attempts. Try again later." });
             if (!result.Succeeded)
                 return Unauthorized(new { message = "Username or password is incorrect" });
 

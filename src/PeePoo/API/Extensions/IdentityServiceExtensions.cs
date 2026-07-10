@@ -1,4 +1,4 @@
-﻿using API.Services;
+using API.Services;
 using Domain;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 namespace API.Extensions
@@ -20,35 +21,38 @@ namespace API.Extensions
             services.AddIdentityCore<ApplicationUser>(opt =>
             {
                 opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 8;
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireLowercase = true;
+                opt.Password.RequireUppercase = true;
+
+                opt.User.RequireUniqueEmail = true;
+
+                opt.Lockout.AllowedForNewUsers = true;
+                opt.Lockout.MaxFailedAccessAttempts = 5;
+                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             })
              .AddEntityFrameworkStores<DataContext>()
              .AddSignInManager<SignInManager<ApplicationUser>>()
              .AddDefaultTokenProviders();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+            var issuer = config["Jwt:Issuer"] ?? "PeePooApi";
+            var audience = config["Jwt:Audience"] ?? "PeePooClient";
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(opt =>
              {
                  opt.TokenValidationParameters = new TokenValidationParameters
                  {
-                     ValidateIssuerSigningKey = true, //COMPARE TO THE SAVED ON SERVER
+                     ValidateIssuerSigningKey = true,
                      IssuerSigningKey = key,
-                     ValidateIssuer = false,
-                     ValidateAudience = false,
-                 };
-                 opt.Events = new JwtBearerEvents
-                 {
-                     OnMessageReceived = context =>
-                     {
-                         var accessToken = context.Request.Query["access_token"];
-                         var path = context.HttpContext.Request.Path;
-                         if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
-                         {
-                             context.Token = accessToken;
-                         }
-                         return Task.CompletedTask;
-                     }
+                     ValidateIssuer = true,
+                     ValidIssuer = issuer,
+                     ValidateAudience = true,
+                     ValidAudience = audience,
+                     ValidateLifetime = true,
+                     ClockSkew = TimeSpan.FromMinutes(1),
                  };
              });
             services.AddAuthorization(opt =>
@@ -57,12 +61,13 @@ namespace API.Extensions
                 {
                     policy.Requirements.Add(new IsOwnerRequirement());
                 });
-                opt.AddPolicy("IsCommentOwner", policy =>
+                opt.AddPolicy("IsVisitOwner", policy =>
                 {
                     policy.Requirements.Add(new IsCommentOwnerRequirement());
                 });
             });
             services.AddTransient<IAuthorizationHandler, IsOwnerRequirementHandler>();
+            services.AddTransient<IAuthorizationHandler, IsCommentOwnerRequirementHandler>();
             services.AddScoped<TokenService>();
 
             return services;

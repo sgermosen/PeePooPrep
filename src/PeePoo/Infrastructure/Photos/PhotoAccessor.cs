@@ -12,16 +12,19 @@ namespace Infrastructure.Photos
 {
     public class PhotoAccessor : IPhotoAccessor
     {
-        private readonly Cloudinary _cloudinary;
+        private readonly Lazy<Cloudinary> _cloudinaryFactory;
+        private Cloudinary _cloudinary => _cloudinaryFactory.Value;
+
         public PhotoAccessor(IOptions<CloudinarySettings> config)
         {
-            var account = new Account(
-                 config.Value.CloudName,
-                 config.Value.ApiKey,
-                 config.Value.ApiSecret
-             );
+            _cloudinaryFactory = new Lazy<Cloudinary>(() =>
+            {
+                var settings = config.Value;
+                if (string.IsNullOrWhiteSpace(settings.CloudName))
+                    throw new InvalidOperationException("Cloudinary is not configured. Set the Cloudinary section in configuration.");
 
-            _cloudinary = new Cloudinary(account);
+                return new Cloudinary(new Account(settings.CloudName, settings.ApiKey, settings.ApiSecret));
+            });
         }
 
         public async Task<PhotoUploadResult> AddPhoto(IFormFile file)

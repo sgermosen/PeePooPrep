@@ -56,7 +56,7 @@ namespace Application.Places
                     favoritee = new FavoritePlace
                     {
                         User = user,
-                        IsOwner = true,
+                        IsOwner = false,
                         Place = place
                     };
                     place.Favorites.Add(favoritee);

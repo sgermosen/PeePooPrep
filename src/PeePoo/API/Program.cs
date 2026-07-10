@@ -65,7 +65,8 @@ using (var scope = app.Services.CreateScope())
         else
             await context.Database.MigrateAsync();
 
-        await Seed.SeedData(context, userManager);
+        if (app.Environment.IsDevelopment())
+            await Seed.SeedData(context, userManager);
     }
     catch (Exception ex)
     {

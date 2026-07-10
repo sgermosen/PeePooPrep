@@ -406,3 +406,7 @@ src/PeePoo/API/Properties/ServiceDependencies/peepoo - Zip Deploy/profile.arm.js
 *.db
 *.db-shm
 *.db-wal
+
+# Environment-specific secrets (use user-secrets / env vars / Key Vault instead)
+appsettings.Production.json
+appsettings.*.local.json

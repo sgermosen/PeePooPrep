@@ -32,7 +32,9 @@ namespace API.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = _config["Jwt:Issuer"] ?? "PeePooApi",
+                Audience = _config["Jwt:Audience"] ?? "PeePooClient",
                 SigningCredentials = credentials
             };
             var tokenHandler = new JwtSecurityTokenHandler();
