@@ -36,6 +36,8 @@ namespace Application.Profiles
                 var user = await _context.Users.FirstOrDefaultAsync(x =>
                 x.UserName == _userAccessor.GetUsername(), cancellationToken);
 
+                if (user == null) return null;
+
                 user.Bio = request.Bio ?? user.Bio;
                 user.DisplayName = request.DisplayName ?? user.DisplayName;
                 _context.Entry(user).State = EntityState.Modified;

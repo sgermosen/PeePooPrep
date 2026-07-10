@@ -49,8 +49,8 @@ namespace Application.Places
 
                 if (user == null) return null;
 
-                var place = new Place { CreatedAt = DateTime.UtcNow };
-                place = _mapper.Map<Place>(request.Place);
+                var place = _mapper.Map<Place>(request.Place);
+                place.CreatedAt = DateTime.UtcNow;
                 var favoritee = new FavoritePlace { User = user, Place = place, IsOwner = true };
 
                 place.Favorites.Add(favoritee);
