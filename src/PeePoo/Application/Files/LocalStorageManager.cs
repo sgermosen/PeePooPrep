@@ -101,10 +101,5 @@ namespace Application.Files
         {
             throw new NotImplementedException();
         }
-
-        public Task<FileStorageResponse> UploadTo(string filename, string basePath)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

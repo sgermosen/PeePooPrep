@@ -401,3 +401,8 @@ src/PeePoo/API/Properties/ServiceDependencies/peepoo - FTP/profile.arm.json
 src/PeePoo/API/Properties/ServiceDependencies/peepoo - Web Deploy/profile.arm.json
 src/PeePoo/API/Properties/ServiceDependencies/peepoo - Web Deploy1/profile.arm.json
 src/PeePoo/API/Properties/ServiceDependencies/peepoo - Zip Deploy/profile.arm.json
+
+# Local dev SQLite database
+*.db
+*.db-shm
+*.db-wal

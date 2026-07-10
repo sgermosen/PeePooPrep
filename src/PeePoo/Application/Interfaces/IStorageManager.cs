@@ -18,7 +18,6 @@ namespace Application.Interfaces
         Task<FileStorageResponse> UploadBlobAsync(byte[] fileName);
         Task<FileStorageResponse> UploadBlobAsync(string imageName);
         Task DeleteBlobAsync(Guid idName);
-        Task<FileStorageResponse> UploadTo(string filename, string basePath);
 
     }
 }
