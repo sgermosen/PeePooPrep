@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.RegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    x:DataType="vm:RegisterViewModel"
+    Title="Create account"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Join the community" Style="{StaticResource Headline}" />
+            <Label Text="Help others find great restrooms nearby." Style="{StaticResource Body}" />
+
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Display name" Text="{Binding DisplayName}" Style="{StaticResource FieldEntry}" />
+            </Border>
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Username" Text="{Binding Username}" Style="{StaticResource FieldEntry}" />
+            </Border>
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Email" Keyboard="Email" Text="{Binding Email}" Style="{StaticResource FieldEntry}" />
+            </Border>
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}" Style="{StaticResource FieldEntry}" />
+            </Border>
+            <Label Text="At least 8 characters, with an uppercase, a lowercase and a digit." Style="{StaticResource Caption}" />
+
+            <Button Text="Create account"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding RegisterCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="I already have an account"
+                    Style="{StaticResource GhostButton}"
+                    Command="{Binding BackToLoginCommand}" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

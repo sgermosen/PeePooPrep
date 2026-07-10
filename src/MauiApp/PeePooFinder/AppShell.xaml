@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="PeePooFinder.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:PeePooFinder.Views"
+    Title="PeePoo Finder"
+    Shell.BackgroundColor="{StaticResource Primary}"
+    Shell.ForegroundColor="{StaticResource White}"
+    Shell.TitleColor="{StaticResource White}"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+    Shell.TabBarForegroundColor="{StaticResource Primary}"
+    Shell.TabBarTitleColor="{StaticResource Primary}"
+    Shell.TabBarUnselectedColor="{StaticResource Gray400}">
+
+    <ShellContent
+        x:Name="LoginItem"
+        Route="login"
+        Shell.NavBarIsVisible="False"
+        Shell.FlyoutBehavior="Disabled"
+        ContentTemplate="{DataTemplate views:LoginPage}" />
+
+    <TabBar x:Name="MainTabs" Route="main">
+        <ShellContent
+            Title="Explore"
+            Route="places"
+            ContentTemplate="{DataTemplate views:PlacesPage}" />
+        <ShellContent
+            Title="Profile"
+            Route="profile"
+            ContentTemplate="{DataTemplate views:ProfilePage}" />
+    </TabBar>
+
+</Shell>

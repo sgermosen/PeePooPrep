@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.ProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    x:DataType="vm:ProfileViewModel"
+    Title="Profile"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                    <Border WidthRequest="96" HeightRequest="96" StrokeThickness="0" StrokeShape="RoundRectangle 48" BackgroundColor="{StaticResource Secondary}" HorizontalOptions="Center">
+                        <Label Text="{Binding DisplayName}" FontSize="34" FontFamily="OpenSansSemibold" TextColor="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{Binding DisplayName}" Style="{StaticResource Title}" HorizontalOptions="Center" />
+                    <Label Text="{Binding Username, StringFormat='@{0}'}" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Edit profile" Style="{StaticResource Title}" />
+                    <Border Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="Display name" Text="{Binding DisplayName}" Style="{StaticResource FieldEntry}" />
+                    </Border>
+                    <Border Style="{StaticResource FieldBorder}" Padding="14,8">
+                        <Editor Placeholder="Bio" Text="{Binding Bio}" HeightRequest="90" FontSize="16" />
+                    </Border>
+                    <Button Text="Save changes" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Sign out" Style="{StaticResource GhostButton}" Command="{Binding LogoutCommand}" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.SubmitPlacePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    x:DataType="vm:SubmitPlaceViewModel"
+    Title="Add a spot"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Name" Text="{Binding Name}" Style="{StaticResource FieldEntry}" />
+            </Border>
+
+            <Border Style="{StaticResource FieldBorder}" Padding="14,8">
+                <Editor Placeholder="Description" Text="{Binding Description}" HeightRequest="90" FontSize="16" />
+            </Border>
+
+            <Border Style="{StaticResource FieldBorder}">
+                <Picker ItemsSource="{Binding PlaceTypes}" SelectedItem="{Binding SelectedType}" Title="Type" />
+            </Border>
+
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Observations (optional)" Text="{Binding Observations}" Style="{StaticResource FieldEntry}" />
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label Text="Toilets" Style="{StaticResource Caption}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Stepper Minimum="0" Maximum="20" Value="{Binding Toilets}" />
+                        <Label Text="{Binding Toilets}" Style="{StaticResource Body}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Urinals" Style="{StaticResource Caption}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Stepper Minimum="0" Maximum="20" Value="{Binding Urinals}" />
+                        <Label Text="{Binding Urinals}" Style="{StaticResource Body}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="Baby changer" Style="{StaticResource Body}" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding HaveBabyChanger}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="Roomy" Style="{StaticResource Body}" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding IsRoomy}" OnColor="{StaticResource Primary}" />
+            </Grid>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding Rating, StringFormat='Rating: {0:0}'}" Style="{StaticResource Caption}" />
+                <Slider Minimum="1" Maximum="5" Value="{Binding Rating}" MinimumTrackColor="{StaticResource Primary}" ThumbColor="{StaticResource Primary}" />
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource Chip}" HorizontalOptions="Start">
+                <Label Text="{Binding LocationLabel}" FontSize="12" TextColor="{StaticResource SecondaryDarkText}" />
+            </Border>
+
+            <Image Source="{Binding PhotoPreview}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="Gallery" Style="{StaticResource GhostButton}" Command="{Binding PickPhotoCommand}" />
+                <Button Grid.Column="1" Text="Camera" Style="{StaticResource GhostButton}" Command="{Binding TakePhotoCommand}" />
+            </Grid>
+
+            <Button Text="Add spot" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsNotBusy}" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

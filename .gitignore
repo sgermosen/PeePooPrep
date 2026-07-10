@@ -410,3 +410,7 @@ src/PeePoo/API/Properties/ServiceDependencies/peepoo - Zip Deploy/profile.arm.js
 # Environment-specific secrets (use user-secrets / env vars / Key Vault instead)
 appsettings.Production.json
 appsettings.*.local.json
+
+# .NET build output
+bin/
+obj/

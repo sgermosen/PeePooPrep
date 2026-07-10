@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.AddReviewPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    x:DataType="vm:AddReviewViewModel"
+    Title="Write a review"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Title" Text="{Binding ReviewTitle}" Style="{StaticResource FieldEntry}" />
+            </Border>
+
+            <Border Style="{StaticResource FieldBorder}" Padding="14,8">
+                <Editor Placeholder="How was it?" Text="{Binding Description}" HeightRequest="120" FontSize="16" />
+            </Border>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding Rating, StringFormat='Rating: {0:0}'}" Style="{StaticResource Caption}" />
+                <Slider Minimum="1" Maximum="5" Value="{Binding Rating}" MinimumTrackColor="{StaticResource Primary}" ThumbColor="{StaticResource Primary}" />
+            </VerticalStackLayout>
+
+            <Image Source="{Binding PhotoPreview}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
+            <Button Text="Add a photo" Style="{StaticResource GhostButton}" Command="{Binding PickPhotoCommand}" />
+
+            <Button Text="Post review" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsNotBusy}" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

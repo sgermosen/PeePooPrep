@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.PlaceDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    xmlns:models="clr-namespace:PeePooFinder.Models"
+    x:DataType="vm:PlaceDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16" BindingContext="{Binding}">
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10" x:DataType="vm:PlaceDetailViewModel">
+                    <Label Text="{Binding Place.Name}" Style="{StaticResource Headline}" />
+                    <HorizontalStackLayout Spacing="10">
+                        <Border Style="{StaticResource Chip}">
+                            <Label Text="{Binding Place.Type}" FontSize="12" TextColor="{StaticResource SecondaryDarkText}" />
+                        </Border>
+                        <Label Text="{Binding Place.Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding Place.Description}" Style="{StaticResource Body}" />
+                    <Label Text="{Binding Place.Observations}" Style="{StaticResource Caption}" IsVisible="{Binding Place.Observations, Converter={StaticResource StringHasValue}}" />
+                    <Label Text="{Binding Place.OwnerUsername, StringFormat='Added by @{0}'}" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12" x:DataType="vm:PlaceDetailViewModel">
+                    <Label Text="Amenities" Style="{StaticResource Title}" />
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="8">
+                        <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource Body}" Text="{Binding Place.Toilets, StringFormat='Toilets: {0}'}" />
+                        <Label Grid.Row="0" Grid.Column="1" Style="{StaticResource Body}" Text="{Binding Place.Urinals, StringFormat='Urinals: {0}'}" />
+                        <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource Body}" Text="{Binding Place.HaveBabyChanger, Converter={StaticResource BoolToYesNo}, StringFormat='Baby changer: {0}'}" />
+                        <Label Grid.Row="1" Grid.Column="1" Style="{StaticResource Body}" Text="{Binding Place.IsRoomy, Converter={StaticResource BoolToYesNo}, StringFormat='Roomy: {0}'}" />
+                        <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource Body}" Text="{Binding Place.IsAvailable, Converter={StaticResource BoolToYesNo}, StringFormat='Open: {0}'}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="Save" Style="{StaticResource GhostButton}" Command="{Binding ToggleFavoriteCommand}" />
+                <Button Grid.Column="1" Text="Write a review" Style="{StaticResource PrimaryButton}" Command="{Binding AddReviewCommand}" />
+            </Grid>
+
+            <Label Text="Reviews" Style="{StaticResource Title}" />
+            <Label Text="No reviews yet. Be the first!" Style="{StaticResource Body}" IsVisible="{Binding HasReviews, Converter={StaticResource InvertedBool}}" />
+
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Reviews}" Spacing="10">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:Review">
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding Title}" Style="{StaticResource Title}" />
+                                    <Label Grid.Column="1" Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" />
+                                </Grid>
+                                <Label Text="{Binding Description}" Style="{StaticResource Body}" />
+                                <Label Text="{Binding DisplayName, StringFormat='by {0}'}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

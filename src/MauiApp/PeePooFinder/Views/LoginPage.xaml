@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    x:DataType="vm:LoginViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource Primary}">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <VerticalStackLayout Grid.Row="0" Padding="24" Spacing="12" VerticalOptions="Center" HorizontalOptions="Center">
+            <Image Source="logo.png" HeightRequest="120" Aspect="AspectFit" />
+            <Label Text="PeePoo Finder" FontFamily="OpenSansSemibold" FontSize="30" TextColor="White" HorizontalOptions="Center" />
+            <Label Text="Find the nearest, cleanest restroom." TextColor="#F5E7DF" FontSize="15" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <Border Grid.Row="1"
+                BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 28,28,0,0"
+                Padding="24,28">
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Welcome back" Style="{StaticResource Title}" />
+
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Email" Keyboard="Email" Text="{Binding Email}" Style="{StaticResource FieldEntry}" />
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}" Style="{StaticResource FieldEntry}" />
+                </Border>
+
+                <Button Text="Sign in"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding LoginCommand}"
+                        IsEnabled="{Binding IsNotBusy}" />
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                    <Label Text="New here?" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Button Text="Create account"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            FontFamily="OpenSansSemibold"
+                            Padding="4,0"
+                            Command="{Binding GoToRegisterCommand}" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+
+        <ActivityIndicator Grid.RowSpan="2"
+                           IsVisible="{Binding IsBusy}"
+                           IsRunning="{Binding IsBusy}"
+                           Color="{StaticResource Accent}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
+    </Grid>
+</ContentPage>

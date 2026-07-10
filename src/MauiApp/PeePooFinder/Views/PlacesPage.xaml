@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.PlacesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    xmlns:models="clr-namespace:PeePooFinder.Models"
+    x:DataType="vm:PlacesViewModel"
+    Title="Explore"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <VerticalStackLayout Grid.Row="0" Padding="16,12,16,4" Spacing="10">
+            <Label Text="Nearby spots" Style="{StaticResource Headline}" />
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="Search by name or type" Text="{Binding SearchText}" Style="{StaticResource FieldEntry}" />
+            </Border>
+        </VerticalStackLayout>
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding Places}" SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="30" Spacing="8" VerticalOptions="Center">
+                        <Label Text="No spots yet" Style="{StaticResource Title}" HorizontalOptions="Center" />
+                        <Label Text="Be the first to add one with the + button." Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Place">
+                        <Border Style="{StaticResource Card}" Margin="16,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlacesViewModel}}, Path=GoToDetailCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}" Style="{StaticResource Title}" LineBreakMode="TailTruncation" />
+                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Chip}" VerticalOptions="Center">
+                                    <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource SecondaryDarkText}" />
+                                </Border>
+                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Text="{Binding Description}" Style="{StaticResource Body}"
+                                       MaxLines="2" LineBreakMode="TailTruncation" />
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="10">
+                                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" FontSize="14" />
+                                    <Label Text="{Binding Toilets, StringFormat='{0} toilets'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <Button Grid.Row="1"
+                Text="+"
+                FontSize="30"
+                FontFamily="OpenSansSemibold"
+                WidthRequest="60" HeightRequest="60" CornerRadius="30"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="{StaticResource White}"
+                HorizontalOptions="End" VerticalOptions="End"
+                Margin="0,0,20,20"
+                Command="{Binding AddPlaceCommand}" />
+    </Grid>
+</ContentPage>
