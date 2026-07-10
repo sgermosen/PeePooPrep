@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -40,16 +41,48 @@ public class SubmitReviewData
     public string? ImageName { get; set; }
 }
 
+public class PlaceQuery
+{
+    public double? Lat { get; set; }
+    public double? Long { get; set; }
+    public double? RadiusKm { get; set; }
+    public string? Type { get; set; }
+    public bool? BabyChanger { get; set; }
+    public bool? Roomy { get; set; }
+    public bool? AvailableOnly { get; set; }
+
+    public string ToQueryString()
+    {
+        var parts = new List<string>();
+        void Add(string key, string? value)
+        {
+            if (!string.IsNullOrEmpty(value))
+                parts.Add($"{key}={Uri.EscapeDataString(value)}");
+        }
+
+        if (Lat.HasValue) Add("lat", Lat.Value.ToString(CultureInfo.InvariantCulture));
+        if (Long.HasValue) Add("long", Long.Value.ToString(CultureInfo.InvariantCulture));
+        if (RadiusKm.HasValue) Add("radiusKm", RadiusKm.Value.ToString(CultureInfo.InvariantCulture));
+        Add("type", Type);
+        if (BabyChanger == true) Add("babyChanger", "true");
+        if (Roomy == true) Add("roomy", "true");
+        if (AvailableOnly == true) Add("availableOnly", "true");
+
+        return parts.Count > 0 ? "?" + string.Join("&", parts) : string.Empty;
+    }
+}
+
 public interface IPeePooApi
 {
     Task<AuthResponse> LoginAsync(LoginRequest request);
     Task<AuthResponse> RegisterAsync(RegisterRequest request);
-    Task<List<Place>> GetPlacesAsync();
+    Task<List<Place>> GetPlacesAsync(PlaceQuery? query = null);
     Task<Place?> GetPlaceAsync(string id);
     Task<List<Review>> GetReviewsAsync(string placeId);
     Task CreatePlaceAsync(SubmitPlaceData data);
     Task CreateReviewAsync(SubmitReviewData data);
     Task ToggleFavoriteAsync(string placeId);
+    Task VerifyPlaceAsync(string placeId);
     Task<Profile?> GetProfileAsync(string username);
     Task UpdateProfileAsync(string displayName, string bio);
 }
@@ -78,9 +111,10 @@ public class PeePooApiClient : IPeePooApi
         return (await response.Content.ReadFromJsonAsync<AuthResponse>(JsonOptions))!;
     }
 
-    public async Task<List<Place>> GetPlacesAsync()
+    public async Task<List<Place>> GetPlacesAsync(PlaceQuery? query = null)
     {
-        return await _http.GetFromJsonAsync<List<Place>>("api/places", JsonOptions) ?? new List<Place>();
+        var url = "api/places" + (query?.ToQueryString() ?? string.Empty);
+        return await _http.GetFromJsonAsync<List<Place>>(url, JsonOptions) ?? new List<Place>();
     }
 
     public async Task<Place?> GetPlaceAsync(string id)
@@ -140,6 +174,12 @@ public class PeePooApiClient : IPeePooApi
     public async Task ToggleFavoriteAsync(string placeId)
     {
         var response = await _http.PostAsync($"api/places/{placeId}/favorite", null);
+        await EnsureSuccess(response);
+    }
+
+    public async Task VerifyPlaceAsync(string placeId)
+    {
+        var response = await _http.PostAsync($"api/places/{placeId}/verify", null);
         await EnsureSuccess(response);
     }
 

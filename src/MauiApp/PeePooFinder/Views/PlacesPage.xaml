@@ -16,6 +16,22 @@
             <Border Style="{StaticResource FieldBorder}">
                 <Entry Placeholder="Search by name or type" Text="{Binding SearchText}" Style="{StaticResource FieldEntry}" />
             </Border>
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout Spacing="16">
+                    <HorizontalStackLayout Spacing="6">
+                        <Switch IsToggled="{Binding NearMe}" OnColor="{StaticResource Primary}" />
+                        <Label Text="Near me" Style="{StaticResource Body}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="6">
+                        <Switch IsToggled="{Binding OnlyBabyChanger}" OnColor="{StaticResource Primary}" />
+                        <Label Text="Baby changer" Style="{StaticResource Body}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="6">
+                        <Switch IsToggled="{Binding OnlyAvailable}" OnColor="{StaticResource Primary}" />
+                        <Label Text="Open now" Style="{StaticResource Body}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+            </ScrollView>
         </VerticalStackLayout>
 
         <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
@@ -46,6 +62,7 @@
                                        MaxLines="2" LineBreakMode="TailTruncation" />
                                 <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="10">
                                     <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" FontSize="14" />
+                                    <Label Text="{Binding DistanceLabel}" Style="{StaticResource Caption}" VerticalOptions="Center" IsVisible="{Binding HasDistance}" />
                                     <Label Text="{Binding Toilets, StringFormat='{0} toilets'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
                                 </HorizontalStackLayout>
                             </Grid>

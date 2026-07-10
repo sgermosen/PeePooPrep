@@ -83,4 +83,36 @@ public partial class PlaceDetailViewModel : BaseViewModel
         if (Place is null) return;
         await Shell.Current.GoToAsync($"{nameof(AddReviewPage)}?placeId={Place.Id}");
     }
+
+    [RelayCommand]
+    private async Task VerifyAsync()
+    {
+        if (Place is null) return;
+        try
+        {
+            await _api.VerifyPlaceAsync(Place.Id);
+            await LoadAsync();
+            await ShowInfo("Thanks!", "You confirmed this spot is still good.");
+        }
+        catch (ApiException ex)
+        {
+            await ShowError(ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task DirectionsAsync()
+    {
+        if (Place is null) return;
+        try
+        {
+            var location = new Location(Place.Lat, Place.Long);
+            var options = new MapLaunchOptions { Name = Place.Name, NavigationMode = NavigationMode.Walking };
+            await Microsoft.Maui.ApplicationModel.Map.Default.OpenAsync(location, options);
+        }
+        catch
+        {
+            await ShowError("Could not open the maps app.");
+        }
+    }
 }

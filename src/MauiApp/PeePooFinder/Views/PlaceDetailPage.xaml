@@ -24,8 +24,14 @@
                     <Label Text="{Binding Place.Description}" Style="{StaticResource Body}" />
                     <Label Text="{Binding Place.Observations}" Style="{StaticResource Caption}" IsVisible="{Binding Place.Observations, Converter={StaticResource StringHasValue}}" />
                     <Label Text="{Binding Place.OwnerUsername, StringFormat='Added by @{0}'}" Style="{StaticResource Caption}" />
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding Place.FreshnessLabel}" Style="{StaticResource Caption}" TextColor="{StaticResource Tertiary}" VerticalOptions="Center" />
+                        <Button Text="Still good?" Style="{StaticResource GhostButton}" HeightRequest="34" FontSize="12" Padding="10,0" Command="{Binding VerifyCommand}" />
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>
+
+            <Button Text="Take me there" Style="{StaticResource AccentButton}" Command="{Binding DirectionsCommand}" />
 
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12" x:DataType="vm:PlaceDetailViewModel">

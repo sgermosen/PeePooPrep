@@ -41,9 +41,27 @@ public class Place
     public double Long { get; set; }
     public double Lat { get; set; }
     public bool IsAproved { get; set; }
+    public DateTime? LastVerifiedAt { get; set; }
+    public double? DistanceKm { get; set; }
     public string? OwnerUsername { get; set; }
     public string? Image { get; set; }
     public List<FavoriteInfo> Favorites { get; set; } = new();
+
+    public bool HasDistance => DistanceKm.HasValue;
+    public string DistanceLabel => DistanceKm.HasValue
+        ? (DistanceKm.Value < 1 ? $"{DistanceKm.Value * 1000:0} m away" : $"{DistanceKm.Value:0.0} km away")
+        : string.Empty;
+    public string FreshnessLabel => LastVerifiedAt.HasValue
+        ? $"Verified {DescribeAge(LastVerifiedAt.Value)}"
+        : "Not verified yet";
+
+    private static string DescribeAge(DateTime utc)
+    {
+        var span = DateTime.UtcNow - utc;
+        if (span.TotalHours < 1) return "just now";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours}h ago";
+        return $"{(int)span.TotalDays}d ago";
+    }
     public List<PhotoInfo> Photos { get; set; } = new();
     public List<Review> Visits { get; set; } = new();
 }

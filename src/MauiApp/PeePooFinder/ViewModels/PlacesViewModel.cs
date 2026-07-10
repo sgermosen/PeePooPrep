@@ -9,7 +9,10 @@ namespace PeePooFinder.ViewModels;
 
 public partial class PlacesViewModel : BaseViewModel
 {
+    private const double SearchRadiusKm = 15;
+
     private readonly IPeePooApi _api;
+    private readonly IGeolocation _geolocation;
     private readonly List<Place> _allPlaces = new();
 
     [ObservableProperty]
@@ -21,9 +24,19 @@ public partial class PlacesViewModel : BaseViewModel
     [ObservableProperty]
     private bool isRefreshing;
 
-    public PlacesViewModel(IPeePooApi api)
+    [ObservableProperty]
+    private bool nearMe = true;
+
+    [ObservableProperty]
+    private bool onlyBabyChanger;
+
+    [ObservableProperty]
+    private bool onlyAvailable;
+
+    public PlacesViewModel(IPeePooApi api, IGeolocation geolocation)
     {
         _api = api;
+        _geolocation = geolocation;
         Title = "Nearby spots";
     }
 
@@ -34,9 +47,27 @@ public partial class PlacesViewModel : BaseViewModel
         try
         {
             IsBusy = true;
-            var results = await _api.GetPlacesAsync();
+
+            var query = new PlaceQuery
+            {
+                BabyChanger = OnlyBabyChanger ? true : null,
+                AvailableOnly = OnlyAvailable ? true : null
+            };
+
+            if (NearMe)
+            {
+                var location = await GetLocationAsync();
+                if (location is not null)
+                {
+                    query.Lat = location.Latitude;
+                    query.Long = location.Longitude;
+                    query.RadiusKm = SearchRadiusKm;
+                }
+            }
+
+            var results = await _api.GetPlacesAsync(query);
             _allPlaces.Clear();
-            _allPlaces.AddRange(results.OrderByDescending(p => p.CreatedAt));
+            _allPlaces.AddRange(results);
             ApplyFilter();
         }
         catch (ApiException ex)
@@ -54,7 +85,23 @@ public partial class PlacesViewModel : BaseViewModel
         }
     }
 
+    private async Task<Location?> GetLocationAsync()
+    {
+        try
+        {
+            return await _geolocation.GetLastKnownLocationAsync()
+                   ?? await _geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnNearMeChanged(bool value) => _ = LoadAsync();
+    partial void OnOnlyBabyChangerChanged(bool value) => _ = LoadAsync();
+    partial void OnOnlyAvailableChanged(bool value) => _ = LoadAsync();
 
     private void ApplyFilter()
     {
