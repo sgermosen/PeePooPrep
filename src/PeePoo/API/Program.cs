@@ -78,6 +78,7 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<DataContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
         if (context.Database.ProviderName != null && context.Database.ProviderName.Contains("Sqlite"))
             await context.Database.EnsureCreatedAsync();
@@ -85,7 +86,7 @@ using (var scope = app.Services.CreateScope())
             await context.Database.MigrateAsync();
 
         if (app.Environment.IsDevelopment())
-            await Seed.SeedData(context, userManager);
+            await Seed.SeedData(context, userManager, roleManager);
     }
     catch (Exception ex)
     {

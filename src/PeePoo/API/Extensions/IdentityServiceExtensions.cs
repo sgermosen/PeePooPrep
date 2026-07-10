@@ -32,6 +32,7 @@ namespace API.Extensions
                 opt.Lockout.MaxFailedAccessAttempts = 5;
                 opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             })
+             .AddRoles<IdentityRole>()
              .AddEntityFrameworkStores<DataContext>()
              .AddSignInManager<SignInManager<ApplicationUser>>()
              .AddDefaultTokenProviders();

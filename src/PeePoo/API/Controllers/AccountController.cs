@@ -49,7 +49,7 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return Unauthorized(new { message = "Username or password is incorrect" });
 
-            return CreateUserObject(user);
+            return await CreateUserObject(user);
 
         }
 
@@ -79,7 +79,7 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return BadRequest(new { message = "Problem creating user" });
 
-            return CreateUserObject(user);
+            return await CreateUserObject(user);
 
         }
 
@@ -90,7 +90,7 @@ namespace API.Controllers
             var user = await _userManager.Users.Include(p => p.Photos)
              .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
-            return CreateUserObject(user);
+            return await CreateUserObject(user);
         }
 
         [Authorize]
@@ -101,13 +101,13 @@ namespace API.Controllers
             if (result == null) return NotFound();
             return result.IsSuccess ? Ok() : BadRequest(result.Error);
         }
-        private UserDto CreateUserObject(ApplicationUser user)
+        private async Task<UserDto> CreateUserObject(ApplicationUser user)
         {
             return new UserDto
             {
                 DisplayName = user.DisplayName,
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user),
+                Token = await _tokenService.CreateToken(user),
                 Image = user?.Photos?.FirstOrDefault(x => x.IsMain)?.Url
             };
         }

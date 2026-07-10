@@ -62,5 +62,25 @@ namespace Tests
                 .Handle(new Application.Visits.List.Query { PlaceId = placeId }, CancellationToken.None);
             Assert.Empty(after.Value);
         }
+
+        [Fact]
+        public async Task ListReports_ReturnsUnresolved_AndResolveHidesThem()
+        {
+            AddUser("u1", "alice");
+            var placeId = await SeedPlaceBy("alice");
+            await new CreateReport.Handler(Context, new FakeUserAccessor { Username = "alice" })
+                .Handle(new CreateReport.Command { TargetType = "Place", TargetId = placeId, Reason = "Spam" }, CancellationToken.None);
+
+            var pending = await new ListReports.Handler(Context).Handle(new ListReports.Query(), CancellationToken.None);
+            var item = Assert.Single(pending.Value);
+            Assert.Equal("alice", item.ReporterUsername);
+
+            var resolved = await new ResolveReport.Handler(Context)
+                .Handle(new ResolveReport.Command { Id = item.Id }, CancellationToken.None);
+            Assert.True(resolved.IsSuccess);
+
+            var afterResolve = await new ListReports.Handler(Context).Handle(new ListReports.Query(), CancellationToken.None);
+            Assert.Empty(afterResolve.Value);
+        }
     }
 }

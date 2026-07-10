@@ -10,9 +10,26 @@ namespace Persistence
     public class Seed
     {
         public static async Task SeedData(DataContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
-            if (!userManager.Users.Any() && !context.Places.Any())
+            if (!await roleManager.RoleExistsAsync("Admin"))
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+
+            if (await userManager.FindByNameAsync("admin") == null)
+            {
+                var admin = new ApplicationUser
+                {
+                    DisplayName = "Admin",
+                    UserName = "admin",
+                    Email = "admin@test.com"
+                };
+                var created = await userManager.CreateAsync(admin, "Pa$$w0rd");
+                if (created.Succeeded)
+                    await userManager.AddToRoleAsync(admin, "Admin");
+            }
+
+            if (!userManager.Users.Any(u => u.UserName != "admin") && !context.Places.Any())
             {
                 var users = new List<ApplicationUser>
                 {
