@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="terra" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6725B"/>
+      <stop offset="1" stop-color="#AD5844"/>
+    </linearGradient>
+  </defs>
+
+  <!-- honey base the pin point rests on -->
+  <ellipse cx="256" cy="470" rx="70" ry="17" fill="#EBAF2E"/>
+  <ellipse cx="256" cy="467" rx="70" ry="17" fill="#FCD24F"/>
+
+  <g fill="url(#terra)">
+    <!-- pin tail to a clear point -->
+    <path d="M214 372 Q256 486 298 372 Z"/>
+    <!-- stacked soft-serve lobes -->
+    <ellipse cx="256" cy="322" rx="140" ry="80"/>
+    <ellipse cx="256" cy="242" rx="110" ry="74"/>
+    <ellipse cx="250" cy="170" rx="78" ry="60"/>
+    <!-- curl tip -->
+    <path d="M248 116 c4 -36 46 -44 62 -22 c14 20 -2 44 -24 48 c-20 4 -42 -4 -38 -26 z"/>
+  </g>
+
+  <!-- white face -->
+  <circle cx="256" cy="238" r="60" fill="#FFFFFF"/>
+</svg>
