@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  android:
+    name: Build signed Android App Bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Decode signing keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/peepoo.keystore"
+
+      - name: Publish signed .aab
+        working-directory: src/MauiApp/PeePooFinder
+        run: >
+          dotnet publish -f net10.0-android -c Release
+          -p:MapsApiKey=${{ secrets.MAPS_API_KEY }}
+          -p:AndroidKeyStore=true
+          -p:AndroidSigningKeyStore=$RUNNER_TEMP/peepoo.keystore
+          -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          -p:AndroidSigningKeyPass='${{ secrets.ANDROID_KEY_PASSWORD }}'
+          -p:AndroidSigningStorePass='${{ secrets.ANDROID_KEYSTORE_PASSWORD }}'
+          -p:AndroidPackageFormat=aab
+
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: peepoo-android-aab
+          path: src/MauiApp/PeePooFinder/bin/Release/net10.0-android/**/*-Signed.aab
+          if-no-files-found: error
+
+  # iOS builds require a macOS runner plus an Apple certificate and provisioning
+  # profile. Enable by setting the repository variable ENABLE_IOS to "true" and
+  # adding the APPLE_* secrets. Re-add net10.0-ios to <TargetFrameworks> first.
+  ios:
+    name: Build signed iOS app
+    if: ${{ vars.ENABLE_IOS == 'true' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install MAUI iOS workload
+        run: dotnet workload install maui-ios
+
+      - name: Import signing certificate
+        env:
+          CERT_P12_BASE64: ${{ secrets.APPLE_CERT_P12_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+        run: |
+          echo "$CERT_P12_BASE64" | base64 -d > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "" build.keychain
+          security import "$RUNNER_TEMP/cert.p12" -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -s build.keychain
+          security set-keychain-settings build.keychain
+          security unlock-keychain -p "" build.keychain
+
+      - name: Publish .ipa
+        working-directory: src/MauiApp/PeePooFinder
+        run: >
+          dotnet publish -f net10.0-ios -c Release
+          -p:MapsApiKey=${{ secrets.MAPS_API_KEY }}
+          -p:RuntimeIdentifier=ios-arm64
+          -p:CodesignKey="${{ secrets.APPLE_SIGNING_IDENTITY }}"
+          -p:CodesignProvision="${{ secrets.APPLE_PROVISIONING_PROFILE }}"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: peepoo-ios-ipa
+          path: src/MauiApp/PeePooFinder/bin/Release/net10.0-ios/**/*.ipa
+          if-no-files-found: error
