@@ -13,7 +13,8 @@ Everything to publish the app, ready to paste. Fill the `YOUR-API.com` /
 | `appicon-512.png` | Google Play app icon (512×512) |
 | `appicon-1024.png` | App Store app icon (1024×1024) |
 | `feature-1024x500.png` | Google Play feature graphic |
-| `shot1-explore.png` … `shot5-login.png` | Phone screenshots / marketing frames (1080×1920) |
+| `shot1-explore.png` … `shot5-login.png` | Phone screenshots (1080×1920) — Google Play |
+| `appstore/shot1-explore.png` … `shot5-login.png` | Phone screenshots (1290×2796) — App Store 6.7" |
 | `icon-master.svg` | Vector master of the brand mark |
 
 The in-app icon and splash live in `src/MauiApp/PeePooFinder/Resources/`
@@ -21,7 +22,7 @@ The in-app icon and splash live in `src/MauiApp/PeePooFinder/Resources/`
 generates every density from them at build time.
 
 ## Before you submit
-- Point the privacy / account-deletion URLs at your API domain (the backend
-  serves `/privacy` and `/account-deletion`).
+- Point the privacy / terms / account-deletion URLs at your API domain (the
+  backend serves `/privacy`, `/terms` and `/account-deletion`).
 - Create a real demo account in production for App Review.
 - Rotate and restrict the Google Maps key; build the app with `-p:MapsApiKey=…`.

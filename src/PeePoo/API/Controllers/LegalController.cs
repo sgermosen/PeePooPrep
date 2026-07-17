@@ -49,6 +49,39 @@ namespace API.Controllers
             return Page("Privacy Policy", body);
         }
 
+        [HttpGet("/terms")]
+        public ContentResult Terms()
+        {
+            var body = $@"
+<h1>Terms of Use</h1>
+<p class='muted'>Last updated: {_updated}</p>
+<p>By using {_appName} you agree to these terms. If you don't agree, please don't use the app.</p>
+
+<h2>Your account</h2>
+<p>You are responsible for activity on your account and for keeping your credentials safe. You may delete your account at any time (see <a href='/account-deletion'>Account &amp; data deletion</a>).</p>
+
+<h2>Community content</h2>
+<p>{_appName} lets you post places, reviews and photos. You keep ownership of what you post, and you grant us a license to display it in the app to other users. Only post content you have the right to share.</p>
+
+<h2>Zero tolerance for objectionable content</h2>
+<p>There is <b>no tolerance</b> for objectionable, abusive, harassing, hateful, illegal or infringing content, or for abusive users. Don't post it.</p>
+<ul>
+  <li>You can <b>report</b> any place or review from inside the app.</li>
+  <li>You can <b>block</b> a user so you no longer see their content.</li>
+  <li>We review reports and <b>remove</b> content and <b>remove or ban</b> users that violate these terms, typically within 24 hours.</li>
+</ul>
+
+<h2>Location &amp; accuracy</h2>
+<p>Places and details are community-contributed and may be inaccurate or out of date. Use your judgment; we are not responsible for the condition, availability or safety of any location.</p>
+
+<h2>Changes</h2>
+<p>We may update these terms; continued use means you accept the changes.</p>
+
+<h2>Contact</h2>
+<p><a href='mailto:{_supportEmail}'>{_supportEmail}</a></p>";
+            return Page("Terms of Use", body);
+        }
+
         [HttpGet("/account-deletion")]
         public ContentResult AccountDeletion()
         {

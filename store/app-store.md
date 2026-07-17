@@ -60,6 +60,10 @@ https://YOUR-WEB.com
 ```
 https://YOUR-API.com/privacy
 ```
+### Terms of Use URL _(served by the backend)_
+```
+https://YOUR-API.com/terms
+```
 
 ---
 
@@ -69,12 +73,13 @@ Upload for at least the 6.7" size; the 6.5"/5.5" are reused/scaled.
 
 | Size | Pixels | Source |
 |---|---|---|
-| 6.7" | 1290×2796 | re-render from `store/` sources at this size, or scale `shot*.png` |
-| 6.5" | 1242×2688 | same |
-| 5.5" | 1242×2208 | same |
+| **6.7" (required)** | **1290×2796** | `assets/appstore/shot1-explore … shot5-login.png` — **ready to upload** |
+| 6.5" | 1242×2688 | optional; App Store Connect scales the 6.7" set |
+| 5.5" | 1242×2208 | optional |
 | App icon | 1024×1024 (no alpha) | `assets/appicon-1024.png` |
 
-The provided `shot1-explore … shot5-login.png` are 1080×1920 marketing frames; regenerate at the exact device sizes for final upload.
+The 6.7" set is provided at the exact pixel size Apple requires. The
+1080×1920 `assets/shot*.png` are the same frames for Google Play.
 
 ---
 
@@ -110,7 +115,7 @@ Not used for tracking. Not used for ads.
 - ✅ **Block** abusive users — in-app, hides their content
 - ✅ Moderation to act on reports — **admin queue** (`/api/admin/reports`, takedowns)
 - ✅ Account & data deletion — in-app (Profile → Delete account) + `/account-deletion`
-- ⛳ Add an EULA / terms with a zero-tolerance policy for objectionable content
+- ✅ EULA / terms with a zero-tolerance policy — served at `https://YOUR-API.com/terms`
 
 ---
 

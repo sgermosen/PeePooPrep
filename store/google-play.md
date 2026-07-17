@@ -102,6 +102,7 @@ Collected, encrypted in transit, and the user can request deletion.
 
 - **Privacy policy URL:** `https://YOUR-API.com/privacy` _(served by the backend)_
 - **Account/data deletion URL:** `https://YOUR-API.com/account-deletion` _(served by the backend)_
+- **Terms of Use URL:** `https://YOUR-API.com/terms` _(served by the backend)_
 - **Target audience:** 13+
 - **Ads:** No
 - **User-generated content:** Yes → in-app **report** (places/reviews), **block** users, and an **admin moderation** queue are implemented.
