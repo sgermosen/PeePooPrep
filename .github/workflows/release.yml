@@ -27,14 +27,20 @@ jobs:
 
       - name: Publish signed .aab
         working-directory: src/MauiApp/PeePooFinder
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/peepoo.keystore
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          MAPS_KEY: ${{ secrets.MAPS_API_KEY }}
         run: >
           dotnet publish -f net10.0-android -c Release
-          -p:MapsApiKey=${{ secrets.MAPS_API_KEY }}
+          -p:MapsApiKey="$MAPS_KEY"
           -p:AndroidKeyStore=true
-          -p:AndroidSigningKeyStore=$RUNNER_TEMP/peepoo.keystore
-          -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          -p:AndroidSigningKeyPass='${{ secrets.ANDROID_KEY_PASSWORD }}'
-          -p:AndroidSigningStorePass='${{ secrets.ANDROID_KEYSTORE_PASSWORD }}'
+          -p:AndroidSigningKeyStore="$KEYSTORE_PATH"
+          -p:AndroidSigningKeyAlias="$KEY_ALIAS"
+          -p:AndroidSigningKeyPass="$KEY_PASS"
+          -p:AndroidSigningStorePass="$STORE_PASS"
           -p:AndroidPackageFormat=aab
 
       - name: Upload App Bundle
@@ -70,18 +76,30 @@ jobs:
           echo "$CERT_P12_BASE64" | base64 -d > "$RUNNER_TEMP/cert.p12"
           security create-keychain -p "" build.keychain
           security import "$RUNNER_TEMP/cert.p12" -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
-          security list-keychains -s build.keychain
+          security list-keychains -d user -s build.keychain login.keychain
           security set-keychain-settings build.keychain
           security unlock-keychain -p "" build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+
+      - name: Install provisioning profile
+        env:
+          PROFILE_B64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          echo "$PROFILE_B64" | base64 -d > "$HOME/Library/MobileDevice/Provisioning Profiles/peepoo.mobileprovision"
 
       - name: Publish .ipa
         working-directory: src/MauiApp/PeePooFinder
+        env:
+          MAPS_KEY: ${{ secrets.MAPS_API_KEY }}
+          SIGN_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          SIGN_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
         run: >
           dotnet publish -f net10.0-ios -c Release
-          -p:MapsApiKey=${{ secrets.MAPS_API_KEY }}
+          -p:MapsApiKey="$MAPS_KEY"
           -p:RuntimeIdentifier=ios-arm64
-          -p:CodesignKey="${{ secrets.APPLE_SIGNING_IDENTITY }}"
-          -p:CodesignProvision="${{ secrets.APPLE_PROVISIONING_PROFILE }}"
+          -p:CodesignKey="$SIGN_IDENTITY"
+          -p:CodesignProvision="$SIGN_PROFILE"
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4

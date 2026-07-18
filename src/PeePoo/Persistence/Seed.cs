@@ -11,25 +11,28 @@ namespace Persistence
     {
         public static async Task SeedData(DataContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            string adminEmail = null,
+            string adminPassword = null)
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
 
-            if (await userManager.FindByNameAsync("admin") == null)
+            if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword)
+                && await userManager.FindByEmailAsync(adminEmail) == null)
             {
                 var admin = new ApplicationUser
                 {
                     DisplayName = "Admin",
-                    UserName = "admin",
-                    Email = "admin@test.com"
+                    UserName = adminEmail,
+                    Email = adminEmail
                 };
-                var created = await userManager.CreateAsync(admin, "Pa$$w0rd");
+                var created = await userManager.CreateAsync(admin, adminPassword);
                 if (created.Succeeded)
                     await userManager.AddToRoleAsync(admin, "Admin");
             }
 
-            if (!userManager.Users.Any(u => u.UserName != "admin") && !context.Places.Any())
+            if (!context.Places.Any())
             {
                 var users = new List<ApplicationUser>
                 {

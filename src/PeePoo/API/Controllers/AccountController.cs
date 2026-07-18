@@ -90,6 +90,8 @@ namespace API.Controllers
             var user = await _userManager.Users.Include(p => p.Photos)
              .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+            if (user == null) return Unauthorized();
+
             return await CreateUserObject(user);
         }
 

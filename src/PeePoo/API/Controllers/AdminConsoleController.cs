@@ -215,14 +215,16 @@ async function takeDown(r, btn){
     btn.disabled = false;
     return;
   }
-  await resolveReport(r.id);
-  show(el("mainMsg"), "ok", "Content removed and report resolved.");
+  var resolved = await resolveReport(r.id);
+  if (resolved) show(el("mainMsg"), "ok", "Content removed and report resolved.");
+  else btn.disabled = false;
 }
 
 async function resolveReport(id){
   var res = await api("/api/admin/reports/" + encodeURIComponent(id) + "/resolve", { method: "POST" });
-  if (!res.ok){ show(el("mainMsg"), "err", "Could not resolve the report."); return; }
+  if (!res.ok){ show(el("mainMsg"), "err", "Could not resolve the report."); return false; }
   await loadReports();
+  return true;
 }
 
 el("loginBtn").onclick = login;

@@ -28,10 +28,11 @@ namespace Application.Moderation
                 var report = await _context.Reports.FindAsync(new object[] { request.Id }, cancellationToken);
                 if (report == null) return null;
 
-                report.Resolved = true;
+                if (report.Resolved) return Result<Unit>.Success(Unit.Value);
 
-                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-                return result ? Result<Unit>.Success(Unit.Value) : Result<Unit>.Failure("Problem resolving the report");
+                report.Resolved = true;
+                await _context.SaveChangesAsync(cancellationToken);
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }

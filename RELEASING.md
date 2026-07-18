@@ -25,6 +25,7 @@ iOS (optional — set the repo **variable** `ENABLE_IOS` to `true` to enable the
 |---|---|
 | `APPLE_CERT_P12_BASE64` | Distribution certificate (.p12), base64-encoded |
 | `APPLE_CERT_PASSWORD` | Certificate password |
+| `APPLE_PROVISIONING_PROFILE_BASE64` | The `.mobileprovision` file, base64-encoded (installed on the runner) |
 | `APPLE_SIGNING_IDENTITY` | Codesign identity name |
 | `APPLE_PROVISIONING_PROFILE` | Provisioning profile name/UUID |
 

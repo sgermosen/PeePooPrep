@@ -86,7 +86,8 @@ using (var scope = app.Services.CreateScope())
             await context.Database.MigrateAsync();
 
         if (app.Environment.IsDevelopment())
-            await Seed.SeedData(context, userManager, roleManager);
+            await Seed.SeedData(context, userManager, roleManager,
+                app.Configuration["Seed:AdminEmail"], app.Configuration["Seed:AdminPassword"]);
     }
     catch (Exception ex)
     {

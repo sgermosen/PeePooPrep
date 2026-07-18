@@ -44,6 +44,11 @@ namespace Application.Profiles
                 var favorites = await _context.FavoritePlaces.Where(f => f.UserId == user.Id).ToListAsync(cancellationToken);
                 _context.FavoritePlaces.RemoveRange(favorites);
 
+                var blocks = await _context.UserBlocks
+                    .Where(b => b.BlockerId == user.Id || b.BlockedId == user.Id)
+                    .ToListAsync(cancellationToken);
+                _context.UserBlocks.RemoveRange(blocks);
+
                 _context.Users.Remove(user);
 
                 var result = await _context.SaveChangesAsync(cancellationToken) > 0;
