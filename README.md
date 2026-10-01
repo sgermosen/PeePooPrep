@@ -23,6 +23,14 @@ In Development the API uses SQLite and seeds demo data.
 
 Test user: `starling@test.com` / `Pa$$w0rd`
 
+### Photo storage
+
+Photos (places, reviews) are uploaded to Cloudinary when the `Cloudinary`
+section is configured. Without it, the API stores them on local disk under
+`API/wwwroot/uploads` and serves them from `/uploads/...`, so photo uploads
+work locally with no external accounts. Use Cloudinary in production, since
+local files don't survive redeploys or scale across instances.
+
 ## Running the app
 
 See `src/MauiApp/PeePooFinder/README.md` for build prerequisites and

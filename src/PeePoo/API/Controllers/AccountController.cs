@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
     [EnableRateLimiting("auth")]
     [ApiController]
     [Route("api/[controller]")]
@@ -35,6 +34,7 @@ namespace API.Controllers
             _mediator = mediator;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto dto)
         {
@@ -53,6 +53,7 @@ namespace API.Controllers
 
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto dto)
         {

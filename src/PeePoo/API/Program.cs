@@ -1,5 +1,6 @@
 using API.Extensions;
 using API.Middleware;
+using API.Services;
 using Application.Files;
 using Application.Interfaces;
 using Application.Places;
@@ -8,16 +9,20 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
@@ -60,6 +65,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PeePoo API v1"));
 }
+
+// Serve photos stored by LocalPhotoAccessor (used when Cloudinary is not configured).
+var uploadsPath = Path.Combine(app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot"),
+    LocalPhotoAccessor.UploadFolder);
+Directory.CreateDirectory(uploadsPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/" + LocalPhotoAccessor.UploadFolder,
+    ContentTypeProvider = new FileExtensionContentTypeProvider(
+        new Dictionary<string, string>(LocalPhotoAccessor.ContentTypes, StringComparer.OrdinalIgnoreCase)),
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers["X-Content-Type-Options"] = "nosniff"
+});
 
 app.UseCors("CorsPolicy");
 

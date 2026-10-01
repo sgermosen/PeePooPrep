@@ -41,6 +41,12 @@ namespace Application.Photos
 
                 if (user == null) return null;
 
+                if (request.File == null || request.File.Length == 0)
+                    return Result<Photo>.Failure("A photo file is required");
+
+                if (!await _context.Places.AnyAsync(p => p.Id == request.PlaceId, cancellationToken))
+                    return null;
+
                 var photoUploadResult = await _photoAccessor.AddPhoto(request.File);
                 var photo = new Photo
                 {
