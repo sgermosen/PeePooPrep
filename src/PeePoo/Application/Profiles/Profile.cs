@@ -1,5 +1,4 @@
-﻿using Domain;
-using System.Collections.Generic;
+using System;
 
 namespace Application.Profiles
 {
@@ -8,7 +7,10 @@ namespace Application.Profiles
         public string Username { get; set; }
         public string DisplayName { get; set; }
         public string Bio { get; set; }
+        /// <summary>Reserved for avatars; always null for now (clients show initials).</summary>
         public string Image { get; set; }
-        public ICollection<Photo> Photos { get; set; }
+        public int PlacesCount { get; set; }
+        public int ReviewsCount { get; set; }
+        public DateTime JoinedAt { get; set; }
     }
 }

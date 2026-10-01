@@ -14,6 +14,8 @@ namespace Domain
         public Place Place { get; set; }
         public string AuthorId { get; set; }
         public ApplicationUser Author { get; set; }
+        /// <summary>Hidden from the public, e.g. after several reports.</summary>
+        public bool IsHidden { get; set; }
         public ICollection<VisitPhoto> Photos { get; set; } = new List<VisitPhoto>();
 
 

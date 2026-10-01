@@ -1,7 +1,6 @@
 using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -13,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Application.Visits
 {
+    /// <summary>Reviews for a place, newest first, without hidden reviews or reviews from users the caller blocked.</summary>
     public class List
     {
         public class Query : IRequest<Result<List<VisitDto>>>
@@ -25,6 +25,7 @@ namespace Application.Visits
             private readonly DataContext _context;
             private readonly IMapper _mapper;
             private readonly IUserAccessor _userAccessor;
+
             public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
             {
                 _mapper = mapper;
@@ -34,20 +35,19 @@ namespace Application.Visits
 
             public async Task<Result<List<VisitDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var currentUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.UserName == _userAccessor.GetUsername(), cancellationToken);
-
-                var blockedIds = currentUser == null
+                var username = _userAccessor.GetUsername();
+                var blockedIds = username == null
                     ? new List<string>()
                     : await _context.UserBlocks
-                        .Where(b => b.BlockerId == currentUser.Id)
+                        .Where(b => _context.Users.Any(u => u.Id == b.BlockerId && u.UserName == username))
                         .Select(b => b.BlockedId)
                         .ToListAsync(cancellationToken);
 
                 var visits = await _context.Visits
-                    .Where(x => x.Place.Id == request.PlaceId && !blockedIds.Contains(x.AuthorId))
+                    .Where(x => x.PlaceId == request.PlaceId && !x.IsHidden && x.Place.IsAproved && !blockedIds.Contains(x.AuthorId))
                     .OrderByDescending(x => x.CreatedAt)
-                    .ProjectTo<VisitDto>(_mapper.ConfigurationProvider)
+                    .Take(200)
+                    .ProjectToDto(_mapper, _userAccessor)
                     .ToListAsync(cancellationToken);
 
                 return Result<List<VisitDto>>.Success(visits);

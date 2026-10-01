@@ -26,6 +26,12 @@ namespace Infrastructure.Security
             var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return;
 
+            if (context.User.IsInRole("Admin"))
+            {
+                context.Succeed(requirement);
+                return;
+            }
+
             var routeId = _httpContextAccessor.HttpContext?.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value?.ToString();
             if (!Guid.TryParse(routeId, out var placeId)) return;
 

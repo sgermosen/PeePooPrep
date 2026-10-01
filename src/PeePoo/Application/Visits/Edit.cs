@@ -1,9 +1,8 @@
-﻿using Application.Core;
-using Application.PlaceVisits;
-using AutoMapper;
+using Application.Core;
 using FluentValidation;
 using MediatR;
 using Persistence;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,40 +12,38 @@ namespace Application.Visits
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public VisitDto Visit { get; set; }
+            public Guid Id { get; set; }
+            public VisitEditInput Visit { get; set; }
         }
+
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Visit).SetValidator(new VisitValidator());
+                RuleFor(x => x.Visit).NotNull().SetValidator(new VisitEditValidator());
             }
         }
+
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper)
+            public Handler(DataContext context)
             {
-                _mapper = mapper;
                 _context = context;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var visits = await _context.Visits.FindAsync(request.Visit.Id, cancellationToken);
+                var visit = await _context.Visits.FindAsync(new object[] { request.Id }, cancellationToken);
+                if (visit == null) return null;
 
-                if (visits == null) return null;
-
-                _mapper.Map(request.Visit, visits);
-                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                if (!result) return Result<Unit>.Failure("Fail to update visit");
-
+                visit.Title = request.Visit.Title.Trim();
+                visit.Description = request.Visit.Description.Trim();
+                visit.Rating = request.Visit.Rating;
+                await _context.SaveChangesAsync(cancellationToken);
                 return Result<Unit>.Success(Unit.Value);
             }
         }
     }
-
 }

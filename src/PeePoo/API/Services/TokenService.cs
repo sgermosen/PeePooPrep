@@ -14,6 +14,9 @@ namespace API.Services
 {
     public class TokenService
     {
+        /// <summary>Claim carrying the user's security stamp, so password changes and bans end old sessions.</summary>
+        public const string StampClaim = "stamp";
+
         private readonly IConfiguration _config;
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -23,14 +26,14 @@ namespace API.Services
             _userManager = userManager;
         }
 
-
         public async Task<string> CreateToken(ApplicationUser user)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim(StampClaim, await _userManager.GetSecurityStampAsync(user)),
             };
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -38,17 +41,17 @@ namespace API.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var lifetimeDays = int.TryParse(_config["Jwt:LifetimeDays"], out var days) ? days : 14;
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(Math.Clamp(lifetimeDays, 1, 90)),
                 Issuer = _config["Jwt:Issuer"] ?? "PeePooApi",
                 Audience = _config["Jwt:Audience"] ?? "PeePooClient",
                 SigningCredentials = credentials
             };
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
     }
 }

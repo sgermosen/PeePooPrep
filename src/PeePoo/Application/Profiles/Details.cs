@@ -1,9 +1,10 @@
-﻿using Application.Core;
+using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,12 +30,16 @@ namespace Application.Profiles
 
             public async Task<Result<Profile>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var user = await _context.Users.ProjectTo<Profile>(_mapper.ConfigurationProvider)
-                .SingleOrDefaultAsync(x => x.Username == request.Username, cancellationToken);
+                var profile = await _context.Users
+                    .Where(u => u.UserName == request.Username)
+                    .ProjectTo<Profile>(_mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync(cancellationToken);
+                if (profile == null) return null;
 
-                return Result<Profile>.Success(user);
+                profile.ReviewsCount = await _context.Visits
+                    .CountAsync(v => v.Author.UserName == request.Username && !v.IsHidden, cancellationToken);
+                return Result<Profile>.Success(profile);
             }
         }
-
     }
 }

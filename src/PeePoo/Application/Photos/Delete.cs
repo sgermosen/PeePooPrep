@@ -1,4 +1,4 @@
-﻿using Application.Core;
+using Application.Core;
 using Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Photos
 {
+    /// <summary>Removes a place photo. Allowed for whoever uploaded it, the place's owner, and admins.</summary>
     public class Delete
     {
         public class Command : IRequest<Result<Unit>>
@@ -31,33 +32,30 @@ namespace Application.Photos
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _context.Users.Include(p => p.Photos)
-                .FirstOrDefaultAsync(p => p.UserName == _userAccessor.GetUsername(), cancellationToken);
-
-                if (user == null) return null;
-
-                var photo = user.Photos.FirstOrDefault(p => p.Id == request.Id);
-
+                var username = _userAccessor.GetUsername();
+                var photo = await _context.Photos.Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
                 if (photo == null) return null;
 
+                var isPlaceOwner = await _context.FavoritePlaces
+                    .AnyAsync(f => f.PlaceId == photo.PlaceId && f.IsOwner && f.User.UserName == username, cancellationToken);
+                if (!_userAccessor.IsAdmin() && !isPlaceOwner && photo.User?.UserName != username)
+                    return null;
+
+                await _photoAccessor.DeletePhoto(photo.Id);
+                _context.Photos.Remove(photo);
+
                 if (photo.IsMain)
-                    return Result<Unit>.Failure("You cannot delete your main photo");
+                {
+                    var next = await _context.Photos
+                        .Where(p => p.PlaceId == photo.PlaceId && p.Id != photo.Id)
+                        .FirstOrDefaultAsync(cancellationToken);
+                    if (next != null) next.IsMain = true;
+                }
 
-                var result = await _photoAccessor.DeletePhoto(photo.Id);
-
-                if (result == null) return Result<Unit>.Failure("Problem deleting photo from server");
-
-                user.Photos.Remove(photo);
-
-                var success = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                if (success) return Result<Unit>.Success(Unit.Value);
-
-                return Result<Unit>.Failure("Problem deleting photo from API");
-
+                await _context.SaveChangesAsync(cancellationToken);
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }
-
-
 }

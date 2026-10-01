@@ -1,6 +1,7 @@
-﻿using Application.Core;
+using Application.Core;
 using Application.Interfaces;
 using Domain;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,16 +13,26 @@ using System.Threading.Tasks;
 
 namespace Application.Photos
 {
+    /// <summary>Adds a photo to a place. Anyone signed in can contribute one.</summary>
     public class Add
     {
-        public class Command : IRequest<Result<Photo>>
+        public class Command : IRequest<Result<PhotoDto>>
         {
             public Guid PlaceId { get; set; }
-
             public IFormFile File { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command, Result<Photo>>
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x => x.PlaceId).NotEmpty();
+                RuleFor(x => x.File).NotNull().WithMessage("A photo file is required.")
+                    .Must(PhotoRules.IsAcceptable).WithMessage(PhotoRules.Message);
+            }
+        }
+
+        public class Handler : IRequestHandler<Command, Result<PhotoDto>>
         {
             private readonly IPhotoAccessor _photoAccessor;
             private readonly IUserAccessor _userAccessor;
@@ -34,39 +45,32 @@ namespace Application.Photos
                 _userAccessor = userAccessor;
             }
 
-            public async Task<Result<Photo>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<PhotoDto>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _context.Users.Include(p => p.Photos)
-                .FirstOrDefaultAsync(p => p.UserName == _userAccessor.GetUsername(), cancellationToken);
-
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(p => p.UserName == _userAccessor.GetUsername(), cancellationToken);
                 if (user == null) return null;
 
-                if (request.File == null || request.File.Length == 0)
-                    return Result<Photo>.Failure("A photo file is required");
+                var place = await _context.Places.Include(p => p.Photos)
+                    .FirstOrDefaultAsync(p => p.Id == request.PlaceId && p.IsAproved, cancellationToken);
+                if (place == null) return null;
 
-                if (!await _context.Places.AnyAsync(p => p.Id == request.PlaceId, cancellationToken))
-                    return null;
+                if (place.Photos.Count >= 20)
+                    return Result<PhotoDto>.Failure("This place already has the maximum number of photos.");
 
-                var photoUploadResult = await _photoAccessor.AddPhoto(request.File);
+                var upload = await _photoAccessor.AddPhoto(request.File);
                 var photo = new Photo
                 {
-                    PlaceId = request.PlaceId,
-                    Id = photoUploadResult.PublicId,
-                    Url = photoUploadResult.Url
+                    Id = upload.PublicId,
+                    Url = upload.Url,
+                    UserId = user.Id,
+                    IsMain = !place.Photos.Any(p => p.IsMain),
+                    IsAproved = true
                 };
+                place.Photos.Add(photo);
+                await _context.SaveChangesAsync(cancellationToken);
 
-                if (!user.Photos.Any(p => p.IsMain))
-                    photo.IsMain = true;
-
-                user.Photos.Add(photo);
-
-                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                if (result)
-                    return Result<Photo>.Success(photo);
-
-                return Result<Photo>.Failure("Problem saving photo");
-
+                return Result<PhotoDto>.Success(new PhotoDto { Id = photo.Id, Url = photo.Url, IsMain = photo.IsMain });
             }
         }
     }

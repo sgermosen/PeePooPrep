@@ -40,7 +40,39 @@ namespace Application.Moderation
                         Reason = report.Reason,
                         CreatedAt = report.CreatedAt,
                         ReporterUsername = user.UserName
-                    }).ToListAsync(cancellationToken);
+                    }).Take(500).ToListAsync(cancellationToken);
+
+                var targetIds = reports.Select(r => r.TargetId).Distinct().ToList();
+                var places = await _context.Places.Where(p => targetIds.Contains(p.Id))
+                    .Select(p => new
+                    {
+                        p.Id, p.Name, p.Description, Hidden = !p.IsAproved,
+                        Author = p.Favorites.Where(f => f.IsOwner).Select(f => f.User.UserName).FirstOrDefault()
+                    })
+                    .ToDictionaryAsync(p => p.Id, cancellationToken);
+                var visits = await _context.Visits.Where(v => targetIds.Contains(v.Id))
+                    .Select(v => new { v.Id, v.Title, v.Description, Hidden = v.IsHidden, Author = v.Author.UserName })
+                    .ToDictionaryAsync(v => v.Id, cancellationToken);
+                var counts = reports.GroupBy(r => r.TargetId).ToDictionary(g => g.Key, g => g.Count());
+
+                foreach (var report in reports)
+                {
+                    report.OpenReportsForTarget = counts[report.TargetId];
+                    if (places.TryGetValue(report.TargetId, out var place))
+                    {
+                        report.TargetTitle = place.Name;
+                        report.TargetText = place.Description;
+                        report.TargetHidden = place.Hidden;
+                        report.TargetAuthor = place.Author;
+                    }
+                    else if (visits.TryGetValue(report.TargetId, out var visit))
+                    {
+                        report.TargetTitle = visit.Title;
+                        report.TargetText = visit.Description;
+                        report.TargetHidden = visit.Hidden;
+                        report.TargetAuthor = visit.Author;
+                    }
+                }
 
                 return Result<List<ReportItem>>.Success(reports);
             }
