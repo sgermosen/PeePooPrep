@@ -2,11 +2,11 @@ using PeePooFinder.ViewModels;
 
 namespace PeePooFinder.Views;
 
-public partial class ProfilePage : ContentPage
+public partial class PlaceListPage : ContentPage
 {
-	private readonly ProfileViewModel _viewModel;
+	private readonly PlaceListViewModel _viewModel;
 
-	public ProfilePage(ProfileViewModel viewModel)
+	public PlaceListPage(PlaceListViewModel viewModel)
 	{
 		InitializeComponent();
 		BindingContext = _viewModel = viewModel;

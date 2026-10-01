@@ -8,7 +8,13 @@ namespace PeePooFinder.Services;
 
 public class ApiException : Exception
 {
-    public ApiException(string message) : base(message) { }
+    public ApiException(string message, HttpStatusCode? status = null) : base(message)
+    {
+        Status = status;
+    }
+
+    public HttpStatusCode? Status { get; }
+    public bool IsUnauthorized => Status == HttpStatusCode.Unauthorized;
 }
 
 public class SubmitPlaceData
@@ -18,11 +24,15 @@ public class SubmitPlaceData
     public string Description { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Observations { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
+    public string OpeningHours { get; set; } = string.Empty;
     public int Rating { get; set; }
     public double Long { get; set; }
     public double Lat { get; set; }
     public bool HaveBabyChanger { get; set; }
     public bool IsRoomy { get; set; }
+    public bool IsAccessible { get; set; }
+    public bool IsFree { get; set; } = true;
     public bool IsAvailable { get; set; } = true;
     public int Urinals { get; set; }
     public int Toilets { get; set; }
@@ -46,10 +56,15 @@ public class PlaceQuery
     public double? Lat { get; set; }
     public double? Long { get; set; }
     public double? RadiusKm { get; set; }
+    public string? Search { get; set; }
     public string? Type { get; set; }
     public bool? BabyChanger { get; set; }
+    public bool? Accessible { get; set; }
+    public bool? Free { get; set; }
     public bool? Roomy { get; set; }
     public bool? AvailableOnly { get; set; }
+    public string? Sort { get; set; }
+    public int? Limit { get; set; }
 
     public string ToQueryString()
     {
@@ -63,10 +78,15 @@ public class PlaceQuery
         if (Lat.HasValue) Add("lat", Lat.Value.ToString(CultureInfo.InvariantCulture));
         if (Long.HasValue) Add("long", Long.Value.ToString(CultureInfo.InvariantCulture));
         if (RadiusKm.HasValue) Add("radiusKm", RadiusKm.Value.ToString(CultureInfo.InvariantCulture));
+        Add("q", Search?.Trim());
         Add("type", Type);
         if (BabyChanger == true) Add("babyChanger", "true");
+        if (Accessible == true) Add("accessible", "true");
+        if (Free == true) Add("free", "true");
         if (Roomy == true) Add("roomy", "true");
         if (AvailableOnly == true) Add("availableOnly", "true");
+        Add("sort", Sort);
+        if (Limit.HasValue) Add("limit", Limit.Value.ToString(CultureInfo.InvariantCulture));
 
         return parts.Count > 0 ? "?" + string.Join("&", parts) : string.Empty;
     }
@@ -76,19 +96,33 @@ public interface IPeePooApi
 {
     Task<AuthResponse> LoginAsync(LoginRequest request);
     Task<AuthResponse> RegisterAsync(RegisterRequest request);
+    Task<AuthResponse> ChangePasswordAsync(string currentPassword, string newPassword);
+    Task DeleteAccountAsync();
+
     Task<List<Place>> GetPlacesAsync(PlaceQuery? query = null);
     Task<Place?> GetPlaceAsync(string id);
-    Task<List<Review>> GetReviewsAsync(string placeId);
+    Task<List<Place>> GetSavedPlacesAsync();
+    Task<List<Place>> GetMyPlacesAsync();
     Task CreatePlaceAsync(SubmitPlaceData data);
-    Task CreateReviewAsync(SubmitReviewData data);
-    Task ToggleFavoriteAsync(string placeId);
+    Task<bool> ToggleFavoriteAsync(string placeId);
+    Task SetAvailabilityAsync(string placeId, bool isAvailable);
     Task VerifyPlaceAsync(string placeId);
+    Task DeletePlaceAsync(string placeId);
     Task ReportPlaceAsync(string placeId, string reason);
+
+    Task<List<Review>> GetReviewsAsync(string placeId);
+    Task<Review?> GetReviewAsync(string reviewId);
+    Task<List<Review>> GetMyReviewsAsync();
+    Task CreateReviewAsync(SubmitReviewData data);
+    Task UpdateReviewAsync(string reviewId, string title, string description, int rating);
+    Task DeleteReviewAsync(string reviewId);
     Task ReportReviewAsync(string reviewId, string reason);
-    Task BlockUserAsync(string username);
+
     Task<Profile?> GetProfileAsync(string username);
     Task UpdateProfileAsync(string displayName, string bio);
-    Task DeleteAccountAsync();
+    Task BlockUserAsync(string username);
+    Task UnblockUserAsync(string username);
+    Task<List<string>> GetBlockedUsersAsync();
 }
 
 public class PeePooApiClient : IPeePooApi
@@ -101,39 +135,25 @@ public class PeePooApiClient : IPeePooApi
         _http = http;
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest request)
-    {
-        var response = await _http.PostAsJsonAsync("api/account/login", request, JsonOptions);
-        await EnsureSuccess(response);
-        return (await response.Content.ReadFromJsonAsync<AuthResponse>(JsonOptions))!;
-    }
+    // ── Account ─────────────────────────────────
+    public Task<AuthResponse> LoginAsync(LoginRequest request) => PostForAsync<AuthResponse>("api/account/login", request);
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
-    {
-        var response = await _http.PostAsJsonAsync("api/account/register", request, JsonOptions);
-        await EnsureSuccess(response);
-        return (await response.Content.ReadFromJsonAsync<AuthResponse>(JsonOptions))!;
-    }
+    public Task<AuthResponse> RegisterAsync(RegisterRequest request) => PostForAsync<AuthResponse>("api/account/register", request);
 
-    public async Task<List<Place>> GetPlacesAsync(PlaceQuery? query = null)
-    {
-        var url = "api/places" + (query?.ToQueryString() ?? string.Empty);
-        return await _http.GetFromJsonAsync<List<Place>>(url, JsonOptions) ?? new List<Place>();
-    }
+    public Task<AuthResponse> ChangePasswordAsync(string currentPassword, string newPassword) =>
+        PostForAsync<AuthResponse>("api/account/password", new { currentPassword, newPassword });
 
-    public async Task<Place?> GetPlaceAsync(string id)
-    {
-        var response = await _http.GetAsync($"api/places/{id}");
-        if (response.StatusCode == HttpStatusCode.NotFound) return null;
-        await EnsureSuccess(response);
-        return await response.Content.ReadFromJsonAsync<Place>(JsonOptions);
-    }
+    public Task DeleteAccountAsync() => SendAsync(HttpMethod.Delete, "api/account");
 
-    public async Task<List<Review>> GetReviewsAsync(string placeId)
-    {
-        return await _http.GetFromJsonAsync<List<Review>>($"api/Visits/visitsFromPlace/{placeId}", JsonOptions)
-               ?? new List<Review>();
-    }
+    // ── Places ──────────────────────────────────
+    public Task<List<Place>> GetPlacesAsync(PlaceQuery? query = null) =>
+        GetListAsync<Place>("api/places" + (query?.ToQueryString() ?? string.Empty));
+
+    public Task<Place?> GetPlaceAsync(string id) => GetOrNullAsync<Place>($"api/places/{id}");
+
+    public Task<List<Place>> GetSavedPlacesAsync() => GetListAsync<Place>("api/places/saved");
+
+    public Task<List<Place>> GetMyPlacesAsync() => GetListAsync<Place>("api/places/mine");
 
     public async Task CreatePlaceAsync(SubmitPlaceData data)
     {
@@ -144,20 +164,48 @@ public class PeePooApiClient : IPeePooApi
             { new StringContent(data.Description), "Description" },
             { new StringContent(data.Type), "Type" },
             { new StringContent(data.Observations), "Observations" },
-            { new StringContent(data.Rating.ToString()), "Rating" },
-            { new StringContent(data.Long.ToString(System.Globalization.CultureInfo.InvariantCulture)), "Long" },
-            { new StringContent(data.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)), "Lat" },
-            { new StringContent(data.HaveBabyChanger.ToString()), "HaveBabyChanger" },
-            { new StringContent(data.IsRoomy.ToString()), "IsRoomy" },
-            { new StringContent(data.IsAvailable.ToString()), "IsAvailable" },
-            { new StringContent(data.Urinals.ToString()), "Urinals" },
-            { new StringContent(data.Toilets.ToString()), "Toilets" },
+            { new StringContent(data.Address), "Address" },
+            { new StringContent(data.OpeningHours), "OpeningHours" },
+            { new StringContent(data.Rating.ToString(CultureInfo.InvariantCulture)), "Rating" },
+            { new StringContent(data.Long.ToString(CultureInfo.InvariantCulture)), "Long" },
+            { new StringContent(data.Lat.ToString(CultureInfo.InvariantCulture)), "Lat" },
+            { new StringContent(Bool(data.HaveBabyChanger)), "HaveBabyChanger" },
+            { new StringContent(Bool(data.IsRoomy)), "IsRoomy" },
+            { new StringContent(Bool(data.IsAccessible)), "IsAccessible" },
+            { new StringContent(Bool(data.IsFree)), "IsFree" },
+            { new StringContent(Bool(data.IsAvailable)), "IsAvailable" },
+            { new StringContent(data.Urinals.ToString(CultureInfo.InvariantCulture)), "Urinals" },
+            { new StringContent(data.Toilets.ToString(CultureInfo.InvariantCulture)), "Toilets" },
         };
         AddImage(content, data.ImageBytes, data.ImageName);
 
         var response = await _http.PostAsync("api/places", content);
         await EnsureSuccess(response);
     }
+
+    public async Task<bool> ToggleFavoriteAsync(string placeId)
+    {
+        var response = await _http.PostAsync($"api/places/{placeId}/favorite", null);
+        await EnsureSuccess(response);
+        var state = await response.Content.ReadFromJsonAsync<FavoriteState>(JsonOptions);
+        return state?.IsFavorite ?? false;
+    }
+
+    public Task SetAvailabilityAsync(string placeId, bool isAvailable) =>
+        PostAsync($"api/places/{placeId}/availability", new { isAvailable });
+
+    public Task VerifyPlaceAsync(string placeId) => PostAsync($"api/places/{placeId}/verify", null);
+
+    public Task DeletePlaceAsync(string placeId) => SendAsync(HttpMethod.Delete, $"api/places/{placeId}");
+
+    public Task ReportPlaceAsync(string placeId, string reason) => PostAsync($"api/places/{placeId}/report", new { reason });
+
+    // ── Reviews ─────────────────────────────────
+    public Task<List<Review>> GetReviewsAsync(string placeId) => GetListAsync<Review>($"api/visits/visitsFromPlace/{placeId}");
+
+    public Task<Review?> GetReviewAsync(string reviewId) => GetOrNullAsync<Review>($"api/visits/{reviewId}");
+
+    public Task<List<Review>> GetMyReviewsAsync() => GetListAsync<Review>("api/visits/mine");
 
     public async Task CreateReviewAsync(SubmitReviewData data)
     {
@@ -167,7 +215,7 @@ public class PeePooApiClient : IPeePooApi
             { new StringContent(data.PlaceId), "PlaceId" },
             { new StringContent(data.Title), "Title" },
             { new StringContent(data.Description), "Description" },
-            { new StringContent(data.Rating.ToString()), "Rating" },
+            { new StringContent(data.Rating.ToString(CultureInfo.InvariantCulture)), "Rating" },
         };
         AddImage(content, data.ImageBytes, data.ImageName);
 
@@ -175,49 +223,18 @@ public class PeePooApiClient : IPeePooApi
         await EnsureSuccess(response);
     }
 
-    public async Task ToggleFavoriteAsync(string placeId)
+    public async Task UpdateReviewAsync(string reviewId, string title, string description, int rating)
     {
-        var response = await _http.PostAsync($"api/places/{placeId}/favorite", null);
+        var response = await _http.PutAsJsonAsync($"api/visits/{reviewId}", new { title, description, rating }, JsonOptions);
         await EnsureSuccess(response);
     }
 
-    public async Task VerifyPlaceAsync(string placeId)
-    {
-        var response = await _http.PostAsync($"api/places/{placeId}/verify", null);
-        await EnsureSuccess(response);
-    }
+    public Task DeleteReviewAsync(string reviewId) => SendAsync(HttpMethod.Delete, $"api/visits/{reviewId}");
 
-    public async Task ReportPlaceAsync(string placeId, string reason)
-    {
-        var response = await _http.PostAsJsonAsync($"api/places/{placeId}/report", new { reason }, JsonOptions);
-        await EnsureSuccess(response);
-    }
+    public Task ReportReviewAsync(string reviewId, string reason) => PostAsync($"api/visits/{reviewId}/report", new { reason });
 
-    public async Task ReportReviewAsync(string reviewId, string reason)
-    {
-        var response = await _http.PostAsJsonAsync($"api/visits/{reviewId}/report", new { reason }, JsonOptions);
-        await EnsureSuccess(response);
-    }
-
-    public async Task BlockUserAsync(string username)
-    {
-        var response = await _http.PostAsync($"api/profiles/{Uri.EscapeDataString(username)}/block", null);
-        await EnsureSuccess(response);
-    }
-
-    public async Task DeleteAccountAsync()
-    {
-        var response = await _http.DeleteAsync("api/account");
-        await EnsureSuccess(response);
-    }
-
-    public async Task<Profile?> GetProfileAsync(string username)
-    {
-        var response = await _http.GetAsync($"api/profiles/{username}");
-        if (response.StatusCode == HttpStatusCode.NotFound) return null;
-        await EnsureSuccess(response);
-        return await response.Content.ReadFromJsonAsync<Profile>(JsonOptions);
-    }
+    // ── Profiles ────────────────────────────────
+    public Task<Profile?> GetProfileAsync(string username) => GetOrNullAsync<Profile>($"api/profiles/{Uri.EscapeDataString(username)}");
 
     public async Task UpdateProfileAsync(string displayName, string bio)
     {
@@ -225,33 +242,95 @@ public class PeePooApiClient : IPeePooApi
         await EnsureSuccess(response);
     }
 
+    public Task BlockUserAsync(string username) => PostAsync($"api/profiles/{Uri.EscapeDataString(username)}/block", null);
+
+    public Task UnblockUserAsync(string username) => SendAsync(HttpMethod.Delete, $"api/profiles/{Uri.EscapeDataString(username)}/block");
+
+    public Task<List<string>> GetBlockedUsersAsync() => GetListAsync<string>("api/profiles/blocked");
+
+    // ── Plumbing ────────────────────────────────
+    private static string Bool(bool value) => value ? "true" : "false";
+
+    private async Task<List<T>> GetListAsync<T>(string url)
+    {
+        var response = await _http.GetAsync(url);
+        await EnsureSuccess(response);
+        return await response.Content.ReadFromJsonAsync<List<T>>(JsonOptions) ?? new List<T>();
+    }
+
+    private async Task<T?> GetOrNullAsync<T>(string url) where T : class
+    {
+        var response = await _http.GetAsync(url);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        await EnsureSuccess(response);
+        return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
+    }
+
+    private async Task<T> PostForAsync<T>(string url, object body)
+    {
+        var response = await _http.PostAsJsonAsync(url, body, JsonOptions);
+        await EnsureSuccess(response);
+        return (await response.Content.ReadFromJsonAsync<T>(JsonOptions))!;
+    }
+
+    private async Task PostAsync(string url, object? body)
+    {
+        var response = body == null
+            ? await _http.PostAsync(url, null)
+            : await _http.PostAsJsonAsync(url, body, JsonOptions);
+        await EnsureSuccess(response);
+    }
+
+    private async Task SendAsync(HttpMethod method, string url)
+    {
+        var response = await _http.SendAsync(new HttpRequestMessage(method, url));
+        await EnsureSuccess(response);
+    }
+
     private static void AddImage(MultipartFormDataContent content, byte[]? bytes, string? name)
     {
         if (bytes is null || bytes.Length == 0) return;
+        var fileName = string.IsNullOrEmpty(name) ? "photo.jpg" : name;
         var imageContent = new ByteArrayContent(bytes);
-        imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-        content.Add(imageContent, "File", string.IsNullOrEmpty(name) ? "photo.jpg" : name);
+        imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentTypeFor(fileName));
+        content.Add(imageContent, "File", fileName);
     }
+
+    private static string ContentTypeFor(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".png" => "image/png",
+        ".gif" => "image/gif",
+        ".webp" => "image/webp",
+        ".heic" => "image/heic",
+        ".heif" => "image/heif",
+        _ => "image/jpeg"
+    };
 
     private static async Task EnsureSuccess(HttpResponseMessage response)
     {
         if (response.IsSuccessStatusCode) return;
 
-        var message = "Something went wrong. Please try again.";
+        string? message = null;
         try
         {
             var error = await response.Content.ReadFromJsonAsync<ApiError>(JsonOptions);
-            if (!string.IsNullOrWhiteSpace(error?.Message))
-                message = error!.Message!;
+            message = error?.Message;
         }
         catch
         {
-            // response body was not a JSON error payload
+            // body was empty or not a JSON error payload
         }
 
-        if (response.StatusCode == HttpStatusCode.Unauthorized && message.StartsWith("Something"))
-            message = "Your session has expired. Please sign in again.";
+        message = response.StatusCode switch
+        {
+            _ when !string.IsNullOrWhiteSpace(message) => message,
+            HttpStatusCode.Unauthorized => "Please sign in again.",
+            HttpStatusCode.Forbidden => "You can't do that.",
+            HttpStatusCode.NotFound => "That no longer exists.",
+            HttpStatusCode.TooManyRequests => "Too many requests. Please wait a moment.",
+            _ => "Something went wrong. Please try again."
+        };
 
-        throw new ApiException(message);
+        throw new ApiException(message, response.StatusCode);
     }
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="PeePooFinder.Views.Controls.PlaceCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:PeePooFinder.Models"
+    x:DataType="models:Place">
+
+    <Border Style="{StaticResource Card}">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="6">
+            <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}" Style="{StaticResource Title}" LineBreakMode="TailTruncation" MaxLines="2" />
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Tag}" VerticalOptions="Start">
+                <Label Text="{Binding TypeLabel}" Style="{StaticResource TagText}" />
+            </Border>
+
+            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Address}" Style="{StaticResource Caption}"
+                   IsVisible="{Binding HasAddress}" LineBreakMode="TailTruncation" />
+
+            <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="10">
+                <HorizontalStackLayout Spacing="4" IsVisible="{Binding HasReviews}" VerticalOptions="Center">
+                    <Label Text="{Binding Score, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource SignDeep}" FontSize="14" VerticalOptions="Center" />
+                    <Label Text="{Binding ScoreLabel}" Style="{StaticResource Score}" FontSize="16" VerticalOptions="Center" />
+                    <Label Text="{Binding ReviewCount, StringFormat='({0})'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Label Text="No reviews yet" Style="{StaticResource Caption}" IsVisible="{Binding HasReviews, Converter={StaticResource InvertedBool}}" VerticalOptions="Center" />
+                <Label Text="{Binding DistanceLabel}" Style="{StaticResource Body}" FontFamily="BodyBold" FontSize="14" IsVisible="{Binding HasDistance}" VerticalOptions="Center" />
+                <Border Style="{StaticResource Tag}" Stroke="{StaticResource Stop}" IsVisible="{Binding IsClosed}">
+                    <Label Text="Closed" Style="{StaticResource TagText}" TextColor="{StaticResource Stop}" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <FlexLayout Grid.Row="3" Grid.ColumnSpan="2" Wrap="Wrap" Direction="Row" AlignItems="Start">
+                <Border Style="{StaticResource Amenity}" Margin="0,0,6,6" IsVisible="{Binding IsAccessible}">
+                    <Label Text="Accessible" Style="{StaticResource AmenityText}" />
+                </Border>
+                <Border Style="{StaticResource Amenity}" Margin="0,0,6,6" IsVisible="{Binding HaveBabyChanger}">
+                    <Label Text="Changing table" Style="{StaticResource AmenityText}" />
+                </Border>
+                <Border Style="{StaticResource Amenity}" Margin="0,0,6,6" IsVisible="{Binding IsFree}">
+                    <Label Text="Free" Style="{StaticResource AmenityText}" />
+                </Border>
+                <Border Style="{StaticResource Amenity}" Margin="0,0,6,6" IsVisible="{Binding HasHours}">
+                    <Label Text="{Binding OpeningHours}" Style="{StaticResource AmenityText}" />
+                </Border>
+            </FlexLayout>
+        </Grid>
+    </Border>
+</ContentView>

@@ -12,10 +12,10 @@ public partial class SubmitPlacePage : ContentPage
 		BindingContext = _viewModel = viewModel;
 	}
 
-	protected override void OnAppearing()
+	protected override async void OnAppearing()
 	{
 		base.OnAppearing();
-		if (_viewModel.LocateCommand.CanExecute(null))
-			_viewModel.LocateCommand.Execute(null);
+		if (!_viewModel.HasLocation)
+			await _viewModel.LocateCommand.ExecuteAsync(null);
 	}
 }

@@ -5,48 +5,79 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
     x:DataType="vm:ProfileViewModel"
-    Title="Profile"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+    Shell.NavBarIsVisible="False"
+    Style="{StaticResource Page}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="16">
+        <VerticalStackLayout Padding="16,20,16,32" Spacing="18">
 
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                    <Border WidthRequest="96" HeightRequest="96" StrokeThickness="0" StrokeShape="RoundRectangle 48" BackgroundColor="{StaticResource Secondary}" HorizontalOptions="Center">
-                        <Label Text="{Binding DisplayName}" FontSize="34" FontFamily="OpenSansSemibold" TextColor="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center" />
+            <!-- Guest -->
+            <VerticalStackLayout Spacing="14" IsVisible="{Binding IsGuest}">
+                <Label Text="You" Style="{StaticResource Eyebrow}" />
+                <Label Text="Help keep the map honest." Style="{StaticResource Headline}" />
+                <Label Text="With a free account you can add places, write reviews, save favorites and confirm that a place is still good." Style="{StaticResource Body}" />
+                <Button Text="Create a free account" Style="{StaticResource SignButton}" Command="{Binding CreateAccountCommand}" />
+                <Button Text="I already have an account" Style="{StaticResource GhostButton}" Command="{Binding SignInCommand}" />
+            </VerticalStackLayout>
+
+            <!-- Signed in -->
+            <VerticalStackLayout Spacing="18" IsVisible="{Binding IsSignedIn}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border Style="{StaticResource SignPanel}" WidthRequest="72" HeightRequest="72" Padding="0">
+                        <Label Text="{Binding Initial}" FontFamily="Display" FontSize="34" TextColor="{StaticResource OnSign}"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
                     </Border>
-                    <Label Text="{Binding DisplayName}" Style="{StaticResource Title}" HorizontalOptions="Center" />
-                    <Label Text="{Binding Username, StringFormat='@{0}'}" Style="{StaticResource Caption}" HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="{Binding DisplayName}" Style="{StaticResource Title}" FontSize="24" />
+                        <Label Text="{Binding Username, StringFormat='@{0}'}" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                </Grid>
+                <Label Text="{Binding StatsLabel}" Style="{StaticResource Caption}" />
 
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="12">
-                    <Label Text="Edit profile" Style="{StaticResource Title}" />
-                    <Border Style="{StaticResource FieldBorder}">
-                        <Entry Placeholder="Display name" Text="{Binding DisplayName}" Style="{StaticResource FieldEntry}" />
-                    </Border>
-                    <Border Style="{StaticResource FieldBorder}" Padding="14,8">
-                        <Editor Placeholder="Bio" Text="{Binding Bio}" HeightRequest="90" FontSize="16" />
-                    </Border>
-                    <Button Text="Save changes" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
-                </VerticalStackLayout>
-            </Border>
+                <Border Style="{StaticResource Card}" Padding="16,4">
+                    <VerticalStackLayout>
+                        <Button Text="Saved places  →" Style="{StaticResource RowButton}" HorizontalOptions="Fill" Command="{Binding OpenSavedCommand}" />
+                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" />
+                        <Button Text="Places you added  →" Style="{StaticResource RowButton}" HorizontalOptions="Fill" Command="{Binding OpenMinePlacesCommand}" />
+                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" />
+                        <Button Text="Your reviews  →" Style="{StaticResource RowButton}" HorizontalOptions="Fill" Command="{Binding OpenMyReviewsCommand}" />
+                    </VerticalStackLayout>
+                </Border>
 
-            <Button Text="Sign out" Style="{StaticResource GhostButton}" Command="{Binding LogoutCommand}" />
+                <Label Text="Edit profile" Style="{StaticResource Title}" />
+                <Label Text="Name people see" Style="{StaticResource FieldLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Text="{Binding DisplayName}" MaxLength="40" Style="{StaticResource FieldEntry}" />
+                </Border>
+                <Label Text="About you (optional)" Style="{StaticResource FieldLabel}" />
+                <Border Style="{StaticResource FieldBorder}" Padding="12,4">
+                    <Editor Text="{Binding Bio}" MaxLength="300" Style="{StaticResource FieldEditor}" MinimumHeightRequest="70" />
+                </Border>
+                <Button Text="Save changes" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
 
-            <Button Text="Delete account"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Danger}"
-                    FontFamily="OpenSansSemibold"
-                    BorderColor="{StaticResource Danger}"
-                    BorderWidth="1"
-                    HeightRequest="48"
-                    CornerRadius="14"
-                    Command="{Binding DeleteAccountCommand}" />
+                <Border Style="{StaticResource Card}" Padding="16,4">
+                    <VerticalStackLayout>
+                        <Button Text="Change password  →" Style="{StaticResource RowButton}" HorizontalOptions="Fill" Command="{Binding OpenChangePasswordCommand}" />
+                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" />
+                        <Button Text="Blocked people  →" Style="{StaticResource RowButton}" HorizontalOptions="Fill" Command="{Binding OpenBlockedCommand}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
 
-            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+            <BoxView Style="{StaticResource Divider}" />
+            <VerticalStackLayout Spacing="0">
+                <Button Text="Help &amp; FAQ" Style="{StaticResource LinkButton}" Command="{Binding OpenHelpCommand}" />
+                <Button Text="Privacy policy" Style="{StaticResource LinkButton}" Command="{Binding OpenPrivacyCommand}" />
+                <Button Text="Terms of use" Style="{StaticResource LinkButton}" Command="{Binding OpenTermsCommand}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding IsSignedIn}">
+                <Button Text="Sign out" Style="{StaticResource GhostButton}" Command="{Binding LogoutCommand}" />
+                <Button Text="Delete account" Style="{StaticResource DangerButton}" Command="{Binding DeleteAccountCommand}" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding AppVersion}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource SignDeep}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

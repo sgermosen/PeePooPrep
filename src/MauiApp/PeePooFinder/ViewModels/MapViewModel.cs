@@ -10,14 +10,14 @@ namespace PeePooFinder.ViewModels;
 public partial class MapViewModel : BaseViewModel
 {
     private const double MapRadiusKm = 25;
+    private static readonly Location DefaultCenter = new(18.4861, -69.9312);
 
     private readonly IPeePooApi _api;
     private readonly IGeolocation _geolocation;
 
-    [ObservableProperty]
-    private ObservableCollection<Place> places = new();
+    [ObservableProperty] private ObservableCollection<Place> places = new();
 
-    public MapSpan? Region { get; private set; }
+    public MapSpan Region { get; private set; } = MapSpan.FromCenterAndRadius(DefaultCenter, Distance.FromKilometers(8));
 
     public MapViewModel(IPeePooApi api, IGeolocation geolocation)
     {
@@ -29,12 +29,9 @@ public partial class MapViewModel : BaseViewModel
     [RelayCommand]
     private async Task LoadAsync()
     {
-        if (IsBusy) return;
-        try
+        await RunAsync(async () =>
         {
-            IsBusy = true;
-
-            var query = new PlaceQuery();
+            var query = new PlaceQuery { Limit = 300 };
             Location? location = null;
             try
             {
@@ -43,7 +40,7 @@ public partial class MapViewModel : BaseViewModel
             }
             catch
             {
-                // fall back to a non-geo listing when location is unavailable
+                // Without location we show everything around the default city.
             }
 
             if (location is not null)
@@ -51,25 +48,10 @@ public partial class MapViewModel : BaseViewModel
                 query.Lat = location.Latitude;
                 query.Long = location.Longitude;
                 query.RadiusKm = MapRadiusKm;
-                Region = MapSpan.FromCenterAndRadius(
-                    new Location(location.Latitude, location.Longitude),
-                    Distance.FromKilometers(6));
+                Region = MapSpan.FromCenterAndRadius(new Location(location.Latitude, location.Longitude), Distance.FromKilometers(3));
             }
 
-            var results = await _api.GetPlacesAsync(query);
-            Places = new ObservableCollection<Place>(results.Where(p => p.Lat != 0 || p.Long != 0));
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
-        catch
-        {
-            await ShowError("Could not load the map.");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+            Places = new ObservableCollection<Place>(await _api.GetPlacesAsync(query));
+        }, "Couldn't load the map.");
     }
 }

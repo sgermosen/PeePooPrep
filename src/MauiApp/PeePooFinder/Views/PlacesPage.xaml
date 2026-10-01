@@ -5,82 +5,72 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
     xmlns:models="clr-namespace:PeePooFinder.Models"
+    xmlns:controls="clr-namespace:PeePooFinder.Views.Controls"
     x:DataType="vm:PlacesViewModel"
-    Title="Explore"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+    Shell.NavBarIsVisible="False"
+    Style="{StaticResource Page}">
 
     <Grid RowDefinitions="Auto,*">
 
-        <VerticalStackLayout Grid.Row="0" Padding="16,12,16,4" Spacing="10">
-            <Label Text="Nearby spots" Style="{StaticResource Headline}" />
+        <VerticalStackLayout Grid.Row="0" Padding="16,20,16,10" Spacing="12">
+            <Label Text="Nearby" Style="{StaticResource Eyebrow}" />
+            <Label Text="Where's the restroom?" Style="{StaticResource Headline}" />
             <Border Style="{StaticResource FieldBorder}">
-                <Entry Placeholder="Search by name or type" Text="{Binding SearchText}" Style="{StaticResource FieldEntry}" />
+                <Entry Placeholder="Search a name, area or street" Text="{Binding SearchText}" Style="{StaticResource FieldEntry}"
+                       ReturnType="Search" ReturnCommand="{Binding SearchCommand}" ClearButtonVisibility="WhileEditing" />
             </Border>
             <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                <HorizontalStackLayout Spacing="16">
-                    <HorizontalStackLayout Spacing="6">
-                        <Switch IsToggled="{Binding NearMe}" OnColor="{StaticResource Primary}" />
-                        <Label Text="Near me" Style="{StaticResource Body}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="6">
-                        <Switch IsToggled="{Binding OnlyBabyChanger}" OnColor="{StaticResource Primary}" />
-                        <Label Text="Baby changer" Style="{StaticResource Body}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="6">
-                        <Switch IsToggled="{Binding OnlyAvailable}" OnColor="{StaticResource Primary}" />
-                        <Label Text="Open now" Style="{StaticResource Body}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8">
+                    <Button Text="Accessible" Style="{StaticResource FilterChip}" Command="{Binding ToggleAccessibleCommand}"
+                            BackgroundColor="{Binding OnlyAccessible, Converter={StaticResource ChipBackground}}"
+                            TextColor="{Binding OnlyAccessible, Converter={StaticResource ChipText}}" />
+                    <Button Text="Changing table" Style="{StaticResource FilterChip}" Command="{Binding ToggleBabyChangerCommand}"
+                            BackgroundColor="{Binding OnlyBabyChanger, Converter={StaticResource ChipBackground}}"
+                            TextColor="{Binding OnlyBabyChanger, Converter={StaticResource ChipText}}" />
+                    <Button Text="Free" Style="{StaticResource FilterChip}" Command="{Binding ToggleFreeCommand}"
+                            BackgroundColor="{Binding OnlyFree, Converter={StaticResource ChipBackground}}"
+                            TextColor="{Binding OnlyFree, Converter={StaticResource ChipText}}" />
+                    <Button Text="Open" Style="{StaticResource FilterChip}" Command="{Binding ToggleOpenCommand}"
+                            BackgroundColor="{Binding OnlyOpen, Converter={StaticResource ChipBackground}}"
+                            TextColor="{Binding OnlyOpen, Converter={StaticResource ChipText}}" />
                 </HorizontalStackLayout>
             </ScrollView>
+            <Label Text="{Binding StatusText}" Style="{StaticResource Caption}" IsVisible="{Binding StatusText, Converter={StaticResource StringHasValue}}" />
         </VerticalStackLayout>
 
-        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}" RefreshColor="{StaticResource SignDeep}">
             <CollectionView ItemsSource="{Binding Places}" SelectionMode="None">
-
                 <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="30" Spacing="8" VerticalOptions="Center">
-                        <Label Text="No spots yet" Style="{StaticResource Title}" HorizontalOptions="Center" />
-                        <Label Text="Be the first to add one with the + button." Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    <VerticalStackLayout Padding="24,40" Spacing="8">
+                        <Label Text="Nothing here yet" Style="{StaticResource Title}" />
+                        <Label Text="Try removing a filter, or add the first place with the + button." Style="{StaticResource Body}" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
-
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Place">
-                        <Border Style="{StaticResource Card}" Margin="16,8">
-                            <Border.GestureRecognizers>
+                        <controls:PlaceCard Margin="16,6">
+                            <controls:PlaceCard.GestureRecognizers>
                                 <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlacesViewModel}}, Path=GoToDetailCommand}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlacesViewModel}}, Path=GoToDetailCommand, x:DataType=vm:PlacesViewModel}"
                                     CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="6">
-                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}" Style="{StaticResource Title}" LineBreakMode="TailTruncation" />
-                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Chip}" VerticalOptions="Center">
-                                    <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource SecondaryDarkText}" />
-                                </Border>
-                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                       Text="{Binding Description}" Style="{StaticResource Body}"
-                                       MaxLines="2" LineBreakMode="TailTruncation" />
-                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="10">
-                                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" FontSize="14" />
-                                    <Label Text="{Binding DistanceLabel}" Style="{StaticResource Caption}" VerticalOptions="Center" IsVisible="{Binding HasDistance}" />
-                                    <Label Text="{Binding Toilets, StringFormat='{0} toilets'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
-                                </HorizontalStackLayout>
-                            </Grid>
-                        </Border>
+                            </controls:PlaceCard.GestureRecognizers>
+                        </controls:PlaceCard>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <BoxView HeightRequest="96" Color="Transparent" />
+                </CollectionView.Footer>
             </CollectionView>
         </RefreshView>
 
+        <!-- Add place: a square sign button rather than a floating circle. -->
         <Button Grid.Row="1"
-                Text="+"
-                FontSize="30"
-                FontFamily="OpenSansSemibold"
-                WidthRequest="60" HeightRequest="60" CornerRadius="30"
-                BackgroundColor="{StaticResource Primary}"
-                TextColor="{StaticResource White}"
+                Text="+ Add a place"
+                Style="{StaticResource SignButton}"
                 HorizontalOptions="End" VerticalOptions="End"
-                Margin="0,0,20,20"
-                Command="{Binding AddPlaceCommand}" />
+                Padding="18,0"
+                Margin="0,0,16,16"
+                Command="{Binding AddPlaceCommand}"
+                SemanticProperties.Description="Add a restroom to the map" />
     </Grid>
 </ContentPage>

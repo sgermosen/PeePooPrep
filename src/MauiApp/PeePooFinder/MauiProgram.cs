@@ -17,8 +17,10 @@ public static class MauiProgram
 			.UseMauiMaps()
 			.ConfigureFonts(fonts =>
 			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+				fonts.AddFont("AtkinsonHyperlegible-Regular.ttf", "Body");
+				fonts.AddFont("AtkinsonHyperlegible-Bold.ttf", "BodyBold");
+				fonts.AddFont("BricolageGrotesque-ExtraBold.ttf", "Display");
+				fonts.AddFont("BricolageGrotesque-SemiBold.ttf", "DisplaySemi");
 			});
 
 		using var stream = Assembly.GetExecutingAssembly()
@@ -40,7 +42,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<AuthMessageHandler>();
 		builder.Services.AddHttpClient<IPeePooApi, PeePooApiClient>(client =>
 		{
-			client.BaseAddress = new Uri(settings.Api.BaseUrl);
+			client.BaseAddress = new Uri(settings.Api.BaseUrl.TrimEnd('/') + "/");
+			client.Timeout = TimeSpan.FromSeconds(30);
 		}).AddHttpMessageHandler<AuthMessageHandler>();
 
 		RegisterViewModelsAndPages(builder.Services);
@@ -71,5 +74,13 @@ public static class MauiProgram
 		services.AddTransient<AddReviewPage>();
 		services.AddTransient<ProfileViewModel>();
 		services.AddTransient<ProfilePage>();
+		services.AddTransient<PlaceListViewModel>();
+		services.AddTransient<PlaceListPage>();
+		services.AddTransient<MyReviewsViewModel>();
+		services.AddTransient<MyReviewsPage>();
+		services.AddTransient<ChangePasswordViewModel>();
+		services.AddTransient<ChangePasswordPage>();
+		services.AddTransient<BlockedUsersViewModel>();
+		services.AddTransient<BlockedUsersPage>();
 	}
 }

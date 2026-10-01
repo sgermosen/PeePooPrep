@@ -2,11 +2,11 @@ using PeePooFinder.ViewModels;
 
 namespace PeePooFinder.Views;
 
-public partial class ProfilePage : ContentPage
+public partial class BlockedUsersPage : ContentPage
 {
-	private readonly ProfileViewModel _viewModel;
+	private readonly BlockedUsersViewModel _viewModel;
 
-	public ProfilePage(ProfileViewModel viewModel)
+	public BlockedUsersPage(BlockedUsersViewModel viewModel)
 	{
 		InitializeComponent();
 		BindingContext = _viewModel = viewModel;
