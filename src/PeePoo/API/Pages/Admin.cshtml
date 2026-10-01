@@ -1,0 +1,43 @@
+@page "/admin"
+@{
+    ViewData["Title"] = "Moderación";
+    ViewData["NoIndex"] = true;
+}
+<section class="section">
+    <div class="wrap">
+        <p class="eyebrow">Equipo</p>
+        <h1>Moderación</h1>
+
+        <form class="card-form" data-admin-login>
+            <h2 class="m-0">Entrar</h2>
+            <p class="notice notice--err" data-login-msg hidden></p>
+            <div class="field">
+                <label for="admin-email">Correo</label>
+                <input class="input" id="admin-email" type="email" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label for="admin-password">Contraseña</label>
+                <input class="input" id="admin-password" type="password" autocomplete="current-password" required>
+            </div>
+            <button class="btn" type="submit">Entrar</button>
+            <p class="small muted m-0">Solo cuentas con el rol de administrador.</p>
+        </form>
+
+        <div data-admin-main hidden>
+            <div class="section-head">
+                <p class="m-0" data-admin-who></p>
+                <div class="form-row">
+                    <button class="btn btn--ghost btn--small" type="button" data-admin-refresh>Actualizar</button>
+                    <button class="btn btn--ghost btn--small" type="button" data-admin-logout>Salir</button>
+                </div>
+            </div>
+            <div class="admin-stats" data-admin-stats></div>
+            <p class="notice" data-admin-msg hidden></p>
+            <h2>Reportes abiertos</h2>
+            <div data-admin-reports></div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    <script src="/js/admin.js" asp-append-version="true"></script>
+}

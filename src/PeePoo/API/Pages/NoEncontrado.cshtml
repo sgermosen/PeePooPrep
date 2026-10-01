@@ -1,0 +1,22 @@
+@page "/no-encontrado"
+@{
+    ViewData["Title"] = "Página no encontrada";
+    ViewData["NoIndex"] = true;
+    if (Response.StatusCode == 200) { Response.StatusCode = 404; }
+}
+<section class="section">
+    <div class="wrap lost">
+        <div class="wayfinder" aria-hidden="true">
+            <p class="wayfinder-word">404</p>
+            <div class="wayfinder-row"><span>Por aquí no</span><svg><use href="#i-arrow" /></svg></div>
+        </div>
+        <div>
+            <h1>Esta puerta no lleva a ningún baño.</h1>
+            <p class="lede">La página que buscas no existe o se movió.</p>
+            <div class="form-row">
+                <a class="btn btn--sign" href="/explorar">Ir al mapa</a>
+                <a class="btn btn--ghost" href="/">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</section>

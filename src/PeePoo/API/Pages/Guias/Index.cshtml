@@ -1,0 +1,31 @@
+@page "/guias"
+@{
+    ViewData["Title"] = "Guías";
+    ViewData["Description"] = "Consejos prácticos para encontrar baños limpios y accesibles, salir con bebés y escribir reseñas útiles.";
+    ViewData["Nav"] = "guias";
+}
+
+<section class="hero">
+    <div class="wrap">
+        <p class="eyebrow">Guías</p>
+        <h1>Para salir de casa tranquilo</h1>
+        <p class="lede">Consejos prácticos y cortos, para leer en la fila del banco antes de que te haga falta.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <ul class="ruled">
+            @foreach (var guide in Guides.All)
+            {
+                <li>
+                    <a href="/guias/@guide.Slug">
+                        <h3>@guide.Title</h3>
+                        <span class="meta">@Fmt.Date(guide.Published) · @guide.Minutes min</span>
+                        <p>@guide.Summary</p>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</section>

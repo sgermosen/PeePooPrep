@@ -1,6 +1,7 @@
 using API.Extensions;
 using API.Middleware;
 using API.Services;
+using API.Site;
 using Application.Places;
 using Domain;
 using FluentValidation;
@@ -50,6 +51,18 @@ builder.Services.AddControllers(opt =>
             return new BadRequestObjectResult(new { message = first, errors });
         };
     });
+
+builder.Services.AddRazorPages(options => options.Conventions.AllowAnonymousToFolder("/"));
+// Spanish pages: emit accents as-is instead of numeric entities (markup characters are still escaped).
+builder.Services.Configure<Microsoft.Extensions.WebEncoders.WebEncoderOptions>(o =>
+    o.TextEncoderSettings = new System.Text.Encodings.Web.TextEncoderSettings(System.Text.Unicode.UnicodeRanges.All));
+builder.Services.Configure<SiteOptions>(builder.Configuration.GetSection("Site"));
+builder.Services.PostConfigure<SiteOptions>(site =>
+{
+    // Older deployments configured the support address under "Legal".
+    site.SupportEmail = builder.Configuration["Site:SupportEmail"] ?? builder.Configuration["Legal:SupportEmail"] ?? site.SupportEmail;
+    site.LegalUpdated = builder.Configuration["Site:LegalUpdated"] ?? builder.Configuration["Legal:LastUpdated"] ?? site.LegalUpdated;
+});
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Create>();
@@ -107,6 +120,12 @@ else
     app.UseHttpsRedirection();
 }
 
+// Friendly 404 page for the website; API routes keep their JSON/empty responses.
+app.UseWhen(ctx => !ctx.Request.Path.StartsWithSegments("/api"),
+    branch => branch.UseStatusCodePagesWithReExecute("/no-encontrado"));
+
+app.UseStaticFiles();
+
 // Photos stored by LocalPhotoAccessor (used when Cloudinary is not configured).
 var uploadsPath = Path.Combine(app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot"),
     LocalPhotoAccessor.UploadFolder);
@@ -119,6 +138,8 @@ app.UseStaticFiles(new StaticFileOptions
         new Dictionary<string, string>(LocalPhotoAccessor.ContentTypes, StringComparer.OrdinalIgnoreCase))
 });
 
+// Explicit so the status-code re-execution above gets routed again.
+app.UseRouting();
 app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
@@ -126,6 +147,8 @@ app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapRazorPages();
+app.MapSeoEndpoints();
 app.MapHealthChecks("/health");
 
 await InitializeDatabaseAsync(app);

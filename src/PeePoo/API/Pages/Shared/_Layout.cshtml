@@ -1,0 +1,111 @@
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    var title = ViewData["Title"] as string;
+    var fullTitle = string.IsNullOrEmpty(title) ? $"{site.AppName} · Baños cerca de ti" : $"{title} · {site.AppName}";
+    var description = ViewData["Description"] as string
+        ?? "Encuentra baños cerca de ti con horario, accesibilidad, cambiadores y reseñas de la comunidad.";
+    var lang = ViewData["Lang"] as string ?? "es";
+    var origin = !string.IsNullOrWhiteSpace(site.BaseUrl) ? site.BaseUrl.TrimEnd('/') : $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var canonical = origin + (ViewData["Path"] as string ?? Context.Request.Path.Value);
+    var ogImage = ViewData["OgImage"] as string ?? origin + "/img/og.png";
+    var nav = ViewData["Nav"] as string;
+    string Current(string key) => nav == key ? "page" : null;
+}
+<!doctype html>
+<html lang="@lang">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@fullTitle</title>
+    <meta name="description" content="@description">
+    <link rel="canonical" href="@canonical">
+    @if (ViewData["NoIndex"] is true)
+    {
+        <meta name="robots" content="noindex, nofollow">
+    }
+    <meta name="theme-color" content="#FCD24F">
+    <meta property="og:type" content="@(ViewData["OgType"] as string ?? "website")">
+    <meta property="og:site_name" content="@site.AppName">
+    <meta property="og:title" content="@(title ?? site.AppName)">
+    <meta property="og:description" content="@description">
+    <meta property="og:url" content="@canonical">
+    <meta property="og:image" content="@ogImage">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/site.css" asp-append-version="true">
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <a class="skip" href="#main">@(lang == "en" ? "Skip to content" : "Saltar al contenido")</a>
+    <partial name="_Icons" />
+    <header class="site-header">
+        <div class="wrap">
+            <a class="brand" href="/" aria-label="@site.AppName — inicio">
+                <svg aria-hidden="true"><use href="#i-mark" /></svg>
+                <span>PeePoo</span>
+            </a>
+            <button class="btn btn--ghost btn--small menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+                <svg width="22" height="22" aria-hidden="true"><use href="#i-menu" /></svg>
+                <span>Menú</span>
+            </button>
+            <nav class="nav" id="site-nav" aria-label="Principal">
+                <a href="/explorar" aria-current="@Current("explorar")">Mapa</a>
+                <a href="/guias" aria-current="@Current("guias")">Guías</a>
+                <a href="/negocios" aria-current="@Current("negocios")">Para negocios</a>
+                <a href="/ayuda" aria-current="@Current("ayuda")">Ayuda</a>
+                <a class="btn btn--sign btn--small" href="/#app">Descargar la app</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">
+            <div class="footer-grid">
+                <div>
+                    <a class="brand" href="/"><svg aria-hidden="true"><use href="#i-mark" /></svg><span>PeePoo Finder</span></a>
+                    <p class="small footer-blurb">Una guía hecha por la comunidad para encontrar baños limpios, accesibles y abiertos.</p>
+                </div>
+                <div>
+                    <h2>Producto</h2>
+                    <ul>
+                        <li><a href="/explorar">Mapa de baños</a></li>
+                        <li><a href="/#app">App para Android y iPhone</a></li>
+                        <li><a href="/negocios">Para negocios</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>Recursos</h2>
+                    <ul>
+                        <li><a href="/guias">Guías</a></li>
+                        <li><a href="/ayuda">Preguntas frecuentes</a></li>
+                        <li><a href="mailto:@site.SupportEmail">@site.SupportEmail</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>Legal</h2>
+                    <ul>
+                        <li><a href="/privacidad">Privacidad</a></li>
+                        <li><a href="/terminos">Términos de uso</a></li>
+                        <li><a href="/eliminar-cuenta">Eliminar tu cuenta</a></li>
+                        <li><a href="/privacy" lang="en">Privacy (English)</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-note">
+                <span>© @DateTime.UtcNow.Year @site.AppName</span>
+                <span>Mapas © colaboradores de <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a></span>
+            </div>
+        </div>
+    </footer>
+    <script src="/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

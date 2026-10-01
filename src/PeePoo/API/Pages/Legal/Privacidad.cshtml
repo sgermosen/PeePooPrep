@@ -1,0 +1,45 @@
+@page "/privacidad"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    ViewData["Title"] = "Política de privacidad";
+    ViewData["Description"] = $"Qué datos recoge {site.AppName}, para qué los usa y cómo borrarlos.";
+}
+<section class="section">
+    <div class="wrap prose">
+        <p class="eyebrow">Legal · <a href="/privacy" lang="en">English</a></p>
+        <h1>Política de privacidad</h1>
+        <p class="muted">Última actualización: @site.LegalUpdated</p>
+        <p>@site.AppName ayuda a las personas a encontrar y compartir baños. Esta política explica qué datos recogemos, para qué y cómo puedes borrarlos. No vendemos tus datos ni mostramos publicidad.</p>
+
+        <h2>Qué recogemos</h2>
+        <ul>
+            <li><b>Cuenta:</b> correo, nombre de usuario, nombre visible y una versión cifrada (hash) de tu contraseña. Nunca guardamos la contraseña en texto.</li>
+            <li><b>Contenido que publicas:</b> lugares, reseñas y fotos, con la fecha en que los publicaste.</li>
+            <li><b>Ubicación:</b> solo mientras usas la app, para ordenar los lugares por cercanía y, si añades uno, para ponerlo en el mapa. No guardamos un historial de tus ubicaciones.</li>
+            <li><b>Datos técnicos:</b> dirección IP y datos de la solicitud, que nuestro servidor usa de forma temporal para seguridad y para limitar abusos.</li>
+        </ul>
+
+        <h2>Para qué lo usamos</h2>
+        <p>Para que la app funcione: identificarte, mostrar lugares cercanos, publicar lo que aportas y proteger el servicio contra abusos. Puedes usar el mapa y leer reseñas sin cuenta.</p>
+
+        <h2>Qué ven otras personas</h2>
+        <p>Lo que publicas (lugares, reseñas, fotos) y tu nombre visible y de usuario son públicos. Tu correo y tu ubicación no se muestran a nadie.</p>
+
+        <h2>Proveedores</h2>
+        <ul>
+            <li><b>Alojamiento:</b> nuestro servidor y base de datos están en un proveedor de nube.</li>
+            <li><b>Fotos:</b> pueden almacenarse en un servicio de imágenes externo.</li>
+            <li><b>Mapas:</b> en la web, el mapa usa teselas de OpenStreetMap; en Android, Google Maps. Al cargar el mapa, tu dispositivo se conecta directamente con ese proveedor.</li>
+        </ul>
+
+        <h2>Moderación</h2>
+        <p>Cuando reportas un contenido guardamos quién lo reportó y el motivo, para poder revisarlo. Quien publicó el contenido no ve quién lo reportó.</p>
+
+        <h2>Tus opciones</h2>
+        <p>Puedes editar tu perfil y <b>eliminar tu cuenta</b> en cualquier momento desde la app (Perfil → Eliminar cuenta). Al hacerlo borramos tu cuenta, tus reseñas, tus fotos, tus favoritos y tus reportes, y se cierran tus sesiones abiertas. Más detalles en <a href="/eliminar-cuenta">Eliminar tu cuenta</a>.</p>
+
+        <h2>Contacto</h2>
+        <p><a href="mailto:@site.SupportEmail">@site.SupportEmail</a></p>
+    </div>
+</section>

@@ -1,0 +1,95 @@
+@page "/negocios"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    ViewData["Title"] = "Para negocios";
+    ViewData["Description"] = "Cómo poner el baño de tu negocio en PeePoo Finder, explicar tus reglas y mantener la ficha al día.";
+    ViewData["Nav"] = "negocios";
+    var email = SiteConfig.Value.SupportEmail;
+}
+
+<section class="hero">
+    <div class="wrap split">
+        <div>
+            <p class="eyebrow">Para negocios</p>
+            <h1>Un baño bien señalado también es buen servicio.</h1>
+        </div>
+        <div>
+            <p class="lede">Si en tu café, tienda, gasolinera u oficina hay un baño que la gente puede usar, ponerlo en el mapa evita preguntas incómodas en la puerta y trae a personas que, muchas veces, terminan comprando algo.</p>
+            <p>Aparecer es gratis. Tú decides las reglas: solo clientes, con llave en caja, con un pequeño cargo o abierto a todos.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <p class="eyebrow">Cómo aparecer</p>
+        <h2>Diez minutos, una sola vez.</h2>
+        <ol class="steps">
+            <li>
+                <span class="step-num" aria-hidden="true">1</span>
+                <h3>Crea una cuenta</h3>
+                <p>Descarga la app y regístrate con el correo del negocio. Así podrás editar la ficha más adelante.</p>
+            </li>
+            <li>
+                <span class="step-num" aria-hidden="true">2</span>
+                <h3>Añade el lugar desde dentro</h3>
+                <p>Toca «Añadir lugar» estando en el local: la ubicación se toma sola. Sube una foto de la entrada al baño, no del inodoro.</p>
+            </li>
+            <li>
+                <span class="step-num" aria-hidden="true">3</span>
+                <h3>Explica tus reglas</h3>
+                <p>En «Observaciones» escribe lo que alguien necesita saber: «para clientes», «pedir llave en caja», «cerrado durante la limpieza de 3 a 4».</p>
+            </li>
+        </ol>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div>
+            <p class="eyebrow">Mantenerlo al día</p>
+            <h2>Una ficha vieja es peor que ninguna.</h2>
+        </div>
+        <div>
+            <ul class="checklist">
+                <li><b>Cambia el horario</b> cuando cambie el del local. Como dueño de la ficha puedes editarla en cualquier momento.</li>
+                <li><b>Márcalo como cerrado</b> si el baño está en reparación. Vuelve a abrirlo con un toque.</li>
+                <li><b>Responde con hechos.</b> Si una reseña dice que no había papel y ya lo resolviste, la mejor respuesta es que la próxima diga lo contrario.</li>
+                <li><b>Pide que lo confirmen.</b> Cualquier persona puede tocar «¿Sigue igual?» y la ficha mostrará que está verificada hace poco.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div>
+            <p class="eyebrow">Accesibilidad</p>
+            <h2>Antes de marcarlo como accesible</h2>
+            <p>Solo marca «accesible» si una persona en silla de ruedas puede usarlo sin ayuda. Estas medidas orientativas, comunes en las guías de accesibilidad, son un buen punto de partida:</p>
+            <a class="btn btn--ghost btn--small" href="/guias/banos-accesibles-que-revisar">Leer la guía completa</a>
+        </div>
+        <div>
+            <ul class="checklist">
+                <li>Puerta con un paso libre de al menos 80 cm, que abra hacia fuera o sea corredera.</li>
+                <li>Espacio libre para girar de unos 150 cm de diámetro dentro del baño.</li>
+                <li>Barras de apoyo firmes a ambos lados del inodoro, una de ellas abatible.</li>
+                <li>Lavamanos sin pedestal, con espacio para las rodillas debajo.</li>
+                <li>Camino sin escalones desde la entrada del local hasta el baño.</li>
+                <li>Que no se use como almacén: un trapeador en medio anula todo lo anterior.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="section band">
+    <div class="wrap split">
+        <div>
+            <h2>¿Tu baño ya está en el mapa?</h2>
+        </div>
+        <div>
+            <p class="lede">Si alguien lo añadió antes que tú y quieres administrar la ficha, o si hay un dato equivocado, escríbenos desde el correo del negocio.</p>
+            <a class="btn btn--sign" href="mailto:@email?subject=Ficha%20de%20mi%20negocio">Escribir a @email</a>
+        </div>
+    </div>
+</section>

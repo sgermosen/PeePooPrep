@@ -1,0 +1,41 @@
+@page "/terminos"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    ViewData["Title"] = "Términos de uso";
+    ViewData["Description"] = $"Las reglas para usar {site.AppName} y publicar contenido.";
+}
+<section class="section">
+    <div class="wrap prose">
+        <p class="eyebrow">Legal · <a href="/terms" lang="en">English</a></p>
+        <h1>Términos de uso</h1>
+        <p class="muted">Última actualización: @site.LegalUpdated</p>
+        <p>Al usar @site.AppName aceptas estos términos. Si no estás de acuerdo, por favor no uses el servicio.</p>
+
+        <h2>Tu cuenta</h2>
+        <p>Eres responsable de lo que se haga con tu cuenta y de mantener tu contraseña segura. Puedes eliminarla cuando quieras (ver <a href="/eliminar-cuenta">Eliminar tu cuenta</a>).</p>
+
+        <h2>Contenido de la comunidad</h2>
+        <p>Puedes publicar lugares, reseñas y fotos. Lo que publicas sigue siendo tuyo; nos das permiso para mostrarlo en la app y en la web. Publica solo contenido que tengas derecho a compartir.</p>
+
+        <h2>Cero tolerancia con el contenido ofensivo</h2>
+        <p>No se permite contenido ofensivo, acosador, discriminatorio, sexual, ilegal o que infrinja derechos, ni fotos de personas o del interior de cubículos ocupados.</p>
+        <ul>
+            <li>Puedes <b>reportar</b> cualquier lugar o reseña.</li>
+            <li>Puedes <b>bloquear</b> a una persona para dejar de ver lo que publica.</li>
+            <li>El contenido reportado por varias personas se oculta hasta que lo revisamos. Eliminamos contenido y <b>suspendemos cuentas</b> que incumplan estas reglas, normalmente en menos de 24 horas.</li>
+        </ul>
+
+        <h2>Ubicaciones y exactitud</h2>
+        <p>La información la aporta la comunidad y puede ser incorrecta o estar desactualizada. Usa tu criterio: no somos responsables del estado, la disponibilidad ni la seguridad de ningún lugar.</p>
+
+        <h2>Uso razonable</h2>
+        <p>No intentes acceder a cuentas ajenas, saturar el servicio ni extraer datos de forma automatizada.</p>
+
+        <h2>Cambios</h2>
+        <p>Podemos actualizar estos términos; si sigues usando el servicio, aceptas los cambios.</p>
+
+        <h2>Contacto</h2>
+        <p><a href="mailto:@site.SupportEmail">@site.SupportEmail</a></p>
+    </div>
+</section>

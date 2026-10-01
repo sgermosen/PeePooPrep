@@ -1,0 +1,17 @@
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{ var site = SiteConfig.Value; }
+<div class="stores">
+    @if (!string.IsNullOrWhiteSpace(site.PlayStoreUrl))
+    {
+        <a class="btn btn--sign" href="@site.PlayStoreUrl" rel="noopener">Google Play <svg class="arrow" width="26" height="16" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+    }
+    @if (!string.IsNullOrWhiteSpace(site.AppStoreUrl))
+    {
+        <a class="btn btn--sign" href="@site.AppStoreUrl" rel="noopener">App Store <svg class="arrow" width="26" height="16" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+    }
+    @if (string.IsNullOrWhiteSpace(site.PlayStoreUrl) && string.IsNullOrWhiteSpace(site.AppStoreUrl))
+    {
+        <span class="tag tag--sign">Muy pronto en Google Play y App Store</span>
+        <a class="btn btn--ghost" href="/explorar">Mientras tanto, usa el mapa web</a>
+    }
+</div>
