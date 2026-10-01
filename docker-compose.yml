@@ -1,0 +1,17 @@
+# Local demo: `docker compose up`, then open http://localhost:8080
+# Uses Development settings (demo data, dev signing key). Not for production.
+services:
+  api:
+    build: ./src/PeePoo
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Database__Provider: Sqlite
+    volumes:
+      - peepoo-data:/data
+      - peepoo-uploads:/app/wwwroot/uploads
+
+volumes:
+  peepoo-data:
+  peepoo-uploads:

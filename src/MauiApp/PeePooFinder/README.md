@@ -1,17 +1,25 @@
 # PeePoo Finder (.NET MAUI)
 
-Modern .NET 10 MAUI client for the PeePoo API, replacing the retired
-Xamarin.Forms app. It lets people sign in, browse nearby restrooms, read and
-write reviews, add new spots (with GPS location and a photo) and manage their
-profile.
+.NET 10 MAUI client for the PeePoo API. Anyone can browse nearby restrooms,
+the map and reviews without an account; signing in unlocks adding places (with
+GPS location and a photo), reviews, saved places, confirming that a place is
+still good, reporting and blocking. Profile includes saved places, places you
+added, your reviews, change password and blocked people.
+
+Design: the same wayfinding-signage language as the website (yellow sign
+panels, ink outlines) with Bricolage Grotesque and Atkinson Hyperlegible
+(both SIL Open Font License, see `Resources/Fonts`).
 
 ## Architecture
 
 - **MVVM** with `CommunityToolkit.Mvvm` (`[ObservableProperty]` / `[RelayCommand]`).
-- **Shell** navigation (`AppShell`): a login page plus an `Explore` / `Profile`
-  tab bar; detail, submit and review pages are pushed routes.
+- **Shell** navigation (`AppShell`): the app opens on the `Nearby` / `Map` / `You`
+  tabs; the sign-in page is only shown when a guest tries to contribute.
+  Detail, submit, review and profile sub-pages are pushed routes.
 - **Typed HTTP client** (`PeePooApiClient`) registered with `AddHttpClient`, with
-  an `AuthMessageHandler` that attaches the bearer token to every request.
+  an `AuthMessageHandler` that attaches the bearer token and, when the server
+  rejects it (password changed elsewhere, account deleted, ban), clears the
+  session and sends the user back to sign in.
 - **Secure session**: the JWT is stored in `SecureStorage`; only non-sensitive
   display data lives in `Preferences`.
 
