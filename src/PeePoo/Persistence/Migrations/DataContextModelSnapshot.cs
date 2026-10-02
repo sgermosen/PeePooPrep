@@ -17,7 +17,7 @@ namespace Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -36,6 +36,9 @@ namespace Persistence.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("DisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -146,6 +149,9 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -158,10 +164,16 @@ namespace Persistence.Migrations
                     b.Property<bool>("HaveBabyChanger")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsAccessible")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsAproved")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFree")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRoomy")
@@ -180,6 +192,9 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Observations")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OpeningHours")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
@@ -260,6 +275,9 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("PlaceId")
                         .HasColumnType("uniqueidentifier");

@@ -1,5 +1,4 @@
 using Microsoft.Maui.Controls.Maps;
-using Microsoft.Maui.Maps;
 using PeePooFinder.ViewModels;
 
 namespace PeePooFinder.Views;
@@ -26,7 +25,7 @@ public partial class MapPage : ContentPage
 			var pin = new Pin
 			{
 				Label = place.Name ?? "Restroom",
-				Address = place.Type,
+				Address = place.HasReviews ? $"{place.TypeLabel} · ★ {place.ScoreLabel}" : place.TypeLabel,
 				Location = new Location(place.Lat, place.Long),
 				Type = PinType.Place
 			};
@@ -35,7 +34,6 @@ public partial class MapPage : ContentPage
 			RestroomMap.Pins.Add(pin);
 		}
 
-		if (_viewModel.Region is not null)
-			RestroomMap.MoveToRegion(_viewModel.Region);
+		RestroomMap.MoveToRegion(_viewModel.Region);
 	}
 }

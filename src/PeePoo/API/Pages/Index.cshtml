@@ -1,0 +1,192 @@
+@page
+@model IndexModel
+@{
+    ViewData["Description"] = "Baños cerca de ti con horario, accesibilidad, cambiadores y reseñas reales de la comunidad. Gratis, sin anuncios.";
+    var example = Model.Example;
+}
+
+<section class="hero">
+    <div class="wrap">
+        <div>
+            <p class="eyebrow">Guía comunitaria de baños</p>
+            <h1>¿Dónde hay un <em>baño</em> por aquí?</h1>
+            <p class="lede">PeePoo Finder te muestra los baños más cercanos con lo que importa antes de ir: si está abierto, si es accesible, si tiene cambiador y qué dicen quienes ya pasaron por ahí.</p>
+            <div class="hero-actions">
+                <a class="btn btn--sign" href="/explorar">Abrir el mapa <svg class="arrow" width="26" height="16" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+                <a class="btn btn--ghost" href="#app">Descargar la app</a>
+            </div>
+            <div class="counts" aria-label="La comunidad en números">
+                <div><b>@Model.PlaceCount</b><span>@(Model.PlaceCount == 1 ? "lugar" : "lugares") en el mapa</span></div>
+                <div><b>@Model.ReviewCount</b><span>@(Model.ReviewCount == 1 ? "reseña" : "reseñas")</span></div>
+                <div><b>@Model.AccessibleCount</b><span>@(Model.AccessibleCount == 1 ? "accesible" : "accesibles")</span></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="wayfinder" role="img" aria-label="Letrero: baños accesibles, con cambiador, a 120 metros">
+                <div class="wayfinder-pictos" aria-hidden="true">
+                    <span><svg><use href="#i-men" /></svg></span>
+                    <span><svg><use href="#i-women" /></svg></span>
+                    <span><svg><use href="#i-access" /></svg></span>
+                    <span><svg><use href="#i-baby" /></svg></span>
+                </div>
+                <p class="wayfinder-word">Baños</p>
+                <div class="wayfinder-row" aria-hidden="true">
+                    <span>120 m</span>
+                    <svg><use href="#i-arrow" /></svg>
+                </div>
+            </div>
+            <p class="wayfinder-caption muted">Así de claro debería ser siempre.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <p class="eyebrow">Cómo funciona</p>
+        <h2>Tres pasos, sin registrarte para mirar.</h2>
+        <ol class="steps">
+            <li>
+                <span class="step-num" aria-hidden="true">1</span>
+                <h3>Abre el mapa</h3>
+                <p>Te ordenamos los baños por distancia real desde donde estás. Filtra por accesible, cambiador, gratis o abierto ahora.</p>
+            </li>
+            <li>
+                <span class="step-num" aria-hidden="true">2</span>
+                <h3>Mira antes de ir</h3>
+                <p>Horario, tipo de baño, fotos y reseñas. Si alguien confirmó hace poco que sigue igual, lo verás marcado.</p>
+            </li>
+            <li>
+                <span class="step-num" aria-hidden="true">3</span>
+                <h3>Devuelve el favor</h3>
+                <p>Con una cuenta gratis puedes añadir un lugar nuevo, dejar tu reseña o confirmar que un baño sigue en buen estado.</p>
+            </li>
+        </ol>
+    </div>
+</section>
+
+@if (example != null)
+{
+    <section class="section">
+        <div class="wrap split">
+            <div>
+                <p class="eyebrow">Lo que verás</p>
+                <h2>Una ficha que contesta lo importante.</h2>
+                <p>Cada lugar tiene la misma información, en el mismo orden, para que decidas en dos segundos.</p>
+                <ol class="callouts">
+                    <li><span class="n">1</span><span><b>Tipo y nombre.</b> Mixto, familiar, solo damas o caballeros, o adaptado.</span></li>
+                    <li><span class="n">2</span><span><b>Nota de la comunidad.</b> Es el promedio de las reseñas, no lo que dijo quien lo añadió.</span></li>
+                    <li><span class="n">3</span><span><b>Lo práctico.</b> Accesibilidad, cambiador, si cobran y el horario.</span></li>
+                </ol>
+            </div>
+            <div class="annotated">
+                <partial name="_PlaceCard" model="example" />
+                <p class="small muted mt-12">Ficha real del mapa · <a href="/lugar/@example.Id">ver completa</a></p>
+            </div>
+        </div>
+    </section>
+}
+
+@if (Model.Latest.Count > 0)
+{
+    <section class="section">
+        <div class="wrap">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Recién añadidos</p>
+                    <h2 class="m-0">Lo último en el mapa</h2>
+                </div>
+                <a class="btn btn--ghost btn--small" href="/explorar">Ver todos <svg class="arrow" width="22" height="14" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+            </div>
+            <div class="card-grid">
+                @foreach (var place in Model.Latest)
+                {
+                    <partial name="_PlaceCard" model="place" />
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="section band">
+    <div class="wrap split">
+        <div>
+            <p class="eyebrow">Para negocios</p>
+            <h2>¿Tu negocio tiene baño? Que la gente lo sepa.</h2>
+        </div>
+        <div>
+            <p class="lede">Cafés, gasolineras, tiendas y oficinas públicas: aparecer en el mapa trae gente a tu puerta y te deja aclarar tus reglas (para clientes, con llave, gratis o no).</p>
+            <a class="btn btn--sign" href="/negocios">Cómo aparecer <svg class="arrow" width="26" height="16" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="eyebrow">Guías</p>
+                <h2 class="m-0">Para salir de casa tranquilo</h2>
+            </div>
+            <a class="btn btn--ghost btn--small" href="/guias">Todas las guías</a>
+        </div>
+        <ul class="ruled">
+            @foreach (var guide in Guides.All.Take(3))
+            {
+                <li>
+                    <a href="/guias/@guide.Slug">
+                        <h3>@guide.Title</h3>
+                        <span class="meta">@guide.Minutes min de lectura</span>
+                        <p>@guide.Summary</p>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+<section class="section" id="app">
+    <div class="wrap split">
+        <div>
+            <p class="eyebrow">La app</p>
+            <h2>En el bolsillo, para cuando más la necesitas.</h2>
+            <p class="lede">La app usa tu ubicación para ordenar por cercanía, te lleva con indicaciones a pie y te deja añadir lugares con foto en el momento.</p>
+        </div>
+        <div>
+            <ul class="callouts callouts--tight">
+                <li><span class="n"><svg width="16" height="16" aria-hidden="true"><use href="#i-check" /></svg></span><span>Gratis y sin anuncios.</span></li>
+                <li><span class="n"><svg width="16" height="16" aria-hidden="true"><use href="#i-check" /></svg></span><span>Puedes mirar sin crear una cuenta.</span></li>
+                <li><span class="n"><svg width="16" height="16" aria-hidden="true"><use href="#i-check" /></svg></span><span>Tu ubicación solo se usa mientras la app está abierta y no se comparte con nadie.</span></li>
+            </ul>
+            <partial name="_AppButtons" />
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div>
+            <p class="eyebrow">Preguntas</p>
+            <h2>Lo que más nos preguntan</h2>
+            <p><a href="/ayuda">Ver todas las respuestas</a></p>
+        </div>
+        <div class="faq">
+            <details>
+                <summary>¿Quién añade los lugares?</summary>
+                <div><p>Las personas que usan la app. Cualquiera con una cuenta puede añadir un baño, y todos pueden reseñarlo, confirmarlo o reportarlo si algo no cuadra.</p></div>
+            </details>
+            <details>
+                <summary>¿Cómo sé si la información está al día?</summary>
+                <div><p>Cada ficha muestra cuándo alguien confirmó por última vez que el lugar sigue igual. Si ves «sin verificar» o una fecha vieja, tómalo como orientación.</p></div>
+            </details>
+            <details>
+                <summary>¿Puedo usarlo sin cuenta?</summary>
+                <div><p>Sí. El mapa, las fichas y las reseñas están abiertos. La cuenta solo hace falta para aportar.</p></div>
+            </details>
+            <details>
+                <summary>¿Qué pasa si encuentro algo ofensivo o falso?</summary>
+                <div><p>Usa «Reportar» en el lugar o la reseña. Cuando varias personas reportan lo mismo se oculta de inmediato hasta que el equipo lo revise.</p></div>
+            </details>
+        </div>
+    </div>
+</section>

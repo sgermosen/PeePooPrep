@@ -5,73 +5,112 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
     x:DataType="vm:SubmitPlaceViewModel"
-    Title="Add a spot"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+    Title="Add a place"
+    Style="{StaticResource Page}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="14">
+        <VerticalStackLayout Padding="16" Spacing="16">
 
+            <!-- Location first: without it nothing else matters. -->
+            <Border Style="{StaticResource SignPanel}" Padding="14,10">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                        <Label Text="LOCATION" FontFamily="BodyBold" FontSize="11" CharacterSpacing="1.6" TextColor="{StaticResource OnSign}" />
+                        <Label Text="{Binding LocationLabel}" FontFamily="BodyBold" FontSize="15" TextColor="{StaticResource OnSign}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1" Text="Retry" Command="{Binding LocateCommand}" BackgroundColor="Transparent"
+                            TextColor="{StaticResource OnSign}" BorderColor="{StaticResource OnSign}" BorderWidth="2" CornerRadius="6"
+                            HeightRequest="38" Padding="12,0" FontFamily="BodyBold" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+            <Label Text="Add the place while you're there: we pin it where you're standing." Style="{StaticResource Caption}" Margin="0,-8,0,0" />
+
+            <Label Text="Name" Style="{StaticResource FieldLabel}" />
             <Border Style="{StaticResource FieldBorder}">
-                <Entry Placeholder="Name" Text="{Binding Name}" Style="{StaticResource FieldEntry}" />
+                <Entry Placeholder="e.g. Central Mall, 2nd floor" Text="{Binding Name}" MaxLength="80" Style="{StaticResource FieldEntry}" />
             </Border>
 
-            <Border Style="{StaticResource FieldBorder}" Padding="14,8">
-                <Editor Placeholder="Description" Text="{Binding Description}" HeightRequest="90" FontSize="16" />
-            </Border>
+            <Label Text="Type" Style="{StaticResource FieldLabel}" />
+            <FlexLayout BindableLayout.ItemsSource="{Binding PlaceTypes}" Wrap="Wrap">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TypeOption">
+                        <Button Text="{Binding Name}" Style="{StaticResource FilterChip}" Margin="0,0,8,8"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SubmitPlaceViewModel}}, Path=SelectTypeCommand, x:DataType=vm:SubmitPlaceViewModel}"
+                                CommandParameter="{Binding .}"
+                                BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBackground}}"
+                                TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
 
-            <Border Style="{StaticResource FieldBorder}">
-                <Picker ItemsSource="{Binding PlaceTypes}" SelectedItem="{Binding SelectedType}" Title="Type" />
-            </Border>
-
-            <Border Style="{StaticResource FieldBorder}">
-                <Entry Placeholder="Observations (optional)" Text="{Binding Observations}" Style="{StaticResource FieldEntry}" />
-            </Border>
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <VerticalStackLayout Grid.Column="0" Spacing="4">
-                    <Label Text="Toilets" Style="{StaticResource Caption}" />
-                    <HorizontalStackLayout Spacing="8">
-                        <Stepper Minimum="0" Maximum="20" Value="{Binding Toilets}" />
-                        <Label Text="{Binding Toilets}" Style="{StaticResource Body}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
+            <Label Text="What's there" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource Card}" Padding="14,4">
+                <VerticalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" HeightRequest="48">
+                        <Label Text="Wheelchair accessible" Style="{StaticResource Body}" VerticalOptions="Center" />
+                        <Switch Grid.Column="1" IsToggled="{Binding IsAccessible}" OnColor="{StaticResource SignDeep}" ThumbColor="{StaticResource Ink}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" HeightRequest="48">
+                        <Label Text="Changing table" Style="{StaticResource Body}" VerticalOptions="Center" />
+                        <Switch Grid.Column="1" IsToggled="{Binding HaveBabyChanger}" OnColor="{StaticResource SignDeep}" ThumbColor="{StaticResource Ink}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" HeightRequest="48">
+                        <Label Text="Free to use" Style="{StaticResource Body}" VerticalOptions="Center" />
+                        <Switch Grid.Column="1" IsToggled="{Binding IsFree}" OnColor="{StaticResource SignDeep}" ThumbColor="{StaticResource Ink}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" HeightRequest="48">
+                        <Label Text="Roomy" Style="{StaticResource Body}" VerticalOptions="Center" />
+                        <Switch Grid.Column="1" IsToggled="{Binding IsRoomy}" OnColor="{StaticResource SignDeep}" ThumbColor="{StaticResource Ink}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto,Auto" HeightRequest="52" ColumnSpacing="10">
+                        <Label Text="Toilets" Style="{StaticResource Body}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding Toilets}" Style="{StaticResource Score}" VerticalOptions="Center" />
+                        <Stepper Grid.Column="2" Minimum="0" Maximum="50" Value="{Binding Toilets}" VerticalOptions="Center" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto,Auto" HeightRequest="52" ColumnSpacing="10">
+                        <Label Text="Urinals" Style="{StaticResource Body}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding Urinals}" Style="{StaticResource Score}" VerticalOptions="Center" />
+                        <Stepper Grid.Column="2" Minimum="0" Maximum="50" Value="{Binding Urinals}" VerticalOptions="Center" />
+                    </Grid>
                 </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1" Spacing="4">
-                    <Label Text="Urinals" Style="{StaticResource Caption}" />
-                    <HorizontalStackLayout Spacing="8">
-                        <Stepper Minimum="0" Maximum="20" Value="{Binding Urinals}" />
-                        <Label Text="{Binding Urinals}" Style="{StaticResource Body}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Grid>
+            </Border>
 
-            <Grid ColumnDefinitions="*,Auto">
-                <Label Grid.Column="0" Text="Baby changer" Style="{StaticResource Body}" VerticalOptions="Center" />
-                <Switch Grid.Column="1" IsToggled="{Binding HaveBabyChanger}" OnColor="{StaticResource Primary}" />
-            </Grid>
-            <Grid ColumnDefinitions="*,Auto">
-                <Label Grid.Column="0" Text="Roomy" Style="{StaticResource Body}" VerticalOptions="Center" />
-                <Switch Grid.Column="1" IsToggled="{Binding IsRoomy}" OnColor="{StaticResource Primary}" />
-            </Grid>
+            <Label Text="Hours (optional)" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="e.g. 8:00–20:00 or 24 hours" Text="{Binding OpeningHours}" MaxLength="120" Style="{StaticResource FieldEntry}" />
+            </Border>
 
-            <VerticalStackLayout Spacing="4">
-                <Label Text="{Binding Rating, StringFormat='Rating: {0:0}'}" Style="{StaticResource Caption}" />
-                <Slider Minimum="1" Maximum="5" Value="{Binding Rating}" MinimumTrackColor="{StaticResource Primary}" ThumbColor="{StaticResource Primary}" />
+            <Label Text="Address or landmark (optional)" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Placeholder="e.g. Next to the food court" Text="{Binding Address}" MaxLength="200" Style="{StaticResource FieldEntry}" />
+            </Border>
+
+            <Label Text="Good to know (optional)" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource FieldBorder}" Padding="12,4">
+                <Editor Placeholder="Customers only? Ask for the key at the counter?" Text="{Binding Observations}" MaxLength="500" Style="{StaticResource FieldEditor}" MinimumHeightRequest="70" />
+            </Border>
+
+            <Label Text="Description (optional)" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource FieldBorder}" Padding="12,4">
+                <Editor Placeholder="How is it? Clean, well lit, easy to find…" Text="{Binding Description}" MaxLength="1000" Style="{StaticResource FieldEditor}" MinimumHeightRequest="70" />
+            </Border>
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="{Binding Rating, StringFormat='Your first impression: {0:0} / 5'}" Style="{StaticResource FieldLabel}" Margin="0" />
+                <Slider Minimum="1" Maximum="5" Value="{Binding Rating}" MinimumTrackColor="{StaticResource SignDeep}" ThumbColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}" />
             </VerticalStackLayout>
 
-            <Border Style="{StaticResource Chip}" HorizontalOptions="Start">
-                <Label Text="{Binding LocationLabel}" FontSize="12" TextColor="{StaticResource SecondaryDarkText}" />
-            </Border>
-
-            <Image Source="{Binding PhotoPreview}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Grid.Column="0" Text="Gallery" Style="{StaticResource GhostButton}" Command="{Binding PickPhotoCommand}" />
-                <Button Grid.Column="1" Text="Camera" Style="{StaticResource GhostButton}" Command="{Binding TakePhotoCommand}" />
+            <Label Text="Photo (optional)" Style="{StaticResource FieldLabel}" />
+            <Label Text="Show the entrance or the sign — never people." Style="{StaticResource Caption}" Margin="0,-8,0,0" />
+            <Image Source="{Binding PhotoPreview}" HeightRequest="180" Aspect="AspectFill" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="Camera" Style="{StaticResource GhostButton}" Command="{Binding TakePhotoCommand}" />
+                <Button Grid.Column="1" Text="Gallery" Style="{StaticResource GhostButton}" Command="{Binding PickPhotoCommand}" />
             </Grid>
+            <Button Text="Remove photo" Style="{StaticResource LinkButton}" Command="{Binding RemovePhotoCommand}" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
 
-            <Button Text="Add spot" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsNotBusy}" />
-
-            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+            <Button Text="Add to the map" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsNotBusy}" />
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource SignDeep}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

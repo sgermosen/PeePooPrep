@@ -1,5 +1,4 @@
-﻿using Domain;
-using Microsoft.AspNetCore.Http;
+using Application.Core;
 using System;
 using System.Collections.Generic;
 
@@ -14,9 +13,9 @@ namespace Application.Visits
         public int Rating { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
-        public string Image { get; set; }
         public Guid PlaceId { get; set; }
-        public ICollection<VisitPhoto> Photos { get; set; }
-        public IFormFile File { get; set; }
+        public string PlaceName { get; set; }
+        public List<PhotoDto> Photos { get; set; } = new();
+        public bool IsMine { get; set; }
     }
 }

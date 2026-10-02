@@ -1,0 +1,34 @@
+@page "/account-deletion"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    ViewData["Title"] = "Account & data deletion";
+    ViewData["Lang"] = "en";
+    ViewData["Description"] = $"How to delete your {site.AppName} account and what gets deleted.";
+}
+<section class="section">
+    <div class="wrap prose">
+        <p class="eyebrow">Legal · <a href="/eliminar-cuenta" lang="es">Español</a></p>
+        <h1>Account &amp; data deletion</h1>
+        <p class="lede">You can delete your @site.AppName account and personal data at any time.</p>
+
+        <h2>Delete it in the app</h2>
+        <ol>
+            <li>Open @site.AppName and go to <b>Profile</b>.</li>
+            <li>Tap <b>Delete account</b> and confirm.</li>
+        </ol>
+        <p>It happens immediately and cannot be undone.</p>
+
+        <h2>Request it by email</h2>
+        <p>If you can't access the app, email <a href="mailto:@site.SupportEmail?subject=Delete%20my%20account">@site.SupportEmail</a> from your account email address and ask us to delete your account. We will confirm by email.</p>
+
+        <h2>What is deleted</h2>
+        <ul>
+            <li>Your account (email, username, display name).</li>
+            <li>Your reviews and every photo you uploaded.</li>
+            <li>Your favorites, blocks and reports.</li>
+            <li>Your signed-in sessions on other devices.</li>
+        </ul>
+        <p class="muted">Places you added remain on the map as anonymous entries, since other people may have reviewed them.</p>
+    </div>
+</section>

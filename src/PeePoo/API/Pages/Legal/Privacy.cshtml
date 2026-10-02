@@ -1,0 +1,46 @@
+@page "/privacy"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    ViewData["Title"] = "Privacy Policy";
+    ViewData["Lang"] = "en";
+    ViewData["Description"] = $"What {site.AppName} collects, why, and how to delete it.";
+}
+<section class="section">
+    <div class="wrap prose">
+        <p class="eyebrow">Legal · <a href="/privacidad" lang="es">Español</a></p>
+        <h1>Privacy Policy</h1>
+        <p class="muted">Last updated: @site.LegalUpdated</p>
+        <p>@site.AppName helps people find and share restrooms. This policy explains what we collect, why, and how you can delete it. We don't sell your data and we don't show ads.</p>
+
+        <h2>Data we collect</h2>
+        <ul>
+            <li><b>Account:</b> email, username, display name and a hash of your password. Your password is never stored in plain text.</li>
+            <li><b>Content you post:</b> places, reviews and photos, with the time you posted them.</li>
+            <li><b>Location:</b> only while you use the app, to sort places by distance and to pin a place you add. We don't keep a history of your location.</li>
+            <li><b>Technical data:</b> IP address and request details, used temporarily by our server for security and abuse prevention.</li>
+        </ul>
+
+        <h2>How we use it</h2>
+        <p>To run the service: sign you in, show nearby places, publish what you contribute and protect the service from abuse. You can browse the map and read reviews without an account.</p>
+
+        <h2>What others can see</h2>
+        <p>What you publish (places, reviews, photos) and your display name and username are public. Your email and location are never shown to other users.</p>
+
+        <h2>Service providers</h2>
+        <ul>
+            <li><b>Hosting:</b> our server and database run on a cloud provider.</li>
+            <li><b>Photos:</b> may be stored with an external image service.</li>
+            <li><b>Maps:</b> the website uses OpenStreetMap tiles; the Android app uses Google Maps. Loading a map connects your device directly to that provider.</li>
+        </ul>
+
+        <h2>Moderation</h2>
+        <p>When you report content we store who reported it and why, so we can review it. The author never sees who reported them.</p>
+
+        <h2>Your choices</h2>
+        <p>You can edit your profile and <b>delete your account</b> at any time in the app (Profile → Delete account). This removes your account, reviews, photos, favorites and reports, and signs out your other sessions. See <a href="/account-deletion">Account &amp; data deletion</a>.</p>
+
+        <h2>Contact</h2>
+        <p><a href="mailto:@site.SupportEmail">@site.SupportEmail</a></p>
+    </div>
+</section>

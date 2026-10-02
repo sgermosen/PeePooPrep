@@ -1,0 +1,33 @@
+@page "/eliminar-cuenta"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    ViewData["Title"] = "Eliminar tu cuenta";
+    ViewData["Description"] = $"Cómo eliminar tu cuenta de {site.AppName} y qué datos se borran.";
+}
+<section class="section">
+    <div class="wrap prose">
+        <p class="eyebrow">Legal · <a href="/account-deletion" lang="en">English</a></p>
+        <h1>Eliminar tu cuenta</h1>
+        <p class="lede">Puedes eliminar tu cuenta y tus datos personales cuando quieras.</p>
+
+        <h2>Desde la app</h2>
+        <ol>
+            <li>Abre @site.AppName y ve a <b>Perfil</b>.</li>
+            <li>Toca <b>Eliminar cuenta</b> y confirma.</li>
+        </ol>
+        <p>Es inmediato y no se puede deshacer.</p>
+
+        <h2>Por correo</h2>
+        <p>Si no puedes entrar a la app, escribe a <a href="mailto:@site.SupportEmail?subject=Eliminar%20mi%20cuenta">@site.SupportEmail</a> desde el correo de tu cuenta pidiendo que la eliminemos. Te confirmaremos por correo cuando esté hecho.</p>
+
+        <h2>Qué se borra</h2>
+        <ul>
+            <li>Tu cuenta (correo, nombre de usuario, nombre visible).</li>
+            <li>Tus reseñas y todas las fotos que subiste.</li>
+            <li>Tus favoritos, bloqueos y reportes.</li>
+            <li>Tus sesiones abiertas en otros dispositivos.</li>
+        </ul>
+        <p class="muted">Los lugares que añadiste se quedan en el mapa como entradas anónimas, porque otras personas pueden haberlos reseñado.</p>
+    </div>
+</section>

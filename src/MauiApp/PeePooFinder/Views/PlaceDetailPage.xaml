@@ -7,87 +7,157 @@
     xmlns:models="clr-namespace:PeePooFinder.Models"
     x:DataType="vm:PlaceDetailViewModel"
     Title="{Binding Title}"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+    Style="{StaticResource Page}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="16" BindingContext="{Binding}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Share" Command="{Binding ShareCommand}" />
+    </ContentPage.ToolbarItems>
 
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="10" x:DataType="vm:PlaceDetailViewModel">
+    <Grid>
+        <ScrollView IsVisible="{Binding HasPlace}">
+            <VerticalStackLayout Padding="16,12,16,32" Spacing="18">
+
+                <!-- Header -->
+                <VerticalStackLayout Spacing="8">
+                    <HorizontalStackLayout Spacing="8">
+                        <Border Style="{StaticResource Tag}" BackgroundColor="{StaticResource Sign}" Stroke="{StaticResource OnSign}">
+                            <Label Text="{Binding Place.TypeLabel}" Style="{StaticResource TagText}" TextColor="{StaticResource OnSign}" />
+                        </Border>
+                        <Border Style="{StaticResource Tag}" Stroke="{StaticResource Stop}" IsVisible="{Binding Place.IsClosed}">
+                            <Label Text="Marked closed" Style="{StaticResource TagText}" TextColor="{StaticResource Stop}" />
+                        </Border>
+                        <Label Text="{Binding Place.DistanceLabel}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
                     <Label Text="{Binding Place.Name}" Style="{StaticResource Headline}" />
-                    <HorizontalStackLayout Spacing="10">
-                        <Border Style="{StaticResource Chip}">
-                            <Label Text="{Binding Place.Type}" FontSize="12" TextColor="{StaticResource SecondaryDarkText}" />
-                        </Border>
-                        <Label Text="{Binding Place.Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                    <Label Text="{Binding Place.Description}" Style="{StaticResource Body}" />
-                    <Label Text="{Binding Place.Observations}" Style="{StaticResource Caption}" IsVisible="{Binding Place.Observations, Converter={StaticResource StringHasValue}}" />
-                    <Label Text="{Binding Place.OwnerUsername, StringFormat='Added by @{0}'}" Style="{StaticResource Caption}" />
-                    <HorizontalStackLayout Spacing="6">
-                        <Label Text="{Binding Place.FreshnessLabel}" Style="{StaticResource Caption}" TextColor="{StaticResource Tertiary}" VerticalOptions="Center" />
-                        <Button Text="Still good?" Style="{StaticResource GhostButton}" HeightRequest="34" FontSize="12" Padding="10,0" Command="{Binding VerifyCommand}" />
-                    </HorizontalStackLayout>
-                    <Button Text="Report this spot"
-                            BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
-                            FontSize="12" Padding="0" HeightRequest="26" HorizontalOptions="Start"
-                            Command="{Binding ReportPlaceCommand}" />
+                    <Label Text="{Binding Place.Address}" Style="{StaticResource Body}" TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}"
+                           IsVisible="{Binding Place.HasAddress}" />
                 </VerticalStackLayout>
-            </Border>
 
-            <Button Text="Take me there" Style="{StaticResource AccentButton}" Command="{Binding DirectionsCommand}" />
+                <Image Source="{Binding Place.Image}" HeightRequest="200" Aspect="AspectFill" IsVisible="{Binding Place.HasImage}" />
 
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="12" x:DataType="vm:PlaceDetailViewModel">
-                    <Label Text="Amenities" Style="{StaticResource Title}" />
-                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="8">
-                        <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource Body}" Text="{Binding Place.Toilets, StringFormat='Toilets: {0}'}" />
-                        <Label Grid.Row="0" Grid.Column="1" Style="{StaticResource Body}" Text="{Binding Place.Urinals, StringFormat='Urinals: {0}'}" />
-                        <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource Body}" Text="{Binding Place.HaveBabyChanger, Converter={StaticResource BoolToYesNo}, StringFormat='Baby changer: {0}'}" />
-                        <Label Grid.Row="1" Grid.Column="1" Style="{StaticResource Body}" Text="{Binding Place.IsRoomy, Converter={StaticResource BoolToYesNo}, StringFormat='Roomy: {0}'}" />
-                        <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource Body}" Text="{Binding Place.IsAvailable, Converter={StaticResource BoolToYesNo}, StringFormat='Open: {0}'}" />
+                <!-- Score as a sign panel -->
+                <Border Style="{StaticResource SignPanel}" HorizontalOptions="Start" Padding="16,10">
+                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="14">
+                        <Label Grid.Column="0" Text="{Binding Place.ScoreLabel}" FontFamily="Display" FontSize="40" TextColor="{StaticResource OnSign}" VerticalOptions="Center"
+                               IsVisible="{Binding Place.HasReviews}" />
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" IsVisible="{Binding Place.HasReviews}">
+                            <Label Text="{Binding Place.Score, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource OnSign}" FontSize="16" />
+                            <Label Text="{Binding Place.ReviewCountLabel}" FontFamily="BodyBold" TextColor="{StaticResource OnSign}" />
+                        </VerticalStackLayout>
+                        <Label Grid.ColumnSpan="2" Text="No reviews yet" FontFamily="BodyBold" FontSize="16" TextColor="{StaticResource OnSign}"
+                               IsVisible="{Binding Place.HasReviews, Converter={StaticResource InvertedBool}}" />
                     </Grid>
-                </VerticalStackLayout>
-            </Border>
+                </Border>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Grid.Column="0" Text="Save" Style="{StaticResource GhostButton}" Command="{Binding ToggleFavoriteCommand}" />
-                <Button Grid.Column="1" Text="Write a review" Style="{StaticResource PrimaryButton}" Command="{Binding AddReviewCommand}" />
-            </Grid>
+                <Button Text="Directions →" Style="{StaticResource PrimaryButton}" Command="{Binding DirectionsCommand}" />
 
-            <Label Text="Reviews" Style="{StaticResource Title}" />
-            <Label Text="No reviews yet. Be the first!" Style="{StaticResource Body}" IsVisible="{Binding HasReviews, Converter={StaticResource InvertedBool}}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Grid.Column="0" Text="{Binding SaveLabel}" Style="{StaticResource GhostButton}" Command="{Binding ToggleFavoriteCommand}" />
+                    <Button Grid.Column="1" Text="{Binding ReviewButtonLabel}" Style="{StaticResource SignButton}" HeightRequest="48" Command="{Binding AddReviewCommand}" />
+                </Grid>
 
-            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Reviews}" Spacing="10">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="models:Review">
-                        <Border Style="{StaticResource Card}">
-                            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding Place.Description}" Style="{StaticResource Body}" IsVisible="{Binding Place.Description, Converter={StaticResource StringHasValue}}" />
+
+                <Border Style="{StaticResource Card}" BackgroundColor="{AppThemeBinding Light={StaticResource Soft}, Dark={StaticResource SoftDark}}" StrokeThickness="0"
+                        IsVisible="{Binding Place.Observations, Converter={StaticResource StringHasValue}}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Good to know" Style="{StaticResource Eyebrow}" />
+                        <Label Text="{Binding Place.Observations}" Style="{StaticResource Body}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Facts grid -->
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="0" RowSpacing="0">
+                        <Label Grid.Row="0" Grid.Column="0" Margin="14,12" Style="{StaticResource Body}" FontFamily="BodyBold"
+                               Text="{Binding Place.IsAccessible, Converter={StaticResource YesNo}, StringFormat='Accessible: {0}'}" />
+                        <Label Grid.Row="0" Grid.Column="1" Margin="14,12" Style="{StaticResource Body}" FontFamily="BodyBold"
+                               Text="{Binding Place.HaveBabyChanger, Converter={StaticResource YesNo}, StringFormat='Changing table: {0}'}" />
+                        <Label Grid.Row="1" Grid.Column="0" Margin="14,12" Style="{StaticResource Body}" FontFamily="BodyBold"
+                               Text="{Binding Place.IsFree, Converter={StaticResource YesNo}, StringFormat='Free: {0}'}" />
+                        <Label Grid.Row="1" Grid.Column="1" Margin="14,12" Style="{StaticResource Body}" FontFamily="BodyBold"
+                               Text="{Binding Place.IsRoomy, Converter={StaticResource YesNo}, StringFormat='Roomy: {0}'}" />
+                        <Label Grid.Row="2" Grid.Column="0" Margin="14,12" Style="{StaticResource Body}" Text="{Binding Place.ToiletsLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Margin="14,12" Style="{StaticResource Body}" Text="{Binding Place.UrinalsLabel}" />
+                    </Grid>
+                </Border>
+
+                <Label Style="{StaticResource Body}" IsVisible="{Binding Place.HasHours}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Hours  " FontFamily="BodyBold" />
+                            <Span Text="{Binding Place.OpeningHours}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
+                <!-- Freshness -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                        <Label Text="{Binding Place.FreshnessLabel}" Style="{StaticResource Body}" FontFamily="BodyBold"
+                               TextColor="{AppThemeBinding Light={StaticResource Go}, Dark={StaticResource GoDark}}" />
+                        <Label Text="Been here recently? Let others know it's still like this." Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1" Text="Still good" Style="{StaticResource GhostButton}" HeightRequest="40" Padding="12,0" FontSize="14"
+                            Command="{Binding VerifyCommand}" VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Owner tools -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsOwner}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="You added this place" Style="{StaticResource Eyebrow}" />
+                        <Button Text="{Binding AvailabilityLabel}" Style="{StaticResource GhostButton}" Command="{Binding ToggleAvailabilityCommand}" />
+                        <Button Text="Delete place" Style="{StaticResource DangerButton}" Command="{Binding DeletePlaceCommand}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Photos -->
+                <CollectionView ItemsSource="{Binding Place.Photos}" HeightRequest="120" ItemsLayout="HorizontalList"
+                                IsVisible="{Binding Place.HasImage}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:PhotoInfo">
+                            <Border StrokeThickness="2" Stroke="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}"
+                                    StrokeShape="RoundRectangle 6" Margin="0,0,8,0">
+                                <Image Source="{Binding Url}" WidthRequest="120" HeightRequest="116" Aspect="AspectFill" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Reviews -->
+                <BoxView Style="{StaticResource Divider}" />
+                <Label Text="Reviews" Style="{StaticResource Title}" FontSize="24" />
+                <Label Text="No reviews yet. Yours could be the first." Style="{StaticResource Body}" IsVisible="{Binding HasReviews, Converter={StaticResource InvertedBool}}" />
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Reviews}" Spacing="0">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:Review">
+                            <VerticalStackLayout Spacing="6" Padding="0,14">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" Text="{Binding Title}" Style="{StaticResource Title}" />
-                                    <Label Grid.Column="1" Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource AccentDark}" />
+                                    <Label Grid.Column="0" Text="{Binding Title}" Style="{StaticResource Title}" FontSize="17" />
+                                    <Button Grid.Column="1" Text="•••" Style="{StaticResource LinkButton}" HeightRequest="32" Padding="10,0"
+                                            SemanticProperties.Description="Review options"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceDetailViewModel}}, Path=ReviewActionsCommand, x:DataType=vm:PlaceDetailViewModel}"
+                                            CommandParameter="{Binding .}" />
                                 </Grid>
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource SignDeep}" />
+                                    <Label Text="{Binding Byline}" Style="{StaticResource Caption}" />
+                                </HorizontalStackLayout>
                                 <Label Text="{Binding Description}" Style="{StaticResource Body}" />
-                                <Grid ColumnDefinitions="*,Auto,Auto">
-                                    <Label Grid.Column="0" Text="{Binding DisplayName, StringFormat='by {0}'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
-                                    <Button Grid.Column="1" Text="Report"
-                                            BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
-                                            FontSize="11" Padding="6,0" HeightRequest="26"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceDetailViewModel}}, Path=ReportReviewCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    <Button Grid.Column="2" Text="Block"
-                                            BackgroundColor="Transparent" TextColor="{StaticResource Gray500}"
-                                            FontSize="11" Padding="6,0" HeightRequest="26"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceDetailViewModel}}, Path=BlockAuthorCommand}"
-                                            CommandParameter="{Binding .}" />
-                                </Grid>
+                                <Image Source="{Binding FirstPhoto}" HeightRequest="140" WidthRequest="140" HorizontalOptions="Start" Aspect="AspectFill" IsVisible="{Binding HasPhoto}" />
+                                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Margin="0,8,0,0" />
                             </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
-            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
-        </VerticalStackLayout>
-    </ScrollView>
+                <Button Text="Report this place" Style="{StaticResource LinkButton}" Command="{Binding ReportPlaceCommand}"
+                        TextColor="{AppThemeBinding Light={StaticResource Stop}, Dark={StaticResource StopDark}}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource SignDeep}"
+                           VerticalOptions="Center" HorizontalOptions="Center" />
+    </Grid>
 </ContentPage>

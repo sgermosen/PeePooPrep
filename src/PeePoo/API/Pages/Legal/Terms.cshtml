@@ -1,0 +1,42 @@
+@page "/terms"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    var site = SiteConfig.Value;
+    ViewData["Title"] = "Terms of Use";
+    ViewData["Lang"] = "en";
+    ViewData["Description"] = $"The rules for using {site.AppName} and posting content.";
+}
+<section class="section">
+    <div class="wrap prose">
+        <p class="eyebrow">Legal · <a href="/terminos" lang="es">Español</a></p>
+        <h1>Terms of Use</h1>
+        <p class="muted">Last updated: @site.LegalUpdated</p>
+        <p>By using @site.AppName you agree to these terms. If you don't agree, please don't use the service.</p>
+
+        <h2>Your account</h2>
+        <p>You are responsible for activity on your account and for keeping your password safe. You may delete your account at any time (see <a href="/account-deletion">Account &amp; data deletion</a>).</p>
+
+        <h2>Community content</h2>
+        <p>You can post places, reviews and photos. You keep ownership of what you post and grant us a license to display it in the app and on the website. Only post content you have the right to share.</p>
+
+        <h2>Zero tolerance for objectionable content</h2>
+        <p>There is <b>no tolerance</b> for objectionable, abusive, harassing, hateful, sexual, illegal or infringing content, or for photos of people or of occupied stalls.</p>
+        <ul>
+            <li>You can <b>report</b> any place or review.</li>
+            <li>You can <b>block</b> a user so you no longer see their content.</li>
+            <li>Content reported by several people is hidden until we review it. We <b>remove</b> content and <b>ban</b> users that violate these terms, typically within 24 hours.</li>
+        </ul>
+
+        <h2>Location &amp; accuracy</h2>
+        <p>Places and details are community-contributed and may be inaccurate or out of date. Use your judgment; we are not responsible for the condition, availability or safety of any location.</p>
+
+        <h2>Fair use</h2>
+        <p>Don't try to access other people's accounts, overload the service or scrape data automatically.</p>
+
+        <h2>Changes</h2>
+        <p>We may update these terms; continued use means you accept the changes.</p>
+
+        <h2>Contact</h2>
+        <p><a href="mailto:@site.SupportEmail">@site.SupportEmail</a></p>
+    </div>
+</section>

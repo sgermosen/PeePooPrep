@@ -414,3 +414,6 @@ appsettings.*.local.json
 # .NET build output
 bin/
 obj/
+
+# Locally stored photo uploads (used when Cloudinary is not configured)
+src/PeePoo/API/wwwroot/uploads/

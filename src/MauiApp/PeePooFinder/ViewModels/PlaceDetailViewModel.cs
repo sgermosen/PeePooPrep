@@ -11,22 +11,34 @@ namespace PeePooFinder.ViewModels;
 public partial class PlaceDetailViewModel : BaseViewModel
 {
     private readonly IPeePooApi _api;
+    private readonly ISessionService _session;
+    private readonly AppSettings _settings;
+
+    [ObservableProperty] private string placeId = string.Empty;
 
     [ObservableProperty]
-    private string placeId = string.Empty;
-
-    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SaveLabel), nameof(IsOwner), nameof(AvailabilityLabel), nameof(HasPlace))]
     private Place? place;
 
-    [ObservableProperty]
-    private ObservableCollection<Review> reviews = new();
+    [ObservableProperty] private ObservableCollection<Review> reviews = new();
 
     [ObservableProperty]
-    private bool hasReviews;
+    [NotifyPropertyChangedFor(nameof(ReviewButtonLabel))]
+    private Review? myReview;
 
-    public PlaceDetailViewModel(IPeePooApi api)
+    [ObservableProperty] private bool hasReviews;
+
+    public bool HasPlace => Place is not null;
+    public bool IsOwner => Place?.IsOwner ?? false;
+    public string SaveLabel => Place?.IsFavorite == true ? "Saved ✓" : "Save";
+    public string ReviewButtonLabel => MyReview is null ? "Write a review" : "Edit your review";
+    public string AvailabilityLabel => Place?.IsAvailable == true ? "Mark as closed" : "Mark as open";
+
+    public PlaceDetailViewModel(IPeePooApi api, ISessionService session, AppSettings settings)
     {
         _api = api;
+        _session = session;
+        _settings = settings;
     }
 
     partial void OnPlaceIdChanged(string value)
@@ -38,66 +50,57 @@ public partial class PlaceDetailViewModel : BaseViewModel
     [RelayCommand]
     private async Task LoadAsync()
     {
-        if (IsBusy || string.IsNullOrEmpty(PlaceId)) return;
-        try
+        if (string.IsNullOrEmpty(PlaceId)) return;
+        await RunAsync(async () =>
         {
-            IsBusy = true;
-            Place = await _api.GetPlaceAsync(PlaceId);
-            Title = Place?.Name ?? "Place";
-            var reviewList = await _api.GetReviewsAsync(PlaceId);
-            Reviews = new ObservableCollection<Review>(reviewList.OrderByDescending(r => r.CreatedAt));
+            var loaded = await _api.GetPlaceAsync(PlaceId);
+            if (loaded is null)
+            {
+                await ShowError("This place isn't available anymore.");
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
+
+            Place = loaded;
+            Title = loaded.Name ?? "Place";
+            var list = await _api.GetReviewsAsync(PlaceId);
+            Reviews = new ObservableCollection<Review>(list);
             HasReviews = Reviews.Count > 0;
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
-        catch
-        {
-            await ShowError("Could not load this place.");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+            MyReview = list.FirstOrDefault(r => r.IsMine);
+        }, "Couldn't load this place.");
     }
 
     [RelayCommand]
     private async Task ToggleFavoriteAsync()
     {
-        if (Place is null) return;
-        try
+        if (Place is null || !await EnsureSignedInAsync(_session, "save places")) return;
+        await RunAsync(async () =>
         {
-            await _api.ToggleFavoriteAsync(Place.Id);
-            await ShowInfo("Saved", "Your favorites were updated.");
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
+            Place.IsFavorite = await _api.ToggleFavoriteAsync(Place.Id);
+            OnPropertyChanged(nameof(SaveLabel));
+        }, "Couldn't update your saved places.", showBusy: false);
     }
 
     [RelayCommand]
     private async Task AddReviewAsync()
     {
-        if (Place is null) return;
-        await Shell.Current.GoToAsync($"{nameof(AddReviewPage)}?placeId={Place.Id}");
+        if (Place is null || !await EnsureSignedInAsync(_session, "write a review")) return;
+        var route = MyReview is null
+            ? $"{nameof(AddReviewPage)}?placeId={Place.Id}"
+            : $"{nameof(AddReviewPage)}?placeId={Place.Id}&reviewId={MyReview.Id}";
+        await Shell.Current.GoToAsync(route);
     }
 
     [RelayCommand]
     private async Task VerifyAsync()
     {
-        if (Place is null) return;
-        try
+        if (Place is null || !await EnsureSignedInAsync(_session, "confirm places")) return;
+        await RunAsync(async () =>
         {
             await _api.VerifyPlaceAsync(Place.Id);
-            await LoadAsync();
-            await ShowInfo("Thanks!", "You confirmed this spot is still good.");
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
+            Place = await _api.GetPlaceAsync(Place.Id) ?? Place;
+            await ShowInfo("Thanks!", "You confirmed this place is still as described.");
+        }, "Couldn't confirm this place.", showBusy: false);
     }
 
     [RelayCommand]
@@ -106,74 +109,115 @@ public partial class PlaceDetailViewModel : BaseViewModel
         if (Place is null) return;
         try
         {
-            var location = new Location(Place.Lat, Place.Long);
             var options = new MapLaunchOptions { Name = Place.Name, NavigationMode = NavigationMode.Walking };
-            await Microsoft.Maui.ApplicationModel.Map.Default.OpenAsync(location, options);
+            await Microsoft.Maui.ApplicationModel.Map.Default.OpenAsync(new Location(Place.Lat, Place.Long), options);
         }
         catch
         {
-            await ShowError("Could not open the maps app.");
+            await ShowError("Couldn't open your maps app.");
         }
+    }
+
+    [RelayCommand]
+    private async Task ShareAsync()
+    {
+        if (Place is null) return;
+        await Share.Default.RequestAsync(new ShareTextRequest
+        {
+            Title = Place.Name,
+            Text = $"{Place.Name} — restroom on PeePoo Finder",
+            Uri = _settings.Api.WebUrl($"lugar/{Place.Id}")
+        });
+    }
+
+    [RelayCommand]
+    private async Task ToggleAvailabilityAsync()
+    {
+        if (Place is null || !Place.IsOwner) return;
+        var closing = Place.IsAvailable;
+        if (closing && !await Confirm("Mark as closed", "People will see this place as closed until you reopen it.", "Mark closed"))
+            return;
+
+        await RunAsync(async () =>
+        {
+            await _api.SetAvailabilityAsync(Place.Id, !closing);
+            Place = await _api.GetPlaceAsync(Place.Id) ?? Place;
+        }, "Couldn't update this place.", showBusy: false);
+    }
+
+    [RelayCommand]
+    private async Task DeletePlaceAsync()
+    {
+        if (Place is null || !Place.IsOwner) return;
+        if (!await Confirm("Delete place", "This removes the place, its photos and all its reviews. It can't be undone.", "Delete"))
+            return;
+
+        await RunAsync(async () =>
+        {
+            await _api.DeletePlaceAsync(Place.Id);
+            await Shell.Current.GoToAsync("..");
+        }, "Couldn't delete this place.");
     }
 
     [RelayCommand]
     private async Task ReportPlaceAsync()
     {
-        if (Place is null) return;
-        var reason = await AskReason();
+        if (Place is null || !await EnsureSignedInAsync(_session, "report a place")) return;
+        var reason = await AskReportReason();
         if (reason is null) return;
-        try
+        await RunAsync(async () =>
         {
             await _api.ReportPlaceAsync(Place.Id, reason);
-            await ShowInfo("Reported", "Thanks — our team will take a look.");
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
+            await ShowInfo("Reported", "Thanks. Our team will take a look.");
+        }, "Couldn't send the report.", showBusy: false);
     }
 
     [RelayCommand]
-    private async Task ReportReviewAsync(Review? review)
+    private async Task ReviewActionsAsync(Review? review)
     {
-        if (review is null) return;
-        var reason = await AskReason();
+        if (review is null || CurrentPage is null) return;
+
+        if (review.IsMine)
+        {
+            var mine = await CurrentPage.DisplayActionSheetAsync("Your review", "Cancel", "Delete", "Edit");
+            if (mine == "Edit") await AddReviewAsync();
+            else if (mine == "Delete") await DeleteReviewAsync(review);
+            return;
+        }
+
+        var action = await CurrentPage.DisplayActionSheetAsync("Review options", "Cancel", null, "Report review", $"Block @{review.Username}");
+        if (action == "Report review") await ReportReviewAsync(review);
+        else if (action?.StartsWith("Block") == true) await BlockAuthorAsync(review);
+    }
+
+    private async Task DeleteReviewAsync(Review review)
+    {
+        if (!await Confirm("Delete review", "Delete your review of this place?", "Delete")) return;
+        await RunAsync(async () =>
+        {
+            await _api.DeleteReviewAsync(review.Id);
+        }, "Couldn't delete your review.", showBusy: false);
+        await LoadAsync();
+    }
+
+    private async Task ReportReviewAsync(Review review)
+    {
+        if (!await EnsureSignedInAsync(_session, "report a review")) return;
+        var reason = await AskReportReason();
         if (reason is null) return;
-        try
+        await RunAsync(async () =>
         {
             await _api.ReportReviewAsync(review.Id, reason);
-            await ShowInfo("Reported", "Thanks — our team will take a look.");
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
+            await ShowInfo("Reported", "Thanks. Our team will take a look.");
+        }, "Couldn't send the report.", showBusy: false);
     }
 
-    [RelayCommand]
-    private async Task BlockAuthorAsync(Review? review)
+    private async Task BlockAuthorAsync(Review review)
     {
-        if (review is null || string.IsNullOrEmpty(review.Username)) return;
-        var confirm = await Shell.Current.DisplayAlert(
-            "Block user",
-            $"Hide all reviews from @{review.Username}?", "Block", "Cancel");
-        if (!confirm) return;
-        try
-        {
-            await _api.BlockUserAsync(review.Username!);
-            await LoadAsync();
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
-    }
-
-    private static async Task<string?> AskReason()
-    {
-        var reason = await Shell.Current.CurrentPage.DisplayPromptAsync(
-            "Report", "What's wrong with this?", "Send", "Cancel",
-            placeholder: "Reason", maxLength: 500);
-        return string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+        if (string.IsNullOrEmpty(review.Username) || !await EnsureSignedInAsync(_session, "block people")) return;
+        if (!await Confirm("Block user", $"Hide everything @{review.Username} writes? You can undo this from your profile.", "Block"))
+            return;
+        await RunAsync(() => _api.BlockUserAsync(review.Username!), "Couldn't block this user.", showBusy: false);
+        await LoadAsync();
     }
 }

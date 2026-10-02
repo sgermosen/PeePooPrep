@@ -5,13 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:PeePooFinder.Views"
     Title="PeePoo Finder"
-    Shell.BackgroundColor="{StaticResource Primary}"
-    Shell.ForegroundColor="{StaticResource White}"
-    Shell.TitleColor="{StaticResource White}"
-    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
-    Shell.TabBarForegroundColor="{StaticResource Primary}"
-    Shell.TabBarTitleColor="{StaticResource Primary}"
-    Shell.TabBarUnselectedColor="{StaticResource Gray400}">
+    Shell.BackgroundColor="{AppThemeBinding Light={StaticResource Paper}, Dark={StaticResource PaperDark}}"
+    Shell.ForegroundColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}"
+    Shell.TitleColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource Paper}, Dark={StaticResource PaperDark}}"
+    Shell.TabBarForegroundColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource Sign}}"
+    Shell.TabBarTitleColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource Sign}}"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}">
 
     <ShellContent
         x:Name="LoginItem"
@@ -22,7 +22,7 @@
 
     <TabBar x:Name="MainTabs" Route="main">
         <ShellContent
-            Title="Explore"
+            Title="Nearby"
             Route="places"
             ContentTemplate="{DataTemplate views:PlacesPage}" />
         <ShellContent
@@ -30,7 +30,7 @@
             Route="map"
             ContentTemplate="{DataTemplate views:MapPage}" />
         <ShellContent
-            Title="Profile"
+            Title="You"
             Route="profile"
             ContentTemplate="{DataTemplate views:ProfilePage}" />
     </TabBar>
