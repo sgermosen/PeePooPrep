@@ -1,0 +1,88 @@
+@page "/ayuda"
+@inject Microsoft.Extensions.Options.IOptions<SiteOptions> SiteConfig
+@{
+    ViewData["Title"] = "Preguntas frecuentes";
+    ViewData["Description"] = "Respuestas sobre cuentas, ubicación, reseñas, reportes y cómo funciona PeePoo Finder.";
+    ViewData["Nav"] = "ayuda";
+    var email = SiteConfig.Value.SupportEmail;
+}
+
+<section class="hero">
+    <div class="wrap">
+        <p class="eyebrow">Ayuda</p>
+        <h1>Preguntas frecuentes</h1>
+        <p class="lede">Si no encuentras tu respuesta aquí, escríbenos a <a href="mailto:@email">@email</a>.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div><h2>Usar el mapa</h2></div>
+        <div class="faq">
+            <details>
+                <summary>¿Necesito una cuenta?</summary>
+                <div><p>No para mirar. El mapa, las fichas y las reseñas están abiertos en la web y en la app. Solo necesitas cuenta para añadir lugares, escribir reseñas, guardar favoritos o reportar algo.</p></div>
+            </details>
+            <details>
+                <summary>¿Por qué la nota no coincide con la que puso quien añadió el lugar?</summary>
+                <div><p>La nota que ves es el promedio de las reseñas de la comunidad. La impresión inicial de quien añadió el lugar solo se muestra mientras no haya reseñas.</p></div>
+            </details>
+            <details>
+                <summary>¿Qué significa «verificado hace…»?</summary>
+                <div><p>Es la última vez que alguien tocó «¿Sigue igual?» en ese lugar para confirmar que existe y que la información es correcta. Cuanto más reciente, más confiable.</p></div>
+            </details>
+            <details>
+                <summary>Un lugar aparece abierto pero estaba cerrado.</summary>
+                <div><p>Solo quien añadió el lugar puede marcarlo como cerrado. Si no es tu caso, deja una reseña contándolo o repórtalo con el motivo «información incorrecta».</p></div>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div><h2>Aportar</h2></div>
+        <div class="faq">
+            <details>
+                <summary>¿Cómo añado un lugar?</summary>
+                <div><p>En la app, toca el botón «+» estando en el lugar. Tomamos tu ubicación para ponerlo en el mapa; si la ubicación está desactivada, no podrás guardarlo. Solo el nombre y el tipo son obligatorios.</p></div>
+            </details>
+            <details>
+                <summary>¿Por qué solo puedo escribir una reseña por lugar?</summary>
+                <div><p>Para que la nota sea justa. Si tu opinión cambia, edita tu reseña en lugar de escribir otra.</p></div>
+            </details>
+            <details>
+                <summary>¿Qué fotos están bien?</summary>
+                <div><p>Fotos de la entrada, la señalización, el lavamanos o el cambiador. Nunca fotos de personas, y nunca dentro de un cubículo ocupado. Las fotos que no respeten esto se eliminan y la cuenta puede ser suspendida.</p></div>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div><h2>Privacidad y seguridad</h2></div>
+        <div class="faq">
+            <details>
+                <summary>¿Guardan mi ubicación?</summary>
+                <div><p>No. Tu ubicación se usa en el momento para ordenar los lugares por cercanía y, si añades un lugar, para ponerlo en el mapa. No guardamos un historial de dónde has estado. Más detalles en la <a href="/privacidad">política de privacidad</a>.</p></div>
+            </details>
+            <details>
+                <summary>¿Qué pasa cuando reporto algo?</summary>
+                <div><p>El equipo de moderación recibe el reporte. Si tres personas distintas reportan lo mismo, se oculta automáticamente hasta que alguien lo revise. Quien publicó el contenido no sabe quién lo reportó.</p></div>
+            </details>
+            <details>
+                <summary>¿Puedo dejar de ver las reseñas de alguien?</summary>
+                <div><p>Sí. En cualquier reseña toca «Bloquear» y dejarás de ver todo lo que escriba esa persona. Puedes desbloquearla desde tu perfil.</p></div>
+            </details>
+            <details>
+                <summary>¿Cómo elimino mi cuenta?</summary>
+                <div><p>Desde la app: Perfil → Eliminar cuenta. Se borran tu cuenta, tus reseñas y tus fotos. Si no puedes entrar a la app, sigue <a href="/eliminar-cuenta">estos pasos</a>.</p></div>
+            </details>
+            <details>
+                <summary>Cambié mi contraseña. ¿Se cierra la sesión en mis otros teléfonos?</summary>
+                <div><p>Sí. Al cambiar la contraseña, todas las sesiones anteriores dejan de funcionar y tendrás que volver a entrar en los demás dispositivos.</p></div>
+            </details>
+        </div>
+    </div>
+</section>

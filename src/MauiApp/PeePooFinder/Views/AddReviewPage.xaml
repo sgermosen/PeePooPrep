@@ -5,31 +5,38 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
     x:DataType="vm:AddReviewViewModel"
-    Title="Write a review"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+    Title="Your review"
+    Style="{StaticResource Page}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="14">
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border Style="{StaticResource SignPanel}" Padding="14,12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}" FontSize="28" TextColor="{StaticResource OnSign}" />
+                    <Label Text="{Binding RatingLabel}" FontFamily="BodyBold" FontSize="16" TextColor="{StaticResource OnSign}" />
+                    <Slider Minimum="1" Maximum="5" Value="{Binding Rating}" MinimumTrackColor="{StaticResource OnSign}" MaximumTrackColor="{StaticResource SignDeep}" ThumbColor="{StaticResource OnSign}" />
+                </VerticalStackLayout>
+            </Border>
 
+            <Label Text="Title" Style="{StaticResource FieldLabel}" />
             <Border Style="{StaticResource FieldBorder}">
-                <Entry Placeholder="Title" Text="{Binding ReviewTitle}" Style="{StaticResource FieldEntry}" />
+                <Entry Placeholder="e.g. Clean and easy to find" Text="{Binding ReviewTitle}" MaxLength="80" Style="{StaticResource FieldEntry}" />
             </Border>
 
-            <Border Style="{StaticResource FieldBorder}" Padding="14,8">
-                <Editor Placeholder="How was it?" Text="{Binding Description}" HeightRequest="120" FontSize="16" />
+            <Label Text="How was it?" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource FieldBorder}" Padding="12,4">
+                <Editor Text="{Binding Description}" MaxLength="1000" Style="{StaticResource FieldEditor}" MinimumHeightRequest="120"
+                        Placeholder="When did you go? Did you need a key or to buy something? Paper, soap, wait time…" />
             </Border>
 
-            <VerticalStackLayout Spacing="4">
-                <Label Text="{Binding Rating, StringFormat='Rating: {0:0}'}" Style="{StaticResource Caption}" />
-                <Slider Minimum="1" Maximum="5" Value="{Binding Rating}" MinimumTrackColor="{StaticResource Primary}" ThumbColor="{StaticResource Primary}" />
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding CanAddPhoto}">
+                <Image Source="{Binding PhotoPreview}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
+                <Button Text="Add a photo (optional)" Style="{StaticResource GhostButton}" Command="{Binding PickPhotoCommand}" />
             </VerticalStackLayout>
 
-            <Image Source="{Binding PhotoPreview}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding PhotoPreview, Converter={StaticResource NotNull}}" />
-            <Button Text="Add a photo" Style="{StaticResource GhostButton}" Command="{Binding PickPhotoCommand}" />
-
-            <Button Text="Post review" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsNotBusy}" />
-
-            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+            <Button Text="{Binding SubmitLabel}" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsNotBusy}" />
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource SignDeep}" />
+            <Label Text="One review per place. You can edit it any time." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

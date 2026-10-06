@@ -1,9 +1,8 @@
-﻿using Application.Core;
-using AutoMapper;
-using Domain;
+using Application.Core;
 using FluentValidation;
 using MediatR;
 using Persistence;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,40 +12,36 @@ namespace Application.Places
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public PlaceDto Place { get; set; }
+            public Guid Id { get; set; }
+            public PlaceInput Place { get; set; }
         }
+
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Place).SetValidator(new PlaceValidator());
+                RuleFor(x => x.Place).NotNull().SetValidator(new PlaceValidator());
             }
         }
+
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper)
+            public Handler(DataContext context)
             {
-                _mapper = mapper;
                 _context = context;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var places = await _context.Places.FindAsync(request.Place.Id, cancellationToken);
+                var place = await _context.Places.FindAsync(new object[] { request.Id }, cancellationToken);
+                if (place == null) return null;
 
-                if (places == null) return null;
-
-                _mapper.Map(request.Place, places);
-                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                if (!result) return Result<Unit>.Failure("Fail to update place");
-
+                place.Apply(request.Place);
+                await _context.SaveChangesAsync(cancellationToken);
                 return Result<Unit>.Success(Unit.Value);
             }
         }
     }
-
 }

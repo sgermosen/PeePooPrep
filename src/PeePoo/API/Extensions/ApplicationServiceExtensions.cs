@@ -1,3 +1,4 @@
+using API.Services;
 using Application.Core;
 using Application.Interfaces;
 using Application.Places;
@@ -48,7 +49,14 @@ namespace API.Extensions
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(List.Handler).Assembly));
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfile).Assembly));
             services.AddScoped<IUserAccessor, UserAccessor>();
-            services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            // Use Cloudinary when it is configured; otherwise keep photos on the local disk.
+            if (string.IsNullOrWhiteSpace(config["Cloudinary:CloudName"]))
+            {
+                services.AddHttpContextAccessor();
+                services.AddScoped<IPhotoAccessor, LocalPhotoAccessor>();
+            }
+            else
+                services.AddScoped<IPhotoAccessor, PhotoAccessor>();
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
             services.AddSignalR();
             return services;

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.MyReviewsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    xmlns:models="clr-namespace:PeePooFinder.Models"
+    x:DataType="vm:MyReviewsViewModel"
+    Title="Your reviews"
+    Style="{StaticResource Page}">
+
+    <Grid>
+        <CollectionView ItemsSource="{Binding Reviews}" SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="You haven't written any reviews yet. Open a place and tap Write a review." Style="{StaticResource Body}" Margin="24,32" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Review">
+                    <Border Style="{StaticResource Card}" Margin="16,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyReviewsViewModel}}, Path=OpenCommand, x:DataType=vm:MyReviewsViewModel}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding PlaceName}" Style="{StaticResource Eyebrow}" />
+                            <Label Text="{Binding Title}" Style="{StaticResource Title}" FontSize="17" />
+                            <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}" TextColor="{StaticResource SignDeep}" />
+                            <Label Text="{Binding Description}" Style="{StaticResource Body}" MaxLines="3" LineBreakMode="TailTruncation" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource SignDeep}" VerticalOptions="Center" HorizontalOptions="Center" />
+    </Grid>
+</ContentPage>

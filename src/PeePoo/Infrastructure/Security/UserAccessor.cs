@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -15,7 +15,10 @@ namespace Infrastructure.Security
 
         public string GetUsername()
         {
-            return _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user?.Identity?.IsAuthenticated == true ? user.FindFirstValue(ClaimTypes.Name) : null;
         }
+
+        public bool IsAdmin() => _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") ?? false;
     }
 }

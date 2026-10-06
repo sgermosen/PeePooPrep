@@ -1,0 +1,109 @@
+@page "/lugar/{id:guid}"
+@model LugarModel
+@{
+    var p = Model.Place;
+    ViewData["Title"] = p.Name;
+    ViewData["Description"] = string.IsNullOrWhiteSpace(p.Description)
+        ? $"Baño {Fmt.TypeName(p.Type).ToLowerInvariant()}{(string.IsNullOrWhiteSpace(p.Address) ? "" : " en " + p.Address)}: horario, accesibilidad y reseñas."
+        : p.Description;
+    ViewData["OgType"] = "place";
+    if (!string.IsNullOrWhiteSpace(p.Image)) { ViewData["OgImage"] = p.Image; }
+    var rating = p.AverageRating ?? p.Rating;
+}
+@section Head {
+    <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
+    <script type="application/ld+json">@Html.Raw(Model.StructuredData)</script>
+}
+
+<section class="place-hero">
+    <div class="wrap">
+        <p class="eyebrow"><a href="/explorar">Mapa</a></p>
+        <div class="form-row">
+            <span class="tag tag--sign">@Fmt.TypeName(p.Type)</span>
+            @if (p.IsAvailable) { <span class="tag tag--go">Abierto</span> } else { <span class="tag tag--stop">Marcado como cerrado</span> }
+        </div>
+        <h1 class="mt-12">@p.Name</h1>
+        @if (!string.IsNullOrWhiteSpace(p.Address)) { <p class="lede muted">@p.Address</p> }
+        <div class="form-row mt-24">
+            <a class="btn btn--sign" href="@Model.DirectionsUrl" rel="noopener">Cómo llegar <svg class="arrow" width="26" height="16" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+            <a class="btn btn--ghost" href="@Model.OsmUrl" rel="noopener">Ver en OpenStreetMap</a>
+        </div>
+    </div>
+</section>
+
+<div class="wrap place-grid">
+    <div>
+        @if (p.ReviewCount > 0)
+        {
+            <div class="score">
+                <b>@Fmt.Rating(rating)</b>
+                <span><span class="stars" aria-hidden="true">@Fmt.Stars(rating)</span><br>@Fmt.Count(p.ReviewCount, "reseña", "reseñas")</span>
+            </div>
+        }
+        else
+        {
+            <p class="tag">Sin reseñas todavía</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(p.Description)) { <p class="lede mt-24">@p.Description</p> }
+        @if (!string.IsNullOrWhiteSpace(p.Observations)) { <p class="note-inline"><b>A tener en cuenta:</b> @p.Observations</p> }
+
+        <h2 class="visually-hidden">Detalles</h2>
+        <div class="facts">
+            <div class="@(p.IsAccessible ? "" : "no")"><svg aria-hidden="true"><use href="#i-access" /></svg>@(p.IsAccessible ? "Accesible" : "No adaptado")</div>
+            <div class="@(p.HaveBabyChanger ? "" : "no")"><svg aria-hidden="true"><use href="#i-baby" /></svg>@(p.HaveBabyChanger ? "Con cambiador" : "Sin cambiador")</div>
+            <div><svg aria-hidden="true"><use href="#i-free" /></svg>@(p.IsFree ? "Gratis" : "De pago o para clientes")</div>
+            <div><svg aria-hidden="true"><use href="#i-clock" /></svg>@(string.IsNullOrWhiteSpace(p.OpeningHours) ? "Horario sin confirmar" : p.OpeningHours)</div>
+            <div class="@(p.IsRoomy ? "" : "no")"><svg aria-hidden="true"><use href="#i-roomy" /></svg>@(p.IsRoomy ? "Amplio" : "Espacio reducido")</div>
+            <div><svg aria-hidden="true"><use href="#i-toilet" /></svg>@Fmt.Count(p.Toilets, "inodoro", "inodoros")@(p.Urinals > 0 ? $" · {Fmt.Count(p.Urinals, "urinario", "urinarios")}" : "")</div>
+        </div>
+
+        @if (p.Photos.Count > 0)
+        {
+            <h2>Fotos</h2>
+            <div class="gallery">
+                @foreach (var photo in p.Photos)
+                {
+                    <img src="@photo.Url" alt="Foto de @p.Name" loading="lazy">
+                }
+            </div>
+        }
+
+        <h2 class="mt-24">Reseñas</h2>
+        @if (Model.Reviews.Count == 0)
+        {
+            <p class="muted">Nadie ha dejado una reseña todavía. Desde la app puedes ser la primera persona.</p>
+        }
+        @foreach (var review in Model.Reviews)
+        {
+            <article class="review">
+                <h3>@review.Title</h3>
+                <div class="review-meta"><span class="stars" aria-label="@review.Rating de 5">@Fmt.Stars(review.Rating)</span> · @review.DisplayName · @Fmt.Ago(review.CreatedAt)</div>
+                <p>@review.Description</p>
+                @foreach (var photo in review.Photos)
+                {
+                    <img class="review-photo" src="@photo.Url" alt="Foto de la reseña" loading="lazy">
+                }
+            </article>
+        }
+    </div>
+
+    <aside>
+        <div class="mini-map" id="mini-map" data-lat="@p.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-lng="@p.Long.ToString(System.Globalization.CultureInfo.InvariantCulture)" aria-label="Ubicación en el mapa"></div>
+        <div class="aside-box mt-24">
+            <h2><svg width="22" height="22" aria-hidden="true"><use href="#i-verified" /></svg> ¿Sigue igual?</h2>
+            <p class="small">@(p.LastVerifiedAt.HasValue ? $"Alguien confirmó este lugar {Fmt.Ago(p.LastVerifiedAt.Value)}." : "Nadie ha confirmado este lugar todavía.") Si pasas por aquí, confírmalo o repórtalo desde la app.</p>
+            @if (!string.IsNullOrWhiteSpace(p.OwnerUsername)) { <p class="small muted m-0">Añadido por @@@p.OwnerUsername · @Fmt.Date(p.CreatedAt)</p> }
+        </div>
+        <div class="aside-box">
+            <h2>Aporta desde la app</h2>
+            <p class="small">Deja tu reseña, sube una foto o avisa si cambió el horario.</p>
+            <a class="btn btn--small" href="/#app">Descargar la app</a>
+        </div>
+    </aside>
+</div>
+
+@section Scripts {
+    <script src="/lib/leaflet/leaflet.js"></script>
+    <script src="/js/place.js" asp-append-version="true"></script>
+}

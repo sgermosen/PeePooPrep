@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PeePooFinder.Services;
+using PeePooFinder.Views;
 
 namespace PeePooFinder.ViewModels;
 
@@ -8,122 +9,129 @@ public partial class ProfileViewModel : BaseViewModel
 {
     private readonly IPeePooApi _api;
     private readonly ISessionService _session;
+    private readonly AppSettings _settings;
 
-    [ObservableProperty] private string displayName = string.Empty;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsGuest))]
+    private bool isSignedIn;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Initial))]
+    private string displayName = string.Empty;
+
     [ObservableProperty] private string username = string.Empty;
     [ObservableProperty] private string bio = string.Empty;
-    [ObservableProperty] private string? image;
+    [ObservableProperty] private string statsLabel = string.Empty;
 
-    public ProfileViewModel(IPeePooApi api, ISessionService session)
+    public bool IsGuest => !IsSignedIn;
+    public string Initial => string.IsNullOrWhiteSpace(DisplayName) ? "?" : DisplayName.Trim()[..1].ToUpperInvariant();
+    public string AppVersion => $"Version {AppInfo.Current.VersionString}";
+
+    public ProfileViewModel(IPeePooApi api, ISessionService session, AppSettings settings)
     {
         _api = api;
         _session = session;
-        Title = "Profile";
+        _settings = settings;
+        Title = "You";
     }
 
     [RelayCommand]
     private async Task LoadAsync()
     {
+        IsSignedIn = _session.IsLoggedIn;
+        if (!IsSignedIn) return;
+
         Username = _session.Username ?? string.Empty;
         DisplayName = _session.DisplayName ?? string.Empty;
-        Image = _session.Image;
-
         if (string.IsNullOrEmpty(Username)) return;
 
         try
         {
-            IsBusy = true;
             var profile = await _api.GetProfileAsync(Username);
-            if (profile is not null)
-            {
-                DisplayName = profile.DisplayName ?? DisplayName;
-                Bio = profile.Bio ?? string.Empty;
-                Image = profile.Image ?? Image;
-            }
+            if (profile is null) return;
+            DisplayName = profile.DisplayName ?? DisplayName;
+            Bio = profile.Bio ?? string.Empty;
+            StatsLabel = $"{Plural(profile.PlacesCount, "place")} added · {Plural(profile.ReviewsCount, "review")} · joined {profile.JoinedAt.ToLocalTime():MMM yyyy}";
         }
         catch
         {
-            // keep the cached session values if the profile cannot be refreshed
+            // keep cached values when offline
         }
-        finally
-        {
-            IsBusy = false;
-        }
+    }
+
+    private static string Plural(int n, string word) => n == 1 ? $"1 {word}" : $"{n} {word}s";
+
+    [RelayCommand]
+    private static Task SignInAsync() => Shell.Current.GoToAsync("//login");
+
+    [RelayCommand]
+    private static async Task CreateAccountAsync()
+    {
+        await Shell.Current.GoToAsync("//login");
+        await Shell.Current.GoToAsync(nameof(RegisterPage));
     }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (IsBusy) return;
         if (string.IsNullOrWhiteSpace(DisplayName))
         {
-            await ShowError("Display name cannot be empty.");
+            await ShowError("Your display name can't be empty.");
             return;
         }
 
+        await RunAsync(async () =>
+        {
+            await _api.UpdateProfileAsync(DisplayName.Trim(), Bio?.Trim() ?? string.Empty);
+            _session.UpdateDisplayName(DisplayName.Trim());
+            await ShowInfo("Saved", "Your profile was updated.");
+        }, "Couldn't update your profile.");
+    }
+
+    [RelayCommand] private static Task OpenSavedAsync() => Shell.Current.GoToAsync($"{nameof(PlaceListPage)}?mode=saved");
+    [RelayCommand] private static Task OpenMinePlacesAsync() => Shell.Current.GoToAsync($"{nameof(PlaceListPage)}?mode=mine");
+    [RelayCommand] private static Task OpenMyReviewsAsync() => Shell.Current.GoToAsync(nameof(MyReviewsPage));
+    [RelayCommand] private static Task OpenChangePasswordAsync() => Shell.Current.GoToAsync(nameof(ChangePasswordPage));
+    [RelayCommand] private static Task OpenBlockedAsync() => Shell.Current.GoToAsync(nameof(BlockedUsersPage));
+
+    [RelayCommand] private Task OpenHelpAsync() => OpenWebAsync("ayuda");
+    [RelayCommand] private Task OpenPrivacyAsync() => OpenWebAsync("privacy");
+    [RelayCommand] private Task OpenTermsAsync() => OpenWebAsync("terms");
+
+    private async Task OpenWebAsync(string path)
+    {
         try
         {
-            IsBusy = true;
-            await _api.UpdateProfileAsync(DisplayName.Trim(), Bio?.Trim() ?? string.Empty);
-            await ShowInfo("Saved", "Your profile was updated.");
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
+            await Browser.Default.OpenAsync(_settings.Api.WebUrl(path), BrowserLaunchMode.SystemPreferred);
         }
         catch
         {
-            await ShowError("Could not update your profile.");
-        }
-        finally
-        {
-            IsBusy = false;
+            await ShowError("Couldn't open the browser.");
         }
     }
 
     [RelayCommand]
     private async Task LogoutAsync()
     {
-        var confirm = await Shell.Current.DisplayAlert("Sign out", "Are you sure you want to sign out?", "Yes", "Cancel");
-        if (!confirm) return;
-
+        if (!await Confirm("Sign out", "Sign out of PeePoo Finder on this device?", "Sign out")) return;
         await _session.ClearAsync();
-        await Shell.Current.GoToAsync("//login");
+        await LoadAsync();
     }
 
     [RelayCommand]
     private async Task DeleteAccountAsync()
     {
-        var confirm = await Shell.Current.DisplayAlert(
-            "Delete account",
-            "This permanently deletes your account and your reviews and photos. This cannot be undone.",
-            "Delete", "Cancel");
-        if (!confirm) return;
+        if (!await Confirm("Delete account", "This permanently deletes your account, your reviews and your photos. This can't be undone.", "Delete"))
+            return;
+        if (!await Confirm("Are you absolutely sure?", "Your account will be deleted for good.", "Delete my account", "Keep my account"))
+            return;
 
-        var reallySure = await Shell.Current.DisplayAlert(
-            "Are you absolutely sure?",
-            "Your account will be deleted for good.",
-            "Delete my account", "Keep my account");
-        if (!reallySure) return;
-
-        try
+        await RunAsync(async () =>
         {
-            IsBusy = true;
             await _api.DeleteAccountAsync();
             await _session.ClearAsync();
-            await Shell.Current.GoToAsync("//login");
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
-        catch
-        {
-            await ShowError("Could not delete your account. Please try again.");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+            await LoadAsync();
+            await ShowInfo("Account deleted", "Your account and your data were deleted.");
+        }, "Couldn't delete your account. Please try again.");
     }
 }

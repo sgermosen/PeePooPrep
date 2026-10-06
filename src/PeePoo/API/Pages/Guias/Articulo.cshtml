@@ -1,0 +1,47 @@
+@page "/guias/{slug}"
+@{
+    var slug = (string)RouteData.Values["slug"];
+    var guide = Guides.Find(slug);
+    if (guide == null)
+    {
+        Response.StatusCode = 404;
+        ViewData["Title"] = "Guía no encontrada";
+    }
+    else
+    {
+        ViewData["Title"] = guide.Title;
+        ViewData["Description"] = guide.Summary;
+        ViewData["OgType"] = "article";
+    }
+    ViewData["Nav"] = "guias";
+    var index = guide == null ? -1 : Guides.All.ToList().IndexOf(guide);
+    var next = index >= 0 ? Guides.All[(index + 1) % Guides.All.Count] : null;
+}
+
+@if (guide == null)
+{
+    <section class="hero"><div class="wrap"><h1>No encontramos esa guía</h1><p><a href="/guias">Ver todas las guías</a></p></div></section>
+}
+else
+{
+    <article class="section">
+        <div class="wrap article">
+            <p class="eyebrow"><a href="/guias">Guías</a></p>
+            <h1>@guide.Title</h1>
+            <p class="muted">@Fmt.Date(guide.Published) · @guide.Minutes min de lectura</p>
+            <p class="lede">@guide.Summary</p>
+            <partial name="Articulos/_@(guide.Slug)" />
+        </div>
+    </article>
+    @if (next != null && next != guide)
+    {
+        <section class="section">
+            <div class="wrap">
+                <p class="eyebrow">Sigue leyendo</p>
+                <ul class="ruled">
+                    <li><a href="/guias/@next.Slug"><h3>@next.Title</h3><span class="meta">@next.Minutes min</span><p>@next.Summary</p></a></li>
+                </ul>
+            </div>
+        </section>
+    }
+}

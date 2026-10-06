@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PeePooFinder.Views.BlockedUsersPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PeePooFinder.ViewModels"
+    x:DataType="vm:BlockedUsersViewModel"
+    Title="Blocked people"
+    Style="{StaticResource Page}">
+
+    <Grid>
+        <CollectionView ItemsSource="{Binding Usernames}" SelectionMode="None">
+            <CollectionView.Header>
+                <Label Text="You don't see reviews from these people." Style="{StaticResource Caption}" Margin="16,16,16,8" />
+            </CollectionView.Header>
+            <CollectionView.EmptyView>
+                <Label Text="You haven't blocked anyone." Style="{StaticResource Body}" Margin="16" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Grid ColumnDefinitions="*,Auto" Padding="16,10">
+                        <Label Text="{Binding ., StringFormat='@{0}'}" Style="{StaticResource Body}" FontFamily="BodyBold" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="Unblock" Style="{StaticResource GhostButton}" HeightRequest="38" Padding="12,0" FontSize="14"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BlockedUsersViewModel}}, Path=UnblockCommand, x:DataType=vm:BlockedUsersViewModel}"
+                                CommandParameter="{Binding .}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource SignDeep}" VerticalOptions="Center" HorizontalOptions="Center" />
+    </Grid>
+</ContentPage>

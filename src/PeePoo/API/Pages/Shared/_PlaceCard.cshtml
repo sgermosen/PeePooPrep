@@ -1,0 +1,37 @@
+@model PlaceDto
+<a class="place-card" href="/lugar/@Model.Id">
+    <div class="place-card-head">
+        <div>
+            <h3>@Model.Name</h3>
+            @if (!string.IsNullOrWhiteSpace(Model.Address))
+            {
+                <p class="addr">@Model.Address</p>
+            }
+        </div>
+        <span class="tag">@Fmt.TypeName(Model.Type)</span>
+    </div>
+    <div class="place-meta">
+        @if (Model.ReviewCount > 0)
+        {
+            <span class="rating"><span class="stars" aria-hidden="true">@Fmt.Stars(Model.AverageRating ?? Model.Rating)</span><b>@Fmt.Rating(Model.AverageRating ?? Model.Rating)</b><span class="muted">(@Model.ReviewCount)</span></span>
+        }
+        else
+        {
+            <span class="muted">Sin reseñas todavía</span>
+        }
+        @if (Model.DistanceKm.HasValue)
+        {
+            <span>@Fmt.Distance(Model.DistanceKm)</span>
+        }
+        @if (!Model.IsAvailable)
+        {
+            <span class="tag tag--stop">Cerrado</span>
+        }
+    </div>
+    <div class="amenities">
+        @if (Model.IsAccessible) { <span class="amenity"><svg aria-hidden="true"><use href="#i-access" /></svg>Accesible</span> }
+        @if (Model.HaveBabyChanger) { <span class="amenity"><svg aria-hidden="true"><use href="#i-baby" /></svg>Cambiador</span> }
+        @if (Model.IsFree) { <span class="amenity"><svg aria-hidden="true"><use href="#i-free" /></svg>Gratis</span> }
+        @if (!string.IsNullOrWhiteSpace(Model.OpeningHours)) { <span class="amenity"><svg aria-hidden="true"><use href="#i-clock" /></svg>@Model.OpeningHours</span> }
+    </div>
+</a>

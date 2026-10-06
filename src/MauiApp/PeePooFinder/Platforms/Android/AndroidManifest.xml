@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+	<!-- allowBackup is off: restoring MAUI SecureStorage from a backup leaves it unreadable. -->
+	<application android:allowBackup="false" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
 		<meta-data android:name="com.google.android.geo.API_KEY" android:value="${MAPS_API_KEY}" />
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,4 +11,22 @@
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" android:required="false" />
 	<uses-feature android:name="android.hardware.location" android:required="false" />
+	<!-- Android 11+ package visibility: maps app, browser, camera and share sheet. -->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="geo" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="https" />
+		</intent>
+		<intent>
+			<action android:name="android.media.action.IMAGE_CAPTURE" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.SEND" />
+			<data android:mimeType="text/plain" />
+		</intent>
+	</queries>
 </manifest>

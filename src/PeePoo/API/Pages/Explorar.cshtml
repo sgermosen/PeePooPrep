@@ -1,0 +1,68 @@
+@page "/explorar"
+@model ExplorarModel
+@{
+    ViewData["Title"] = "Mapa de baños";
+    ViewData["Description"] = "Mapa de baños públicos y de negocios con filtros de accesibilidad, cambiador, gratis y abierto ahora.";
+    ViewData["Nav"] = "explorar";
+}
+@section Head {
+    <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
+}
+
+<div class="explore">
+    <div class="explore-panel">
+        <form class="explore-form" method="get" action="/explorar" data-explore-form>
+            <h1>Mapa de baños</h1>
+            <div class="field">
+                <label for="q">Buscar</label>
+                <input class="input" id="q" name="q" type="search" value="@Model.Search" placeholder="Nombre, zona o calle" maxlength="60">
+            </div>
+            <div class="field">
+                <label for="tipo">Tipo</label>
+                <select class="input" id="tipo" name="tipo">
+                    @foreach (var (value, label) in ExplorarModel.Types)
+                    {
+                        <option value="@value" selected="@(value == (Model.Type ?? ""))">@label</option>
+                    }
+                </select>
+            </div>
+            <fieldset class="checks">
+                <legend class="legend visually-hidden">Filtros</legend>
+                <label class="check"><input type="checkbox" name="accesible" value="true" checked="@Model.Accessible"><span><svg aria-hidden="true"><use href="#i-access" /></svg>Accesible</span></label>
+                <label class="check"><input type="checkbox" name="cambiador" value="true" checked="@Model.BabyChanger"><span><svg aria-hidden="true"><use href="#i-baby" /></svg>Cambiador</span></label>
+                <label class="check"><input type="checkbox" name="gratis" value="true" checked="@Model.Free"><span><svg aria-hidden="true"><use href="#i-free" /></svg>Gratis</span></label>
+                <label class="check"><input type="checkbox" name="abierto" value="true" checked="@Model.Open"><span><svg aria-hidden="true"><use href="#i-door" /></svg>Abierto</span></label>
+            </fieldset>
+            <div class="form-row">
+                <button class="btn btn--small" type="submit">Aplicar filtros</button>
+                <button class="btn btn--sign btn--small" type="button" data-locate hidden>
+                    <svg width="18" height="18" aria-hidden="true"><use href="#i-locate" /></svg>
+                    Cerca de mí
+                </button>
+            </div>
+        </form>
+        <p class="explore-status" role="status" data-explore-status>
+            @Fmt.Count(Model.Places.Count, "lugar", "lugares") · ordenados por nota
+        </p>
+        <ul class="explore-list" data-explore-list>
+            @foreach (var place in Model.Places)
+            {
+                <li><partial name="_PlaceCard" model="place" /></li>
+            }
+            @if (Model.Places.Count == 0)
+            {
+                <li class="muted">No hay lugares con esos filtros. Prueba quitando alguno.</li>
+            }
+        </ul>
+    </div>
+    <div class="explore-map">
+        <div id="map" aria-label="Mapa con los lugares de la lista"></div>
+    </div>
+</div>
+
+<script type="application/json" id="places-data">@Html.Raw(Model.MapJson)</script>
+
+@section Scripts {
+    <script src="/lib/leaflet/leaflet.js"></script>
+    <script src="/js/explore.js" asp-append-version="true"></script>
+}

@@ -9,6 +9,9 @@ public class AppSettings
 public class ApiSettings
 {
     public string BaseUrl { get; set; } = "https://peepoo.azurewebsites.net";
+
+    /// <summary>The same server hosts the website (place pages, help, legal).</summary>
+    public string WebUrl(string path) => BaseUrl.TrimEnd('/') + "/" + path.TrimStart('/');
 }
 
 public class GoogleMapsSettings

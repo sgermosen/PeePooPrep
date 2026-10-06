@@ -12,10 +12,9 @@ public partial class ProfilePage : ContentPage
 		BindingContext = _viewModel = viewModel;
 	}
 
-	protected override void OnAppearing()
+	protected override async void OnAppearing()
 	{
 		base.OnAppearing();
-		if (_viewModel.LoadCommand.CanExecute(null))
-			_viewModel.LoadCommand.Execute(null);
+		await _viewModel.LoadCommand.ExecuteAsync(null);
 	}
 }

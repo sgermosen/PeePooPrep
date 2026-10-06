@@ -1,8 +1,7 @@
-﻿using Application.Core;
+using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Persistence;
 using System;
 using System.Threading;
@@ -21,21 +20,20 @@ namespace Application.Places
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
-            public Handler(DataContext context, IMapper mapper)
+            private readonly IUserAccessor _userAccessor;
+
+            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
             {
                 _mapper = mapper;
                 _context = context;
+                _userAccessor = userAccessor;
             }
 
             public async Task<Result<PlaceDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var place = await _context.Places
-                .ProjectTo<PlaceDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-                return Result<PlaceDto>.Success(place);
+                var place = await PlaceQueries.GetDtoAsync(_context, _mapper, _userAccessor, request.Id, cancellationToken);
+                return place == null ? null : Result<PlaceDto>.Success(place);
             }
         }
     }
-
 }

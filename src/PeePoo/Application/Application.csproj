@@ -13,12 +13,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="15.1.1" />
-		<PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 		<PackageReference Include="MediatR" Version="12.4.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
 	</ItemGroup>
 
 

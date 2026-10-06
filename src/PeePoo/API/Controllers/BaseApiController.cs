@@ -1,4 +1,4 @@
-﻿using Application.Core;
+using Application.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,16 +12,20 @@ namespace API.Controllers
         private IMediator _mediator;
         protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>();
 
+        /// <summary>
+        /// Maps a handler result to HTTP: null → 404, success → 200 (204 for Unit), failure → 400 with { message }.
+        /// </summary>
         protected ActionResult HandleResult<T>(Result<T> result)
         {
             if (result == null)
-                return NotFound();
-            if (result.IsSuccess && result.Value != null)
-                return Ok(result.Value);
-            if (result.IsSuccess && result.Value == null)
-                return NotFound();
-            return BadRequest(result.Error);
+                return NotFound(new { message = "Not found." });
+            if (!result.IsSuccess)
+                return BadRequest(new { message = result.Error });
+            if (result.Value is Unit)
+                return NoContent();
+            if (result.Value == null)
+                return NotFound(new { message = "Not found." });
+            return Ok(result.Value);
         }
-
     }
 }

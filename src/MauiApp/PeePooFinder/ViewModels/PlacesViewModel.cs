@@ -13,76 +13,70 @@ public partial class PlacesViewModel : BaseViewModel
 
     private readonly IPeePooApi _api;
     private readonly IGeolocation _geolocation;
-    private readonly List<Place> _allPlaces = new();
+    private readonly ISessionService _session;
+    private bool _loadedOnce;
 
-    [ObservableProperty]
-    private ObservableCollection<Place> places = new();
+    [ObservableProperty] private ObservableCollection<Place> places = new();
+    [ObservableProperty] private string searchText = string.Empty;
+    [ObservableProperty] private bool isRefreshing;
+    [ObservableProperty] private bool onlyAccessible;
+    [ObservableProperty] private bool onlyBabyChanger;
+    [ObservableProperty] private bool onlyFree;
+    [ObservableProperty] private bool onlyOpen;
+    [ObservableProperty] private string statusText = string.Empty;
+    [ObservableProperty] private bool usingLocation;
 
-    [ObservableProperty]
-    private string searchText = string.Empty;
-
-    [ObservableProperty]
-    private bool isRefreshing;
-
-    [ObservableProperty]
-    private bool nearMe = true;
-
-    [ObservableProperty]
-    private bool onlyBabyChanger;
-
-    [ObservableProperty]
-    private bool onlyAvailable;
-
-    public PlacesViewModel(IPeePooApi api, IGeolocation geolocation)
+    public PlacesViewModel(IPeePooApi api, IGeolocation geolocation, ISessionService session)
     {
         _api = api;
         _geolocation = geolocation;
-        Title = "Nearby spots";
+        _session = session;
+        Title = "Nearby";
+    }
+
+    public async Task LoadIfNeededAsync()
+    {
+        if (_loadedOnce) return;
+        _loadedOnce = true;
+        await LoadAsync();
     }
 
     [RelayCommand]
     private async Task LoadAsync()
     {
-        if (IsBusy) return;
-        try
+        await RunAsync(async () =>
         {
-            IsBusy = true;
-
             var query = new PlaceQuery
             {
+                Search = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
+                Accessible = OnlyAccessible ? true : null,
                 BabyChanger = OnlyBabyChanger ? true : null,
-                AvailableOnly = OnlyAvailable ? true : null
+                Free = OnlyFree ? true : null,
+                AvailableOnly = OnlyOpen ? true : null,
+                Limit = 200
             };
 
-            if (NearMe)
+            var location = await GetLocationAsync();
+            UsingLocation = location is not null;
+            if (location is not null)
             {
-                var location = await GetLocationAsync();
-                if (location is not null)
-                {
-                    query.Lat = location.Latitude;
-                    query.Long = location.Longitude;
-                    query.RadiusKm = SearchRadiusKm;
-                }
+                query.Lat = location.Latitude;
+                query.Long = location.Longitude;
+                // A text search looks further afield than the default nearby radius.
+                query.RadiusKm = string.IsNullOrWhiteSpace(SearchText) ? SearchRadiusKm : 100;
+            }
+            else
+            {
+                query.Sort = "rating";
             }
 
             var results = await _api.GetPlacesAsync(query);
-            _allPlaces.Clear();
-            _allPlaces.AddRange(results);
-            ApplyFilter();
-        }
-        catch (ApiException ex)
-        {
-            await ShowError(ex.Message);
-        }
-        catch
-        {
-            await ShowError("Could not load places. Pull to refresh to try again.");
-        }
-        finally
-        {
-            IsBusy = false;
-            IsRefreshing = false;
-        }
+            Places = new ObservableCollection<Place>(results);
+            StatusText = results.Count == 0
+                ? string.Empty
+                : UsingLocation ? $"{results.Count} nearby · closest first" : $"{results.Count} places · best rated first (turn on location to sort by distance)";
+        }, "Couldn't load places. Pull down to try again.");
+        IsRefreshing = false;
     }
 
     private async Task<Location?> GetLocationAsync()
@@ -98,30 +92,30 @@ public partial class PlacesViewModel : BaseViewModel
         }
     }
 
-    partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnNearMeChanged(bool value) => _ = LoadAsync();
+    partial void OnOnlyAccessibleChanged(bool value) => _ = LoadAsync();
     partial void OnOnlyBabyChangerChanged(bool value) => _ = LoadAsync();
-    partial void OnOnlyAvailableChanged(bool value) => _ = LoadAsync();
-
-    private void ApplyFilter()
-    {
-        var filtered = string.IsNullOrWhiteSpace(SearchText)
-            ? _allPlaces
-            : _allPlaces.Where(p =>
-                (p.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (p.Type?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (p.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false));
-
-        Places = new ObservableCollection<Place>(filtered);
-    }
+    partial void OnOnlyFreeChanged(bool value) => _ = LoadAsync();
+    partial void OnOnlyOpenChanged(bool value) => _ = LoadAsync();
 
     [RelayCommand]
-    private async Task GoToDetailAsync(Place? place)
+    private Task SearchAsync() => LoadAsync();
+
+    [RelayCommand] private void ToggleAccessible() => OnlyAccessible = !OnlyAccessible;
+    [RelayCommand] private void ToggleBabyChanger() => OnlyBabyChanger = !OnlyBabyChanger;
+    [RelayCommand] private void ToggleFree() => OnlyFree = !OnlyFree;
+    [RelayCommand] private void ToggleOpen() => OnlyOpen = !OnlyOpen;
+
+    [RelayCommand]
+    private static async Task GoToDetailAsync(Place? place)
     {
         if (place is null) return;
         await Shell.Current.GoToAsync($"{nameof(PlaceDetailPage)}?id={place.Id}");
     }
 
     [RelayCommand]
-    private static Task AddPlaceAsync() => Shell.Current.GoToAsync(nameof(SubmitPlacePage));
+    private async Task AddPlaceAsync()
+    {
+        if (!await EnsureSignedInAsync(_session, "add a place")) return;
+        await Shell.Current.GoToAsync(nameof(SubmitPlacePage));
+    }
 }
