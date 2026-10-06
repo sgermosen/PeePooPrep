@@ -4,6 +4,14 @@ Registro de lo que se hizo en el proyecto, por rondas, con cómo se verificó
 y qué queda pendiente. El detalle técnico de cada cambio está en los mensajes
 de commit; la referencia de la API en [`docs/API.md`](docs/API.md).
 
+## Octubre 2026 — Instrucciones para agentes
+
+- `AGENTS.md`: mapa del repositorio, comandos, convenciones obligatorias
+  (DTOs de entrada, CSP sin estilos ni scripts en línea, invalidar sesiones,
+  borrar fotos, diseño) y lista de verificación antes de terminar.
+- `CLAUDE.md`: importa `AGENTS.md` para Claude Code.
+- Verificado: cada clase, método y ruta que citan existe en el código.
+
 ## Octubre 2026 — "Hacerlo totalmente funcional" (PR #14)
 
 ### Ronda 1 · Diagnóstico y primera corrección
