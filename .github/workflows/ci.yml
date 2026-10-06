@@ -54,3 +54,20 @@ jobs:
       - name: Build (Debug, unsigned)
         working-directory: src/MauiApp/PeePooFinder
         run: dotnet build -f net10.0-android -c Debug -p:AndroidSdkDirectory="$ANDROID_SDK_ROOT"
+
+  docker:
+    name: Docker image build & smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t peepoo src/PeePoo
+
+      - name: Run and check the site and API respond
+        run: |
+          docker run -d --name peepoo -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Development peepoo
+          for i in $(seq 1 60); do curl -fs http://localhost:8080/health && break; sleep 2; done
+          curl -fs http://localhost:8080/ | grep -q "PeePoo"
+          curl -fs "http://localhost:8080/api/places?limit=1" | grep -q '"name"'
+          docker logs peepoo | tail -20

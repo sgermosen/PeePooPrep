@@ -10,6 +10,7 @@ and real reviews. Browse without an account; sign up to contribute.
 | `src/PeePoo` | .NET 10 backend: JSON API **and** the public website (Razor Pages), Clean Architecture (API, Application, Domain, Infrastructure, Persistence) + tests |
 | `src/MauiApp/PeePooFinder` | .NET 10 MAUI mobile app (Android, iOS) |
 | `docs/API.md` | API reference |
+| `CHANGELOG.md` | What was done, how it was verified and what's pending (Spanish) |
 | `store/` | Store listings and screenshots |
 
 ## Run it locally (one command)
