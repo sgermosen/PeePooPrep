@@ -11,6 +11,7 @@ and real reviews. Browse without an account; sign up to contribute.
 | `src/MauiApp/PeePooFinder` | .NET 10 MAUI mobile app (Android, iOS) |
 | `docs/API.md` | API reference |
 | `CHANGELOG.md` | What was done, how it was verified and what's pending (Spanish) |
+| `AGENTS.md` / `CLAUDE.md` | Guide for coding agents: where things are, commands, conventions |
 | `store/` | Store listings and screenshots |
 
 ## Run it locally (one command)
