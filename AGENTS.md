@@ -2,9 +2,10 @@
 
 PeePoo Finder: a community map of restrooms. One .NET 10 backend serves both the
 JSON API and the public website; a .NET MAUI app is the mobile client.
-Human docs: `README.md` (run/config), `CHANGELOG.md` (history, what was verified,
-**open pending items** — read its "Pendiente" section before starting work),
-`docs/API.md` (endpoints), `RELEASING.md` (store builds).
+Human docs: `README.md` (run/config), `CHANGELOG.md` (history and what was verified),
+**`docs/IDEAS-Y-PENDIENTES.md` (open pending items, recommended improvements and
+product ideas, with priority — read it before starting work)**, `docs/API.md`
+(endpoints), `RELEASING.md` (store builds).
 
 ## Where things are
 
@@ -90,6 +91,7 @@ produced only if C# and XAML compile.
 1. `dotnet test` passes (add tests for new handlers; HTTP-level ones in `Tests/Integration`).
 2. For website changes, load the page and check the browser console for CSP errors.
 3. Update `docs/API.md` for endpoint changes and add an entry to `CHANGELOG.md`
-   (what, why, how verified; move items out of "Pendiente" when done).
+   (what, why, how verified). Remove finished items from `docs/IDEAS-Y-PENDIENTES.md`
+   and add new ideas or debts you notice there.
 4. Never commit secrets (`TokenKey`, connection strings, Cloudinary keys); use
    environment variables or user-secrets.
