@@ -4,6 +4,22 @@ Registro de lo que se hizo en el proyecto, por rondas, con cómo se verificó
 y qué queda pendiente. El detalle técnico de cada cambio está en los mensajes
 de commit; la referencia de la API en [`docs/API.md`](docs/API.md).
 
+## Noviembre 2026 — Documento de ideas y pendientes
+
+- `docs/IDEAS-Y-PENDIENTES.md`: reúne todos los pendientes, las mejoras
+  recomendadas y las ideas de producto, con prioridad, esfuerzo y dónde tocar
+  el código. Sustituye la lista que había en la sección "Pendiente".
+- Seguridad: se publicaron dos vulnerabilidades (alta GHSA-846f-f764-76mx y
+  moderada GHSA-2fmv-rv2c-59x7) en `System.Security.Cryptography.Pkcs` 9.0.11,
+  que llega de forma indirecta por `Microsoft.Data.SqlClient`. El CI lo
+  detectó. Se fija la versión corregida 10.0.14 en `Persistence.csproj`.
+  Verificado: el control de paquetes vulnerables pasa, compila sin avisos y
+  pasan los 74 tests.
+- Revisado al escribirlo: no existe recuperación de contraseña, las fotos se
+  guardan con sus metadatos EXIF (que pueden incluir ubicación GPS), las
+  capturas de las tiendas son anteriores al rediseño y "¿Sigue igual?" no
+  limita las confirmaciones por persona.
+
 ## Octubre 2026 — Instrucciones para agentes
 
 - `AGENTS.md`: mapa del repositorio, comandos, convenciones obligatorias
@@ -117,19 +133,9 @@ Hyperlegible (licencia OFL), alojadas en el propio servidor.
   app Android con el SDK real y construcción de la imagen Docker.
 
 ### Pendiente
-Cosas que no se hicieron o no se pudieron comprobar:
-
-- **Probar la app en un teléfono o emulador.** Está compilada, pero nadie la
-  ha usado en un dispositivo real.
-- **iOS** no se compila en el CI (hace falta un runner macOS y certificados;
-  ver `RELEASING.md`).
-- **Idioma de la app:** la app está en inglés y la web en español. Traducirla
-  es el siguiente paso natural.
-- **Editar un lugar desde la app:** la API lo permite (`PUT /api/places/{id}`)
-  pero la app solo deja abrir/cerrar o borrar. Hoy se edita por la API.
-- **Avatares:** se quitó la foto de perfil porque estaba rota (usaba fotos de
-  lugares). La app muestra la inicial del nombre.
-- **Configuración de producción** (ver abajo).
+Los pendientes, mejoras e ideas están en
+[`docs/IDEAS-Y-PENDIENTES.md`](docs/IDEAS-Y-PENDIENTES.md), con prioridad y
+esfuerzo estimado.
 
 ### Lista para el deploy
 1. `TokenKey`: valor aleatorio de 32+ caracteres (obligatorio).
