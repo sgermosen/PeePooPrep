@@ -9,6 +9,12 @@ de commit; la referencia de la API en [`docs/API.md`](docs/API.md).
 - `docs/IDEAS-Y-PENDIENTES.md`: reúne todos los pendientes, las mejoras
   recomendadas y las ideas de producto, con prioridad, esfuerzo y dónde tocar
   el código. Sustituye la lista que había en la sección "Pendiente".
+- Seguridad: se publicaron dos vulnerabilidades (alta GHSA-846f-f764-76mx y
+  moderada GHSA-2fmv-rv2c-59x7) en `System.Security.Cryptography.Pkcs` 9.0.11,
+  que llega de forma indirecta por `Microsoft.Data.SqlClient`. El CI lo
+  detectó. Se fija la versión corregida 10.0.14 en `Persistence.csproj`.
+  Verificado: el control de paquetes vulnerables pasa, compila sin avisos y
+  pasan los 74 tests.
 - Revisado al escribirlo: no existe recuperación de contraseña, las fotos se
   guardan con sus metadatos EXIF (que pueden incluir ubicación GPS), las
   capturas de las tiendas son anteriores al rediseño y "¿Sigue igual?" no

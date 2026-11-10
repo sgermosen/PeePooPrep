@@ -34,6 +34,7 @@ Cada punto dice por qué importa y dónde tocar el código.
 | 🟢 | Tokens más cortos con renovación | M | Hoy el token dura 14 días (`Jwt:LifetimeDays`). Con *refresh tokens* se puede bajar a minutos sin obligar a iniciar sesión otra vez. |
 | 🟢 | Registro de acciones de moderación | S | Guardar quién borró, restauró o suspendió qué y cuándo, para poder revisarlo después. |
 | 🟢 | Umbral de ocultado configurable | S | Hoy son 3 reportes fijos (`CreateReport.AutoHideThreshold`); pasarlo a configuración. |
+| 🟢 | Quitar el ajuste de `Pkcs` | S | `Persistence.csproj` fija `System.Security.Cryptography.Pkcs` 10.0.14 porque `Microsoft.Data.SqlClient` todavía trae la 9.0.11, que es vulnerable. Cuando una versión nueva de EF Core / SqlClient ya traiga la corregida, borrar esa línea (el CI avisará si vuelve a hacer falta). |
 | 🟢 | Escaneo de seguridad en CI | S | Dependabot para NuGet y GitHub Actions; un escaneo OWASP ZAP contra la imagen Docker del CI; `report-uri` en la CSP para enterarse de bloqueos. |
 
 ### Rendimiento y escala
